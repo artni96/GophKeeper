@@ -1,7 +1,13 @@
 package config
 
 import (
+	"errors"
+	"fmt"
+
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/jmoiron/sqlx"
 )
 
 //func (cfg *Config) InitDBConn(ctx context.Context) (*sqlx.DB, error) {
@@ -33,24 +39,24 @@ import (
 //	return db, nil
 //}
 
-//func runMigrations(db *sqlx.DB) error {
-//	driver, err := postgres.WithInstance(db.DB, &postgres.Config{})
-//	if err != nil {
-//		return fmt.Errorf("failed to initialize postgres driver: %w", err)
-//	}
-//
-//	migrator, err := migrate.NewWithDatabaseInstance(
-//		"file://migrations",
-//		"postgres",
-//		driver,
-//	)
-//	if err != nil {
-//		return fmt.Errorf("failed to initialize migrator: %w", err)
-//	}
-//
-//	if err := migrator.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
-//		return fmt.Errorf("failed to apply migrations: %w", err)
-//	}
-//
-//	return nil
-//}
+func runMigrations(db *sqlx.DB) error {
+	driver, err := postgres.WithInstance(db.DB, &postgres.Config{})
+	if err != nil {
+		return fmt.Errorf("failed to initialize postgres driver: %w", err)
+	}
+
+	migrator, err := migrate.NewWithDatabaseInstance(
+		"file://migrations",
+		"postgres",
+		driver,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to initialize migrator: %w", err)
+	}
+
+	if err := migrator.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
+		return fmt.Errorf("failed to apply migrations: %w", err)
+	}
+
+	return nil
+}

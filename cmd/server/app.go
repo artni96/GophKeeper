@@ -14,6 +14,8 @@ import (
 	"github.com/artni96/GophKeeper/internal/facade"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
+
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
 // run initializes and starts the app.

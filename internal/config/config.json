@@ -3,8 +3,8 @@
 
   "db_host": "localhost",
   "db_port": 5432,
-  "db_user": "postgres",
-  "db_password": "postgres",
+  "db_user": "gk",
+  "db_password": "12345",
   "db_name": "gophkeeper",
 
   "secret_key": "do not share me",

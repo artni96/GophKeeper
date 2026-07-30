@@ -2,6 +2,7 @@ package facade
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -9,6 +10,8 @@ import (
 	"github.com/artni96/GophKeeper/internal/config"
 	applog "github.com/artni96/GophKeeper/internal/logger"
 	"github.com/artni96/GophKeeper/internal/server"
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
@@ -64,6 +67,29 @@ func (a *App) initDBConn(ctx context.Context) error {
 	}
 	a.DB = db
 	a.Logger.Info("database connection initialized successfully")
+	return nil
+}
+
+// applyMigrations updates the atabase up to the latest migration file.
+func (a *App) applyMigrations() error {
+	driver, err := postgres.WithInstance(a.DB.DB, &postgres.Config{})
+	if err != nil {
+		return fmt.Errorf("failed to initialize postgres driver: %w", err)
+	}
+
+	migrator, err := migrate.NewWithDatabaseInstance(
+		"file://migrations",
+		"postgres",
+		driver,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to initialize migrator: %w", err)
+	}
+
+	if err = migrator.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
+		return fmt.Errorf("failed to apply migrations: %w", err)
+	}
+	a.Logger.Info("migrations applied successfully")
 	return nil
 }
 
@@ -148,14 +174,12 @@ func (a *App) Launch(ctx context.Context) error {
 		a.Logger.Error("failed to initialize database connection", zap.Error(err))
 		return err
 	}
-	a.eg.Go(func() error {
-		err = a.CloseDBConn()
-		if err != nil {
-			a.Logger.Error("failed to close database connection", zap.Error(err))
-			return err
-		}
-		return nil
-	})
+
+	err = a.applyMigrations()
+	if err != nil {
+		a.Logger.Error("failed to apply migrations", zap.Error(err))
+		return err
+	}
 
 	err = a.launchServer()
 	if err != nil {
