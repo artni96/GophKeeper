@@ -1,5 +1,5 @@
 {
-  "server_addr": "localhost:8080",
+  "server_addr": "localhost:3200",
 
   "db_host": "localhost",
   "db_port": 5432,

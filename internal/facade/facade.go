@@ -9,7 +9,9 @@ import (
 
 	"github.com/artni96/GophKeeper/internal/config"
 	applog "github.com/artni96/GophKeeper/internal/logger"
+	userrepo "github.com/artni96/GophKeeper/internal/repository/user"
 	"github.com/artni96/GophKeeper/internal/server"
+	userserv "github.com/artni96/GophKeeper/internal/service/user"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/jmoiron/sqlx"
@@ -21,11 +23,12 @@ import (
 
 // App is the facade for the app with all dependencies.
 type App struct {
-	eg     *errgroup.Group
-	Cfg    *config.Config
-	DB     *sqlx.DB
-	Logger *zap.Logger
-	server server.GRPCServer
+	eg          *errgroup.Group
+	Cfg         *config.Config
+	DB          *sqlx.DB
+	Logger      *zap.Logger
+	server      server.GRPCServer
+	userService *userserv.Service
 }
 
 // NewApp initializes and returns a new instance of App.
@@ -102,9 +105,20 @@ func (a *App) CloseDBConn() error {
 	return nil
 }
 
+// initDependencies initializes all necessary dependencies - repositories and services.
+func (a *App) initDependencies() error {
+	userRepository, err := userrepo.NewRepository(a.DB, a.Logger)
+	if err != nil {
+		a.Logger.Error("failed to initialize user repository", zap.Error(err))
+		return fmt.Errorf("failed to initialize user repository: %w", err)
+	}
+	a.userService = userserv.NewService(a.Cfg, a.Logger, userRepository)
+	return nil
+}
+
 // initServer initializes a new gRPC server instance.
 func (a *App) initServer() error {
-	newServer := server.NewGRPCServer(a.Cfg, a.Logger)
+	newServer := server.NewGRPCServer(a.Cfg, a.Logger, a.userService)
 	err := newServer.Init()
 	if err != nil {
 		return fmt.Errorf("failed to initialize gRPC server: %w", err)
@@ -181,6 +195,12 @@ func (a *App) Launch(ctx context.Context) error {
 		return err
 	}
 
+	err = a.initDependencies()
+	if err != nil {
+		a.Logger.Error("failed to initialize app dependencies", zap.Error(err))
+		return err
+	}
+
 	err = a.launchServer()
 	if err != nil {
 		a.Logger.Error("failed to launch server", zap.Error(err))
@@ -197,10 +217,8 @@ func (a *App) configStdout() string {
 	resp += fmt.Sprintf("	ServerAddr: %s\n", a.Cfg.ServerAddr)
 	resp += fmt.Sprintf("	Database name: %s\n", a.Cfg.DBName)
 	resp += fmt.Sprintf("	Token expiration period: %f minutes\n", a.Cfg.TokenExp.Minutes())
+	resp += fmt.Sprintf("	TCP is enabled: %t\n", a.Cfg.EnableTCP)
 
-	if a.Cfg.EnableTCP {
-		resp += fmt.Sprintf("	TCP is enabled: %t\n", a.Cfg.EnableTCP)
-	}
 	if a.Cfg.CertFile != "" {
 		resp += fmt.Sprintf("	TLS certificate is set: %t\n", a.Cfg.CertFile != "")
 	}

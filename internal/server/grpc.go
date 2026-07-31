@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"net"
 
+	userspb "github.com/artni96/GophKeeper/api/proto/users"
 	"github.com/artni96/GophKeeper/internal/config"
+	"github.com/artni96/GophKeeper/internal/handler"
 	"github.com/artni96/GophKeeper/internal/interceptors"
+	"github.com/artni96/GophKeeper/internal/service/user"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -13,10 +16,12 @@ import (
 
 // GRPCServer represents gRPC server structure for its initialization.
 type GRPCServer struct {
-	cfg    *config.Config
-	logger *zap.Logger
-	server *grpc.Server
-	creds  credentials.TransportCredentials
+	cfg         *config.Config
+	logger      *zap.Logger
+	server      *grpc.Server
+	userHandler *handler.UserHandler
+	creds       credentials.TransportCredentials
+	userService *user.Service
 }
 
 // Init initializes a new grpc server instance.
@@ -65,6 +70,9 @@ func (s *GRPCServer) Launch() error {
 	if err != nil {
 		return fmt.Errorf("failed to announce on the local network address.: %w", err)
 	}
+	
+	userHandler := handler.NewUserHandler(s.userService, s.logger)
+	userspb.RegisterUserServiceServer(s.server, userHandler)
 
 	if err = s.server.Serve(listen); err != nil {
 		return fmt.Errorf("failed to launch gRPC server: %w", err)
@@ -78,11 +86,10 @@ func (s *GRPCServer) Stop() {
 }
 
 // NewGRPCServer returns a new gRPC server instance.
-func NewGRPCServer(cfg *config.Config, logger *zap.Logger) *GRPCServer {
+func NewGRPCServer(cfg *config.Config, logger *zap.Logger, userService *user.Service) *GRPCServer {
 	return &GRPCServer{
-		cfg:    cfg,
-		logger: logger,
-		//urlService:  urlService,
-		//userService: userService,
+		cfg:         cfg,
+		logger:      logger,
+		userService: userService,
 	}
 }
