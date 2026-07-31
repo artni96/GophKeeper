@@ -83,7 +83,7 @@ func (s *Service) Login(ctx context.Context, entity model.LoginRequest) (string,
 	return token, nil
 }
 
-// hashPassword hashes a plain password by bcrypt package.
+// hashPassword hashes a plain password by bcrypt.
 func (s *Service) hashPassword(password string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
 	if err != nil {
@@ -92,13 +92,13 @@ func (s *Service) hashPassword(password string) (string, error) {
 	return string(hash), nil
 }
 
-// Claims represents claims for a new JWT token.
+// Claims represents claims for the JWT token.
 type Claims struct {
 	jwt.RegisteredClaims
 	UserID uuid.UUID
 }
 
-// BuildJWTString creates a JWT token by user ID.
+// BuildJWTString creates a JWT token by user's ID.
 func (s *Service) BuildJWTString(userID uuid.UUID, cfg *config.Config) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -111,4 +111,23 @@ func (s *Service) BuildJWTString(userID uuid.UUID, cfg *config.Config) (string, 
 		return "", fmt.Errorf("failed to sign token: %v", err)
 	}
 	return tokenString, nil
+}
+
+// GetUserIDFromJWT extracts the user ID from the JWT token.
+func GetUserIDFromJWT(tokenString string, cfg *config.Config) uuid.UUID {
+	claims := &Claims{}
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(cfg.SecretKey), nil
+	})
+	if err != nil {
+		return uuid.Nil
+	}
+
+	if !token.Valid {
+		return uuid.Nil
+	}
+	return claims.UserID
 }
