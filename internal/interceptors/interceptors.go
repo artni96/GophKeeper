@@ -87,3 +87,9 @@ func AuthInterceptor(cfg *config.Config, logger *zap.Logger) grpc.UnaryServerInt
 		return handler(ctx, req)
 	}
 }
+
+// GetUserIDFromContext extracts the User ID from the context.
+func GetUserIDFromContext(ctx context.Context) (uuid.UUID, bool) {
+	userID, ok := ctx.Value(userIDKey{}).(uuid.UUID)
+	return userID, ok
+}

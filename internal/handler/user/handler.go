@@ -1,11 +1,11 @@
-package handler
+package user
 
 import (
 	"context"
 	"errors"
 
 	pb "github.com/artni96/GophKeeper/api/proto/users"
-	"github.com/artni96/GophKeeper/internal/model"
+	"github.com/artni96/GophKeeper/internal/model/user"
 	userrepo "github.com/artni96/GophKeeper/internal/repository/user"
 	userserv "github.com/artni96/GophKeeper/internal/service/user"
 	"go.uber.org/zap"
@@ -13,22 +13,25 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type UserHandler struct {
+// Handler represents the User handler instance.
+type Handler struct {
 	pb.UnimplementedUserServiceServer
 	UserService userserv.ServiceI
 	Logger      *zap.Logger
 }
 
-func NewUserHandler(userService userserv.ServiceI, logger *zap.Logger) *UserHandler {
-	return &UserHandler{
+// NewHandler initializes and returns the User Handler instance.
+func NewHandler(userService userserv.ServiceI, logger *zap.Logger) *Handler {
+	return &Handler{
 		UserService: userService,
 		Logger:      logger,
 	}
 }
 
-func (h *UserHandler) CreateUser(ctx context.Context, req *pb.UserCreateRequest) (*pb.UserCreateResponse, error) {
+// CreateUser is a handler to create a new User entity.
+func (h *Handler) CreateUser(ctx context.Context, req *pb.UserCreateRequest) (*pb.UserCreateResponse, error) {
 	resp := &pb.UserCreateResponse{}
-	userToCreate := model.UserCreateRequest{
+	userToCreate := user.UserCreateRequest{
 		Username: req.GetUsername(),
 		Password: req.GetPassword(),
 	}
@@ -44,9 +47,10 @@ func (h *UserHandler) CreateUser(ctx context.Context, req *pb.UserCreateRequest)
 	return resp, nil
 }
 
-func (h *UserHandler) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResponse, error) {
+// Login is a handler to provide the user-authorization flow.
+func (h *Handler) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResponse, error) {
 	resp := &pb.LoginResponse{}
-	loginData := model.LoginRequest{
+	loginData := user.LoginRequest{
 		Username: req.GetUsername(),
 		Password: req.GetPassword(),
 	}

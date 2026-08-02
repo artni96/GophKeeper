@@ -1,0 +1,36 @@
+edition = "2023";
+
+package logins;
+
+option go_package = "github.com/artni96/GophKeeper/api/proto/logins";
+
+service LoginService {
+  rpc CreateLogin (LoginCreateRequest) returns (LoginCreateResponse);
+  rpc GetLogin (LoginGetRequest) returns (LoginGetResponse);
+}
+
+message LoginCreateRequest {
+  string title = 1;
+  string url = 2;
+  string description = 3;
+  string login = 4;
+  string password = 5;
+}
+
+message LoginCreateResponse {
+}
+
+message LoginGetRequest {
+  int64 number = 1;
+}
+
+message LoginGetResponse {
+  string title = 1;
+  int64 number = 2;
+  string url = 3;
+  string description = 4;
+  string login = 5;
+  string password = 6;
+  string created_at = 7;
+  string updated_at = 8;
+}

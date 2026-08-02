@@ -4,10 +4,13 @@ import (
 	"fmt"
 	"net"
 
+	loginspb "github.com/artni96/GophKeeper/api/proto/logins"
 	userspb "github.com/artni96/GophKeeper/api/proto/users"
 	"github.com/artni96/GophKeeper/internal/config"
-	"github.com/artni96/GophKeeper/internal/handler"
+	loginhandler "github.com/artni96/GophKeeper/internal/handler/login"
+	userhandler "github.com/artni96/GophKeeper/internal/handler/user"
 	"github.com/artni96/GophKeeper/internal/interceptors"
+	"github.com/artni96/GophKeeper/internal/service/login"
 	"github.com/artni96/GophKeeper/internal/service/user"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -16,12 +19,16 @@ import (
 
 // GRPCServer represents gRPC server structure for its initialization.
 type GRPCServer struct {
-	cfg         *config.Config
-	logger      *zap.Logger
-	server      *grpc.Server
-	userHandler *handler.UserHandler
+	cfg    *config.Config
+	logger *zap.Logger
+	server *grpc.Server
+
 	creds       credentials.TransportCredentials
 	userService *user.Service
+	userHandler *userhandler.Handler
+
+	loginService *login.Service
+	loginHandler *loginhandler.Handler
 }
 
 // Init initializes a new grpc server instance.
@@ -36,7 +43,7 @@ func (s *GRPCServer) Init() error {
 			grpc.Creds(s.creds),
 			grpc.ChainUnaryInterceptor(
 				interceptors.RequestLoggerInterceptor(s.logger),
-				//interceptors.AuthInterceptor(s.cfg, s.logger),
+				interceptors.AuthInterceptor(s.cfg, s.logger),
 				interceptors.PanicInterceptor(s.logger),
 			),
 		)
@@ -46,7 +53,7 @@ func (s *GRPCServer) Init() error {
 	s.server = grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			interceptors.RequestLoggerInterceptor(s.logger),
-			//interceptors.AuthInterceptor(s.cfg, s.logger),
+			interceptors.AuthInterceptor(s.cfg, s.logger),
 			interceptors.PanicInterceptor(s.logger),
 		),
 	)
@@ -70,9 +77,12 @@ func (s *GRPCServer) Launch() error {
 	if err != nil {
 		return fmt.Errorf("failed to announce on the local network address.: %w", err)
 	}
-	
-	userHandler := handler.NewUserHandler(s.userService, s.logger)
+
+	userHandler := userhandler.NewHandler(s.userService, s.logger)
 	userspb.RegisterUserServiceServer(s.server, userHandler)
+
+	loginHandler := loginhandler.NewHandler(s.loginService, s.logger)
+	loginspb.RegisterLoginServiceServer(s.server, loginHandler)
 
 	if err = s.server.Serve(listen); err != nil {
 		return fmt.Errorf("failed to launch gRPC server: %w", err)
@@ -86,10 +96,11 @@ func (s *GRPCServer) Stop() {
 }
 
 // NewGRPCServer returns a new gRPC server instance.
-func NewGRPCServer(cfg *config.Config, logger *zap.Logger, userService *user.Service) *GRPCServer {
+func NewGRPCServer(cfg *config.Config, logger *zap.Logger, userService *user.Service, loginService *login.Service) *GRPCServer {
 	return &GRPCServer{
-		cfg:         cfg,
-		logger:      logger,
-		userService: userService,
+		cfg:          cfg,
+		logger:       logger,
+		userService:  userService,
+		loginService: loginService,
 	}
 }

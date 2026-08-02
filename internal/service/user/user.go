@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/artni96/GophKeeper/internal/config"
-	"github.com/artni96/GophKeeper/internal/model"
+	usermodel "github.com/artni96/GophKeeper/internal/model/user"
 	"github.com/artni96/GophKeeper/internal/repository/user"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
@@ -19,8 +19,8 @@ var ErrWrongUserOrPassword = errors.New("wrong user or password")
 
 // ServiceI implements User service interface.
 type ServiceI interface {
-	Create(ctx context.Context, entity model.UserCreateRequest) error
-	Login(ctx context.Context, entity model.LoginRequest) (string, error)
+	Create(ctx context.Context, entity usermodel.UserCreateRequest) error
+	Login(ctx context.Context, entity usermodel.LoginRequest) (string, error)
 }
 
 // Service implements the User service business logic.
@@ -40,14 +40,14 @@ func NewService(cfg *config.Config, logger *zap.Logger, repo user.RepositoryI) *
 }
 
 // Create creates a new User entity.
-func (s *Service) Create(ctx context.Context, entity model.UserCreateRequest) error {
+func (s *Service) Create(ctx context.Context, entity usermodel.UserCreateRequest) error {
 	hashedPassword, err := s.hashPassword(entity.Password)
 	if err != nil {
 		s.logger.Info("failed to hash password", zap.Error(err))
 		return err
 	}
 
-	userToCreate := model.UserCreate{
+	userToCreate := usermodel.UserCreate{
 		Username:       entity.Username,
 		HashedPassword: hashedPassword,
 	}
@@ -59,7 +59,7 @@ func (s *Service) Create(ctx context.Context, entity model.UserCreateRequest) er
 }
 
 // Login returns a jwt token for a user.
-func (s *Service) Login(ctx context.Context, entity model.LoginRequest) (string, error) {
+func (s *Service) Login(ctx context.Context, entity usermodel.LoginRequest) (string, error) {
 	userData, err := s.repo.GetByUsername(ctx, entity.Username)
 	if err != nil {
 		return "", err

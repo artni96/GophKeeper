@@ -9,9 +9,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/artni96/GophKeeper/internal/app"
 	"github.com/artni96/GophKeeper/internal/config"
 	"github.com/artni96/GophKeeper/internal/constants"
-	"github.com/artni96/GophKeeper/internal/facade"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 
@@ -26,42 +26,42 @@ func run(ctx context.Context, cfg *config.Config) error {
 	sig, stop := signal.NotifyContext(ctx, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
 	defer stop()
 
-	app := facade.NewApp(eg, cfg)
+	appInstance := app.NewApp(eg, cfg)
 
-	err := app.Launch(ctx)
+	err := appInstance.Launch(ctx)
 	if err != nil {
 		return err
 	}
 
 	<-sig.Done()
-	app.Logger.Info("shutting down signal received")
+	appInstance.Logger.Info("shutting down signal received")
 
 	gfCtx, gfCancel := context.WithTimeout(ctx, cfg.GPeriod)
 	defer gfCancel()
 
-	app.Stop(gfCtx, gfCancel, isClosedChan)
+	appInstance.Stop(gfCtx, gfCancel, isClosedChan)
 
 	eg.Go(func() error {
 		select {
 		case <-isClosedChan:
-			app.Logger.Info("the app stopped gracefully")
+			appInstance.Logger.Info("the app stopped gracefully")
 
 		case <-gfCtx.Done():
-			app.Logger.Info("graceful period expired")
+			appInstance.Logger.Info("graceful period expired")
 
-			app.Logger.Info(fmt.Sprintf("the app will be stopped forcefully in %v sec", app.Cfg.FPeriod))
-			ffCtx, ffCancel := context.WithTimeout(ctx, app.Cfg.FPeriod)
+			appInstance.Logger.Info(fmt.Sprintf("the app will be stopped forcefully in %v sec", appInstance.Cfg.FPeriod))
+			ffCtx, ffCancel := context.WithTimeout(ctx, appInstance.Cfg.FPeriod)
 			defer ffCancel()
 
-			go ffCountdown(ffCtx, app.Logger, isClosedChan)
+			go ffCountdown(ffCtx, appInstance.Logger, isClosedChan)
 
 			select {
 			case <-ffCtx.Done():
-				app.Logger.Info("the app stopped forcefully")
+				appInstance.Logger.Info("the app stopped forcefully")
 				os.Exit(0)
 			case _, ok := <-isClosedChan:
 				if !ok {
-					app.Logger.Info("the app stopped during the forceful period")
+					appInstance.Logger.Info("the app stopped during the forceful period")
 					ffCancel()
 				}
 			}

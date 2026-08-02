@@ -1,4 +1,4 @@
-package facade
+package app
 
 import (
 	"context"
@@ -9,8 +9,10 @@ import (
 
 	"github.com/artni96/GophKeeper/internal/config"
 	applog "github.com/artni96/GophKeeper/internal/logger"
+	loginrepo "github.com/artni96/GophKeeper/internal/repository/login"
 	userrepo "github.com/artni96/GophKeeper/internal/repository/user"
 	"github.com/artni96/GophKeeper/internal/server"
+	loginserv "github.com/artni96/GophKeeper/internal/service/login"
 	userserv "github.com/artni96/GophKeeper/internal/service/user"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
@@ -21,14 +23,15 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
-// App is the facade for the app with all dependencies.
+// App is the app for the app with all dependencies.
 type App struct {
-	eg          *errgroup.Group
-	Cfg         *config.Config
-	DB          *sqlx.DB
-	Logger      *zap.Logger
-	server      server.GRPCServer
-	userService *userserv.Service
+	eg           *errgroup.Group
+	Cfg          *config.Config
+	DB           *sqlx.DB
+	Logger       *zap.Logger
+	server       server.GRPCServer
+	userService  *userserv.Service
+	loginService *loginserv.Service
 }
 
 // NewApp initializes and returns a new instance of App.
@@ -50,7 +53,7 @@ func (a *App) initLogger() error {
 	return nil
 }
 
-// initDBConn initializes a database connection according to the facade config.
+// initDBConn initializes a database connection according to the app config.
 func (a *App) initDBConn(ctx context.Context) error {
 	if a.Cfg.DBDsn == "" {
 		return fmt.Errorf("database dsn is not provided")
@@ -113,12 +116,19 @@ func (a *App) initDependencies() error {
 		return fmt.Errorf("failed to initialize user repository: %w", err)
 	}
 	a.userService = userserv.NewService(a.Cfg, a.Logger, userRepository)
+
+	loginRepository, err := loginrepo.NewRepository(a.DB, a.Logger)
+	if err != nil {
+		a.Logger.Error("failed to initialize login repository", zap.Error(err))
+		return fmt.Errorf("failed to initialize login repository: %w", err)
+	}
+	a.loginService = loginserv.NewService(a.Cfg, a.Logger, loginRepository)
 	return nil
 }
 
 // initServer initializes a new gRPC server instance.
 func (a *App) initServer() error {
-	newServer := server.NewGRPCServer(a.Cfg, a.Logger, a.userService)
+	newServer := server.NewGRPCServer(a.Cfg, a.Logger, a.userService, a.loginService)
 	err := newServer.Init()
 	if err != nil {
 		return fmt.Errorf("failed to initialize gRPC server: %w", err)
@@ -211,6 +221,7 @@ func (a *App) Launch(ctx context.Context) error {
 	return nil
 }
 
+// configStdout builds
 func (a *App) configStdout() string {
 	var resp string
 	resp += fmt.Sprintf("\n\nApp config:\n")
