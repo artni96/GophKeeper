@@ -19,8 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	LoginService_CreateLogin_FullMethodName = "/logins.LoginService/CreateLogin"
-	LoginService_GetLogin_FullMethodName    = "/logins.LoginService/GetLogin"
+	LoginService_CreateLogin_FullMethodName  = "/logins.LoginService/CreateLogin"
+	LoginService_GetLogin_FullMethodName     = "/logins.LoginService/GetLogin"
+	LoginService_UpdateLogin_FullMethodName  = "/logins.LoginService/UpdateLogin"
+	LoginService_DeleteLogin_FullMethodName  = "/logins.LoginService/DeleteLogin"
+	LoginService_GetListLogin_FullMethodName = "/logins.LoginService/GetListLogin"
 )
 
 // LoginServiceClient is the client API for LoginService service.
@@ -29,6 +32,9 @@ const (
 type LoginServiceClient interface {
 	CreateLogin(ctx context.Context, in *LoginCreateRequest, opts ...grpc.CallOption) (*LoginCreateResponse, error)
 	GetLogin(ctx context.Context, in *LoginGetRequest, opts ...grpc.CallOption) (*LoginGetResponse, error)
+	UpdateLogin(ctx context.Context, in *LoginUpdateRequest, opts ...grpc.CallOption) (*LoginUpdateResponse, error)
+	DeleteLogin(ctx context.Context, in *LoginDeleteRequest, opts ...grpc.CallOption) (*LoginDeleteResponse, error)
+	GetListLogin(ctx context.Context, in *LoginGetListRequest, opts ...grpc.CallOption) (*LoginGetListResponse, error)
 }
 
 type loginServiceClient struct {
@@ -59,12 +65,45 @@ func (c *loginServiceClient) GetLogin(ctx context.Context, in *LoginGetRequest, 
 	return out, nil
 }
 
+func (c *loginServiceClient) UpdateLogin(ctx context.Context, in *LoginUpdateRequest, opts ...grpc.CallOption) (*LoginUpdateResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(LoginUpdateResponse)
+	err := c.cc.Invoke(ctx, LoginService_UpdateLogin_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *loginServiceClient) DeleteLogin(ctx context.Context, in *LoginDeleteRequest, opts ...grpc.CallOption) (*LoginDeleteResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(LoginDeleteResponse)
+	err := c.cc.Invoke(ctx, LoginService_DeleteLogin_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *loginServiceClient) GetListLogin(ctx context.Context, in *LoginGetListRequest, opts ...grpc.CallOption) (*LoginGetListResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(LoginGetListResponse)
+	err := c.cc.Invoke(ctx, LoginService_GetListLogin_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // LoginServiceServer is the server API for LoginService service.
 // All implementations must embed UnimplementedLoginServiceServer
 // for forward compatibility.
 type LoginServiceServer interface {
 	CreateLogin(context.Context, *LoginCreateRequest) (*LoginCreateResponse, error)
 	GetLogin(context.Context, *LoginGetRequest) (*LoginGetResponse, error)
+	UpdateLogin(context.Context, *LoginUpdateRequest) (*LoginUpdateResponse, error)
+	DeleteLogin(context.Context, *LoginDeleteRequest) (*LoginDeleteResponse, error)
+	GetListLogin(context.Context, *LoginGetListRequest) (*LoginGetListResponse, error)
 	mustEmbedUnimplementedLoginServiceServer()
 }
 
@@ -80,6 +119,15 @@ func (UnimplementedLoginServiceServer) CreateLogin(context.Context, *LoginCreate
 }
 func (UnimplementedLoginServiceServer) GetLogin(context.Context, *LoginGetRequest) (*LoginGetResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetLogin not implemented")
+}
+func (UnimplementedLoginServiceServer) UpdateLogin(context.Context, *LoginUpdateRequest) (*LoginUpdateResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateLogin not implemented")
+}
+func (UnimplementedLoginServiceServer) DeleteLogin(context.Context, *LoginDeleteRequest) (*LoginDeleteResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteLogin not implemented")
+}
+func (UnimplementedLoginServiceServer) GetListLogin(context.Context, *LoginGetListRequest) (*LoginGetListResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetListLogin not implemented")
 }
 func (UnimplementedLoginServiceServer) mustEmbedUnimplementedLoginServiceServer() {}
 func (UnimplementedLoginServiceServer) testEmbeddedByValue()                      {}
@@ -138,6 +186,60 @@ func _LoginService_GetLogin_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _LoginService_UpdateLogin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LoginUpdateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LoginServiceServer).UpdateLogin(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: LoginService_UpdateLogin_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LoginServiceServer).UpdateLogin(ctx, req.(*LoginUpdateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _LoginService_DeleteLogin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LoginDeleteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LoginServiceServer).DeleteLogin(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: LoginService_DeleteLogin_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LoginServiceServer).DeleteLogin(ctx, req.(*LoginDeleteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _LoginService_GetListLogin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LoginGetListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LoginServiceServer).GetListLogin(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: LoginService_GetListLogin_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LoginServiceServer).GetListLogin(ctx, req.(*LoginGetListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // LoginService_ServiceDesc is the grpc.ServiceDesc for LoginService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -152,6 +254,18 @@ var LoginService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetLogin",
 			Handler:    _LoginService_GetLogin_Handler,
+		},
+		{
+			MethodName: "UpdateLogin",
+			Handler:    _LoginService_UpdateLogin_Handler,
+		},
+		{
+			MethodName: "DeleteLogin",
+			Handler:    _LoginService_DeleteLogin_Handler,
+		},
+		{
+			MethodName: "GetListLogin",
+			Handler:    _LoginService_GetListLogin_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

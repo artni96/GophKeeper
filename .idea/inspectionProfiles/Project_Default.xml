@@ -5,6 +5,7 @@
       <functions>
         <function importPath="github.com/jmoiron/sqlx" name="Open" />
         <function importPath="net" name="Listen" />
+        <function importPath="github.com/golang-migrate/migrate/database/postgres" name="WithInstance" />
       </functions>
     </inspection_tool>
     <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">

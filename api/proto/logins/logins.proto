@@ -7,6 +7,9 @@ option go_package = "github.com/artni96/GophKeeper/api/proto/logins";
 service LoginService {
   rpc CreateLogin (LoginCreateRequest) returns (LoginCreateResponse);
   rpc GetLogin (LoginGetRequest) returns (LoginGetResponse);
+  rpc UpdateLogin (LoginUpdateRequest) returns (LoginUpdateResponse);
+  rpc DeleteLogin (LoginDeleteRequest) returns (LoginDeleteResponse);
+  rpc GetListLogin (LoginGetListRequest) returns (LoginGetListResponse);
 }
 
 message LoginCreateRequest {
@@ -33,4 +36,36 @@ message LoginGetResponse {
   string password = 6;
   string created_at = 7;
   string updated_at = 8;
+}
+
+message LoginUpdateRequest {
+  string title = 1;
+  int64 number = 2;
+  string url = 3;
+  string description = 4;
+  string login = 5;
+  string password = 6;
+}
+
+message LoginUpdateResponse {
+}
+
+message LoginDeleteRequest {
+  int64 number = 1;
+}
+
+message LoginDeleteResponse {
+}
+
+message LoginGetListRequest {
+}
+
+message LoginGetListResponse {
+  repeated LoginGetListItemResponse logins = 1;
+}
+
+message LoginGetListItemResponse {
+  string title = 1;
+  int64 number = 2;
+  string description = 3;
 }

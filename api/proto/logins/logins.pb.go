@@ -654,6 +654,650 @@ func (b0 LoginGetResponse_builder) Build() *LoginGetResponse {
 	return m0
 }
 
+type LoginUpdateRequest struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Title       *string                `protobuf:"bytes,1,opt,name=title"`
+	xxx_hidden_Number      int64                  `protobuf:"varint,2,opt,name=number"`
+	xxx_hidden_Url         *string                `protobuf:"bytes,3,opt,name=url"`
+	xxx_hidden_Description *string                `protobuf:"bytes,4,opt,name=description"`
+	xxx_hidden_Login       *string                `protobuf:"bytes,5,opt,name=login"`
+	xxx_hidden_Password    *string                `protobuf:"bytes,6,opt,name=password"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *LoginUpdateRequest) Reset() {
+	*x = LoginUpdateRequest{}
+	mi := &file_api_proto_logins_logins_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LoginUpdateRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LoginUpdateRequest) ProtoMessage() {}
+
+func (x *LoginUpdateRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_logins_logins_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *LoginUpdateRequest) GetTitle() string {
+	if x != nil {
+		if x.xxx_hidden_Title != nil {
+			return *x.xxx_hidden_Title
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *LoginUpdateRequest) GetNumber() int64 {
+	if x != nil {
+		return x.xxx_hidden_Number
+	}
+	return 0
+}
+
+func (x *LoginUpdateRequest) GetUrl() string {
+	if x != nil {
+		if x.xxx_hidden_Url != nil {
+			return *x.xxx_hidden_Url
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *LoginUpdateRequest) GetDescription() string {
+	if x != nil {
+		if x.xxx_hidden_Description != nil {
+			return *x.xxx_hidden_Description
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *LoginUpdateRequest) GetLogin() string {
+	if x != nil {
+		if x.xxx_hidden_Login != nil {
+			return *x.xxx_hidden_Login
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *LoginUpdateRequest) GetPassword() string {
+	if x != nil {
+		if x.xxx_hidden_Password != nil {
+			return *x.xxx_hidden_Password
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *LoginUpdateRequest) SetTitle(v string) {
+	x.xxx_hidden_Title = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 6)
+}
+
+func (x *LoginUpdateRequest) SetNumber(v int64) {
+	x.xxx_hidden_Number = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 6)
+}
+
+func (x *LoginUpdateRequest) SetUrl(v string) {
+	x.xxx_hidden_Url = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 6)
+}
+
+func (x *LoginUpdateRequest) SetDescription(v string) {
+	x.xxx_hidden_Description = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 6)
+}
+
+func (x *LoginUpdateRequest) SetLogin(v string) {
+	x.xxx_hidden_Login = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 6)
+}
+
+func (x *LoginUpdateRequest) SetPassword(v string) {
+	x.xxx_hidden_Password = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 6)
+}
+
+func (x *LoginUpdateRequest) HasTitle() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+}
+
+func (x *LoginUpdateRequest) HasNumber() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
+}
+
+func (x *LoginUpdateRequest) HasUrl() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
+}
+
+func (x *LoginUpdateRequest) HasDescription() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
+}
+
+func (x *LoginUpdateRequest) HasLogin() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
+}
+
+func (x *LoginUpdateRequest) HasPassword() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
+}
+
+func (x *LoginUpdateRequest) ClearTitle() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_Title = nil
+}
+
+func (x *LoginUpdateRequest) ClearNumber() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	x.xxx_hidden_Number = 0
+}
+
+func (x *LoginUpdateRequest) ClearUrl() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
+	x.xxx_hidden_Url = nil
+}
+
+func (x *LoginUpdateRequest) ClearDescription() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
+	x.xxx_hidden_Description = nil
+}
+
+func (x *LoginUpdateRequest) ClearLogin() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
+	x.xxx_hidden_Login = nil
+}
+
+func (x *LoginUpdateRequest) ClearPassword() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
+	x.xxx_hidden_Password = nil
+}
+
+type LoginUpdateRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Title       *string
+	Number      *int64
+	Url         *string
+	Description *string
+	Login       *string
+	Password    *string
+}
+
+func (b0 LoginUpdateRequest_builder) Build() *LoginUpdateRequest {
+	m0 := &LoginUpdateRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.Title != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 6)
+		x.xxx_hidden_Title = b.Title
+	}
+	if b.Number != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 6)
+		x.xxx_hidden_Number = *b.Number
+	}
+	if b.Url != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 6)
+		x.xxx_hidden_Url = b.Url
+	}
+	if b.Description != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 6)
+		x.xxx_hidden_Description = b.Description
+	}
+	if b.Login != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 6)
+		x.xxx_hidden_Login = b.Login
+	}
+	if b.Password != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 6)
+		x.xxx_hidden_Password = b.Password
+	}
+	return m0
+}
+
+type LoginUpdateResponse struct {
+	state         protoimpl.MessageState `protogen:"opaque.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LoginUpdateResponse) Reset() {
+	*x = LoginUpdateResponse{}
+	mi := &file_api_proto_logins_logins_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LoginUpdateResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LoginUpdateResponse) ProtoMessage() {}
+
+func (x *LoginUpdateResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_logins_logins_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+type LoginUpdateResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+}
+
+func (b0 LoginUpdateResponse_builder) Build() *LoginUpdateResponse {
+	m0 := &LoginUpdateResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	return m0
+}
+
+type LoginDeleteRequest struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Number      int64                  `protobuf:"varint,1,opt,name=number"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *LoginDeleteRequest) Reset() {
+	*x = LoginDeleteRequest{}
+	mi := &file_api_proto_logins_logins_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LoginDeleteRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LoginDeleteRequest) ProtoMessage() {}
+
+func (x *LoginDeleteRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_logins_logins_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *LoginDeleteRequest) GetNumber() int64 {
+	if x != nil {
+		return x.xxx_hidden_Number
+	}
+	return 0
+}
+
+func (x *LoginDeleteRequest) SetNumber(v int64) {
+	x.xxx_hidden_Number = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 1)
+}
+
+func (x *LoginDeleteRequest) HasNumber() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+}
+
+func (x *LoginDeleteRequest) ClearNumber() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_Number = 0
+}
+
+type LoginDeleteRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Number *int64
+}
+
+func (b0 LoginDeleteRequest_builder) Build() *LoginDeleteRequest {
+	m0 := &LoginDeleteRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.Number != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 1)
+		x.xxx_hidden_Number = *b.Number
+	}
+	return m0
+}
+
+type LoginDeleteResponse struct {
+	state         protoimpl.MessageState `protogen:"opaque.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LoginDeleteResponse) Reset() {
+	*x = LoginDeleteResponse{}
+	mi := &file_api_proto_logins_logins_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LoginDeleteResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LoginDeleteResponse) ProtoMessage() {}
+
+func (x *LoginDeleteResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_logins_logins_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+type LoginDeleteResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+}
+
+func (b0 LoginDeleteResponse_builder) Build() *LoginDeleteResponse {
+	m0 := &LoginDeleteResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	return m0
+}
+
+type LoginGetListRequest struct {
+	state         protoimpl.MessageState `protogen:"opaque.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LoginGetListRequest) Reset() {
+	*x = LoginGetListRequest{}
+	mi := &file_api_proto_logins_logins_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LoginGetListRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LoginGetListRequest) ProtoMessage() {}
+
+func (x *LoginGetListRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_logins_logins_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+type LoginGetListRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+}
+
+func (b0 LoginGetListRequest_builder) Build() *LoginGetListRequest {
+	m0 := &LoginGetListRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	return m0
+}
+
+type LoginGetListResponse struct {
+	state             protoimpl.MessageState       `protogen:"opaque.v1"`
+	xxx_hidden_Logins *[]*LoginGetListItemResponse `protobuf:"bytes,1,rep,name=logins"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *LoginGetListResponse) Reset() {
+	*x = LoginGetListResponse{}
+	mi := &file_api_proto_logins_logins_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LoginGetListResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LoginGetListResponse) ProtoMessage() {}
+
+func (x *LoginGetListResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_logins_logins_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *LoginGetListResponse) GetLogins() []*LoginGetListItemResponse {
+	if x != nil {
+		if x.xxx_hidden_Logins != nil {
+			return *x.xxx_hidden_Logins
+		}
+	}
+	return nil
+}
+
+func (x *LoginGetListResponse) SetLogins(v []*LoginGetListItemResponse) {
+	x.xxx_hidden_Logins = &v
+}
+
+type LoginGetListResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Logins []*LoginGetListItemResponse
+}
+
+func (b0 LoginGetListResponse_builder) Build() *LoginGetListResponse {
+	m0 := &LoginGetListResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Logins = &b.Logins
+	return m0
+}
+
+type LoginGetListItemResponse struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Title       *string                `protobuf:"bytes,1,opt,name=title"`
+	xxx_hidden_Number      int64                  `protobuf:"varint,2,opt,name=number"`
+	xxx_hidden_Description *string                `protobuf:"bytes,3,opt,name=description"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *LoginGetListItemResponse) Reset() {
+	*x = LoginGetListItemResponse{}
+	mi := &file_api_proto_logins_logins_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LoginGetListItemResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LoginGetListItemResponse) ProtoMessage() {}
+
+func (x *LoginGetListItemResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_logins_logins_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *LoginGetListItemResponse) GetTitle() string {
+	if x != nil {
+		if x.xxx_hidden_Title != nil {
+			return *x.xxx_hidden_Title
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *LoginGetListItemResponse) GetNumber() int64 {
+	if x != nil {
+		return x.xxx_hidden_Number
+	}
+	return 0
+}
+
+func (x *LoginGetListItemResponse) GetDescription() string {
+	if x != nil {
+		if x.xxx_hidden_Description != nil {
+			return *x.xxx_hidden_Description
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *LoginGetListItemResponse) SetTitle(v string) {
+	x.xxx_hidden_Title = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 3)
+}
+
+func (x *LoginGetListItemResponse) SetNumber(v int64) {
+	x.xxx_hidden_Number = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 3)
+}
+
+func (x *LoginGetListItemResponse) SetDescription(v string) {
+	x.xxx_hidden_Description = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 3)
+}
+
+func (x *LoginGetListItemResponse) HasTitle() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+}
+
+func (x *LoginGetListItemResponse) HasNumber() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
+}
+
+func (x *LoginGetListItemResponse) HasDescription() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
+}
+
+func (x *LoginGetListItemResponse) ClearTitle() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_Title = nil
+}
+
+func (x *LoginGetListItemResponse) ClearNumber() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	x.xxx_hidden_Number = 0
+}
+
+func (x *LoginGetListItemResponse) ClearDescription() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
+	x.xxx_hidden_Description = nil
+}
+
+type LoginGetListItemResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Title       *string
+	Number      *int64
+	Description *string
+}
+
+func (b0 LoginGetListItemResponse_builder) Build() *LoginGetListItemResponse {
+	m0 := &LoginGetListItemResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.Title != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 3)
+		x.xxx_hidden_Title = b.Title
+	}
+	if b.Number != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 3)
+		x.xxx_hidden_Number = *b.Number
+	}
+	if b.Description != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 3)
+		x.xxx_hidden_Description = b.Description
+	}
+	return m0
+}
+
 var File_api_proto_logins_logins_proto protoreflect.FileDescriptor
 
 const file_api_proto_logins_logins_proto_rawDesc = "" +
@@ -678,28 +1322,63 @@ const file_api_proto_logins_logins_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\a \x01(\tR\tcreatedAt\x12\x1d\n" +
 	"\n" +
-	"updated_at\x18\b \x01(\tR\tupdatedAt2\x95\x01\n" +
+	"updated_at\x18\b \x01(\tR\tupdatedAt\"\xa8\x01\n" +
+	"\x12LoginUpdateRequest\x12\x14\n" +
+	"\x05title\x18\x01 \x01(\tR\x05title\x12\x16\n" +
+	"\x06number\x18\x02 \x01(\x03R\x06number\x12\x10\n" +
+	"\x03url\x18\x03 \x01(\tR\x03url\x12 \n" +
+	"\vdescription\x18\x04 \x01(\tR\vdescription\x12\x14\n" +
+	"\x05login\x18\x05 \x01(\tR\x05login\x12\x1a\n" +
+	"\bpassword\x18\x06 \x01(\tR\bpassword\"\x15\n" +
+	"\x13LoginUpdateResponse\",\n" +
+	"\x12LoginDeleteRequest\x12\x16\n" +
+	"\x06number\x18\x01 \x01(\x03R\x06number\"\x15\n" +
+	"\x13LoginDeleteResponse\"\x15\n" +
+	"\x13LoginGetListRequest\"P\n" +
+	"\x14LoginGetListResponse\x128\n" +
+	"\x06logins\x18\x01 \x03(\v2 .logins.LoginGetListItemResponseR\x06logins\"j\n" +
+	"\x18LoginGetListItemResponse\x12\x14\n" +
+	"\x05title\x18\x01 \x01(\tR\x05title\x12\x16\n" +
+	"\x06number\x18\x02 \x01(\x03R\x06number\x12 \n" +
+	"\vdescription\x18\x03 \x01(\tR\vdescription2\xf0\x02\n" +
 	"\fLoginService\x12F\n" +
 	"\vCreateLogin\x12\x1a.logins.LoginCreateRequest\x1a\x1b.logins.LoginCreateResponse\x12=\n" +
-	"\bGetLogin\x12\x17.logins.LoginGetRequest\x1a\x18.logins.LoginGetResponseB0Z.github.com/artni96/GophKeeper/api/proto/loginsb\beditionsp\xe8\a"
+	"\bGetLogin\x12\x17.logins.LoginGetRequest\x1a\x18.logins.LoginGetResponse\x12F\n" +
+	"\vUpdateLogin\x12\x1a.logins.LoginUpdateRequest\x1a\x1b.logins.LoginUpdateResponse\x12F\n" +
+	"\vDeleteLogin\x12\x1a.logins.LoginDeleteRequest\x1a\x1b.logins.LoginDeleteResponse\x12I\n" +
+	"\fGetListLogin\x12\x1b.logins.LoginGetListRequest\x1a\x1c.logins.LoginGetListResponseB0Z.github.com/artni96/GophKeeper/api/proto/loginsb\beditionsp\xe8\a"
 
-var file_api_proto_logins_logins_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_api_proto_logins_logins_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_api_proto_logins_logins_proto_goTypes = []any{
-	(*LoginCreateRequest)(nil),  // 0: logins.LoginCreateRequest
-	(*LoginCreateResponse)(nil), // 1: logins.LoginCreateResponse
-	(*LoginGetRequest)(nil),     // 2: logins.LoginGetRequest
-	(*LoginGetResponse)(nil),    // 3: logins.LoginGetResponse
+	(*LoginCreateRequest)(nil),       // 0: logins.LoginCreateRequest
+	(*LoginCreateResponse)(nil),      // 1: logins.LoginCreateResponse
+	(*LoginGetRequest)(nil),          // 2: logins.LoginGetRequest
+	(*LoginGetResponse)(nil),         // 3: logins.LoginGetResponse
+	(*LoginUpdateRequest)(nil),       // 4: logins.LoginUpdateRequest
+	(*LoginUpdateResponse)(nil),      // 5: logins.LoginUpdateResponse
+	(*LoginDeleteRequest)(nil),       // 6: logins.LoginDeleteRequest
+	(*LoginDeleteResponse)(nil),      // 7: logins.LoginDeleteResponse
+	(*LoginGetListRequest)(nil),      // 8: logins.LoginGetListRequest
+	(*LoginGetListResponse)(nil),     // 9: logins.LoginGetListResponse
+	(*LoginGetListItemResponse)(nil), // 10: logins.LoginGetListItemResponse
 }
 var file_api_proto_logins_logins_proto_depIdxs = []int32{
-	0, // 0: logins.LoginService.CreateLogin:input_type -> logins.LoginCreateRequest
-	2, // 1: logins.LoginService.GetLogin:input_type -> logins.LoginGetRequest
-	1, // 2: logins.LoginService.CreateLogin:output_type -> logins.LoginCreateResponse
-	3, // 3: logins.LoginService.GetLogin:output_type -> logins.LoginGetResponse
-	2, // [2:4] is the sub-list for method output_type
-	0, // [0:2] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	10, // 0: logins.LoginGetListResponse.logins:type_name -> logins.LoginGetListItemResponse
+	0,  // 1: logins.LoginService.CreateLogin:input_type -> logins.LoginCreateRequest
+	2,  // 2: logins.LoginService.GetLogin:input_type -> logins.LoginGetRequest
+	4,  // 3: logins.LoginService.UpdateLogin:input_type -> logins.LoginUpdateRequest
+	6,  // 4: logins.LoginService.DeleteLogin:input_type -> logins.LoginDeleteRequest
+	8,  // 5: logins.LoginService.GetListLogin:input_type -> logins.LoginGetListRequest
+	1,  // 6: logins.LoginService.CreateLogin:output_type -> logins.LoginCreateResponse
+	3,  // 7: logins.LoginService.GetLogin:output_type -> logins.LoginGetResponse
+	5,  // 8: logins.LoginService.UpdateLogin:output_type -> logins.LoginUpdateResponse
+	7,  // 9: logins.LoginService.DeleteLogin:output_type -> logins.LoginDeleteResponse
+	9,  // 10: logins.LoginService.GetListLogin:output_type -> logins.LoginGetListResponse
+	6,  // [6:11] is the sub-list for method output_type
+	1,  // [1:6] is the sub-list for method input_type
+	1,  // [1:1] is the sub-list for extension type_name
+	1,  // [1:1] is the sub-list for extension extendee
+	0,  // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_api_proto_logins_logins_proto_init() }
@@ -713,7 +1392,7 @@ func file_api_proto_logins_logins_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_proto_logins_logins_proto_rawDesc), len(file_api_proto_logins_logins_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

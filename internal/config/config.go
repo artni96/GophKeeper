@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-type configFile struct {
+type ConfigFile struct {
 	ServerAddr string `json:"server_addr"`
 
 	DBHost     string `json:"db_host"`
@@ -49,7 +49,7 @@ type Config struct {
 
 func ParseConfig() (*Config, error) {
 	conf := Config{}
-	confFile := configFile{}
+	confFile := ConfigFile{}
 
 	fs := flag.NewFlagSet("config", flag.ExitOnError)
 
@@ -104,7 +104,7 @@ func ParseConfig() (*Config, error) {
 		conf.EnableTCP = confFile.EnableTCP
 	}
 
-	dbDSN, err := confFile.assembleDBDsn()
+	dbDSN, err := confFile.AssembleDBDsn()
 	if err != nil {
 		errs = append(errs, err.Error())
 	} else {
@@ -176,7 +176,8 @@ func ParseConfig() (*Config, error) {
 	return &conf, nil
 }
 
-func (f *configFile) parseFile(filename string) error {
+// parseFile collects data from the file filename into ConfigFile.
+func (f *ConfigFile) parseFile(filename string) error {
 	file, err := os.ReadFile(filename)
 	if err != nil {
 		return fmt.Errorf("failed to read config file: %w", err)
@@ -188,8 +189,8 @@ func (f *configFile) parseFile(filename string) error {
 	return nil
 }
 
-// assembleDBDsn parses app config and returns a database destination string.
-func (f *configFile) assembleDBDsn() (string, error) {
+// AssembleDBDsn parses app config and returns a database destination string.
+func (f *ConfigFile) AssembleDBDsn() (string, error) {
 	var errs []string
 	if f.DBHost == "" {
 		errs = append(errs, "db host is not set")

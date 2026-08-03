@@ -1,0 +1,16 @@
+{
+  "server_addr": "localhost:3200",
+
+  "db_host": "localhost",
+  "db_port": 5432,
+  "db_user": "postgres",
+  "db_password": "postgres",
+  "db_name": "gk_tests",
+
+  "secret_key": "do not share me",
+
+  "logging_lvl": "debug",
+
+  "grace_period": 5,
+  "force_period": 30
+}

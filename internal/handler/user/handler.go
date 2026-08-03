@@ -37,7 +37,7 @@ func (h *Handler) CreateUser(ctx context.Context, req *pb.UserCreateRequest) (*p
 	}
 	err := h.UserService.Create(ctx, userToCreate)
 	if err != nil {
-		if errors.As(err, &userrepo.ErrUserAlreadyExists) {
+		if errors.Is(err, userrepo.ErrUserAlreadyExists) {
 			h.Logger.Info(err.Error(), zap.String("username", req.GetUsername()))
 			return nil, status.Errorf(codes.AlreadyExists, "user '%s' already exists", userToCreate.Username)
 		}
@@ -56,7 +56,7 @@ func (h *Handler) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginRes
 	}
 	token, err := h.UserService.Login(ctx, loginData)
 	if err != nil {
-		if errors.As(err, &userrepo.ErrUserNotFound) || errors.As(err, &userserv.ErrWrongUserOrPassword) {
+		if errors.Is(err, userrepo.ErrUserNotFound) || errors.Is(err, userserv.ErrWrongUserOrPassword) {
 			return nil, status.Error(codes.Unauthenticated, "login failed")
 		}
 		return nil, status.Errorf(codes.Internal, "internal server error")

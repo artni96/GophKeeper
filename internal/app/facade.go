@@ -53,8 +53,8 @@ func (a *App) initLogger() error {
 	return nil
 }
 
-// initDBConn initializes a database connection according to the app config.
-func (a *App) initDBConn(ctx context.Context) error {
+// InitDBConn initializes a database connection according to the app config.
+func (a *App) InitDBConn(ctx context.Context) error {
 	if a.Cfg.DBDsn == "" {
 		return fmt.Errorf("database dsn is not provided")
 	}
@@ -193,7 +193,7 @@ func (a *App) Launch(ctx context.Context) error {
 		return err
 	}
 
-	err = a.initDBConn(ctx)
+	err = a.InitDBConn(ctx)
 	if err != nil {
 		a.Logger.Error("failed to initialize database connection", zap.Error(err))
 		return err

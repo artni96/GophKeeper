@@ -11,7 +11,6 @@ import (
 
 	"github.com/artni96/GophKeeper/internal/app"
 	"github.com/artni96/GophKeeper/internal/config"
-	"github.com/artni96/GophKeeper/internal/constants"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 
@@ -96,7 +95,7 @@ func ffCountdown(ctx context.Context, logger *zap.Logger, gsChan <-chan struct{}
 				return
 			}
 			if timeLeft == 15 || timeLeft == 10 || (timeLeft <= 5 && timeLeft > 0) {
-				logger.Info(fmt.Sprintf("the app will be stopped forcefully in %d sec", timeLeft), zap.String("time", time.Now().Format(constants.TimeStamp)))
+				logger.Info(fmt.Sprintf("the app will be stopped forcefully in %d sec", timeLeft))
 			}
 		}
 	}

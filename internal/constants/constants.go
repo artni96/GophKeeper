@@ -1,3 +1,7 @@
 package constants
 
-const TimeStamp = "15:04:05 02-01-2006"
+import "errors"
+
+var ErrEntityNotFound = errors.New("entity not found")
+var ErrInvalidRequest = errors.New("not a valid request")
+var ErrEntityAlreadyExists = errors.New("entity already exists")
