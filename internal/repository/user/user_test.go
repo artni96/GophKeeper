@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"fmt"
+	"log"
 	"testing"
 
 	usermodel "github.com/artni96/GophKeeper/internal/model/user"
@@ -19,18 +20,35 @@ func initUserRepo(db *sqlx.DB) (*Repository, error) {
 	return repo, nil
 }
 
+type testConfig struct {
+	ctx        context.Context
+	testConfig *test_config.TestConfig
+	userRepo   *Repository
+}
+
+func (c *testConfig) init(t *testing.T) {
+	c.ctx = context.Background()
+	newTC, err := test_config.NewTestConfig(c.ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	c.testConfig = newTC
+
+	userRepo, err := initUserRepo(c.testConfig.DB)
+	if err != nil {
+		t.Fatal(err)
+	}
+	c.userRepo = userRepo
+}
+
+func newTestConfig(t *testing.T) *testConfig {
+	newTC := &testConfig{}
+	newTC.init(t)
+	return newTC
+}
+
 func TestCreate(t *testing.T) {
-	ctx := context.Background()
-	tc, err := test_config.NewTestConfig(ctx)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	userRepo, err := initUserRepo(tc.DB)
-	if err != nil {
-		t.Fatal(err)
-	}
-
+	tc := newTestConfig(t)
 	tests := []struct {
 		name    string
 		req     usermodel.UserCreate
@@ -55,7 +73,7 @@ func TestCreate(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err = userRepo.Create(ctx, tt.req)
+			err := tc.userRepo.Create(tc.ctx, tt.req)
 			assert.Equal(t, tt.failure, err != nil)
 			if tt.failure {
 				assert.ErrorIs(t, err, ErrUserAlreadyExists)
@@ -65,21 +83,12 @@ func TestCreate(t *testing.T) {
 }
 
 func TestGetByUsername(t *testing.T) {
-	ctx := context.Background()
-	tc, err := test_config.NewTestConfig(ctx)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	userRepo, err := initUserRepo(tc.DB)
-	if err != nil {
-		t.Fatal(err)
-	}
+	tc := newTestConfig(t)
 	userData := usermodel.UserCreate{
 		Username:       "test",
 		HashedPassword: "test",
 	}
-	err = userRepo.Create(ctx, userData)
+	err := tc.userRepo.Create(tc.ctx, userData)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -101,7 +110,7 @@ func TestGetByUsername(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			dbEntity, err := userRepo.GetByUsername(ctx, tt.username)
+			dbEntity, err := tc.userRepo.GetByUsername(tc.ctx, tt.username)
 			assert.Equal(t, tt.failure, err != nil)
 			if tt.failure {
 				assert.ErrorIs(t, err, ErrUserNotFound)
