@@ -109,8 +109,8 @@ func TestCreate(t *testing.T) {
 				PAN:         1234567812345678,
 				Holder:      "Test Holder",
 				ExpiryDate:  "0535",
-				CVV:         123,
-				PIN:         1234,
+				CVV:         "123",
+				PIN:         "1234",
 				Bank:        "test",
 				Brand:       "test",
 				UserID:      firstUser,
@@ -140,8 +140,8 @@ func TestCreate(t *testing.T) {
 				PAN:         1234567812345678,
 				Holder:      "Test Holder",
 				ExpiryDate:  "0535",
-				CVV:         123,
-				PIN:         1234,
+				CVV:         "123",
+				PIN:         "1234",
 				Bank:        "test",
 				Brand:       "test",
 				UserID:      firstUser,
@@ -172,8 +172,8 @@ func TestCreate(t *testing.T) {
 				PAN:         1234567812345677,
 				Holder:      "Test Holder",
 				ExpiryDate:  "0535",
-				CVV:         123,
-				PIN:         1234,
+				CVV:         "123",
+				PIN:         "1234",
 				Bank:        "test",
 				Brand:       "test",
 				UserID:      firstUser,
@@ -204,8 +204,8 @@ func TestCreate(t *testing.T) {
 				PAN:         1234567812345677,
 				Holder:      "Test Holder",
 				ExpiryDate:  "0535",
-				CVV:         123,
-				PIN:         1234,
+				CVV:         "123",
+				PIN:         "1234",
 				Bank:        "test",
 				Brand:       "test",
 				UserID:      firstUser,
@@ -256,8 +256,8 @@ func TestGetByNumber(t *testing.T) {
 		PAN:         1234567812345677,
 		Holder:      "Test Holder",
 		ExpiryDate:  "0535",
-		CVV:         123,
-		PIN:         1234,
+		CVV:         "123",
+		PIN:         "1234",
 		Bank:        "test",
 		Brand:       "test",
 		UserID:      firstUser,
@@ -330,8 +330,8 @@ func TestUpdate(t *testing.T) {
 		PAN:         1234567812345677,
 		Holder:      "Test Holder",
 		ExpiryDate:  "0535",
-		CVV:         123,
-		PIN:         1234,
+		CVV:         "123",
+		PIN:         "1234",
 		Bank:        "test",
 		Brand:       "test",
 		UserID:      firstUser,
@@ -356,8 +356,8 @@ func TestUpdate(t *testing.T) {
 				PAN:         1234567812345678,
 				Holder:      "Test Holder",
 				ExpiryDate:  "0535",
-				CVV:         123,
-				PIN:         1234,
+				CVV:         "123",
+				PIN:         "1234",
 				Bank:        "test",
 				Brand:       "test",
 				Title:       "Test Title",
@@ -386,8 +386,8 @@ func TestUpdate(t *testing.T) {
 				PAN:         1234567812345678,
 				Holder:      "Test Holder",
 				ExpiryDate:  "0535",
-				CVV:         123,
-				PIN:         1234,
+				CVV:         "123",
+				PIN:         "1234",
 				Bank:        "test",
 				Brand:       "test",
 				Title:       "Test Title",
@@ -416,8 +416,8 @@ func TestUpdate(t *testing.T) {
 				PAN:         1234567812345678,
 				Holder:      "Test Holder",
 				ExpiryDate:  "0535",
-				CVV:         123,
-				PIN:         1234,
+				CVV:         "123",
+				PIN:         "1234",
 				Bank:        "test",
 				Brand:       "test",
 				Title:       "Test Title",
@@ -492,17 +492,6 @@ func TestGetList(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		strCVV := fmt.Sprintf("12%d", i)
-		testCVV, err := strconv.Atoi(strCVV)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		strPIN := fmt.Sprintf("123%d", i)
-		testPIN, err := strconv.Atoi(strPIN)
-		if err != nil {
-			t.Fatal(err)
-		}
 		var testUserID uuid.UUID
 		if i%2 == 0 {
 			testUserID = firstUser
@@ -514,8 +503,8 @@ func TestGetList(t *testing.T) {
 			PAN:         uint64(testPan),
 			Holder:      fmt.Sprintf("Test Holder %d", i),
 			ExpiryDate:  fmt.Sprintf("053%d", i),
-			CVV:         uint64(testCVV),
-			PIN:         uint64(testPIN),
+			CVV:         fmt.Sprintf("12%d", i),
+			PIN:         fmt.Sprintf("123%d", i),
 			Bank:        fmt.Sprintf("Test Bank %d", i),
 			Brand:       fmt.Sprintf("Test Brand %d", i),
 			UserID:      testUserID,
@@ -523,7 +512,6 @@ func TestGetList(t *testing.T) {
 			Description: fmt.Sprintf("Test Description %d", i),
 			CreatedAt:   time.Now(),
 		}
-		fmt.Println(fixtureData)
 		cardFixture(tc.ctx, tc.cardRepo, fixtureData)
 
 		if _, ok := userCardNumberMap[userID.String()]; !ok {
@@ -579,8 +567,8 @@ func TestDelete(t *testing.T) {
 		PAN:         1234567812345677,
 		Holder:      "Test Holder",
 		ExpiryDate:  "0535",
-		CVV:         123,
-		PIN:         1234,
+		CVV:         "123",
+		PIN:         "1234",
 		Bank:        "test",
 		Brand:       "test",
 		UserID:      firstUser,

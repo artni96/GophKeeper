@@ -4,12 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
-
-var validate = validator.New()
 
 // CreateLoginRequest is a model-mediator for transferring the gRPC request data to the Login service.
 type CreateLoginRequest struct {
@@ -30,14 +27,14 @@ func (m *CreateLoginRequest) Validate() error {
 
 // CreateLogin is a model-mediator for transferring the Login creation data to the Login repository.
 type CreateLogin struct {
-	UserID      uuid.UUID `gorm:"column:user_id;type:uuid;not null" validate:"required"`
-	Login       string    `gorm:"column:hashed_login;not null" validate:"required"`
-	Password    string    `gorm:"column:hashed_password;not null" validate:"required"`
-	Title       string    `gorm:"column:title;not null" validate:"required"`
-	Number      uint64    `gorm:"column:number;not null" validate:"required"`
+	UserID      uuid.UUID `gorm:"column:user_id;type:uuid;not null"`
+	Login       string    `gorm:"column:hashed_login;not null"`
+	Password    string    `gorm:"column:hashed_password;not null"`
+	Title       string    `gorm:"column:title;not null"`
+	Number      uint64    `gorm:"column:number;not null"`
 	URL         string    `gorm:"column:url"`
 	Description string    `gorm:"column:description"`
-	CreatedAt   time.Time `gorm:"column:created_at;type:datetime;not null" validate:"required"`
+	CreatedAt   time.Time `gorm:"column:created_at;type:datetime;not null"`
 }
 
 type Login struct {
@@ -57,8 +54,8 @@ type UpdateLoginRequest struct {
 	Title       *wrapperspb.StringValue `protobuf:"bytes,1,opt,name=title,proto3" json:"title"`
 	URL         *wrapperspb.StringValue `protobuf:"bytes,2,opt,name=url,proto3" json:"url,omitempty"`
 	Description *wrapperspb.StringValue `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-	Login       *wrapperspb.StringValue `protobuf:"bytes,4,opt,name=login,proto3" json:"login" validate:"required"`
-	Password    *wrapperspb.StringValue `protobuf:"bytes,5,opt,name=password,proto3" json:"password"`
+	Login       *wrapperspb.StringValue `protobuf:"bytes,4,opt,name=login,proto3" json:"login,omitempty"`
+	Password    *wrapperspb.StringValue `protobuf:"bytes,5,opt,name=password,proto3" json:"password,omitempty"`
 }
 
 func (u *UpdateLoginRequest) Validate() error {

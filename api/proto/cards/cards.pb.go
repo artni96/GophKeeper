@@ -26,8 +26,8 @@ type CardCreateRequest struct {
 	xxx_hidden_Pan         *wrapperspb.UInt64Value `protobuf:"bytes,1,opt,name=pan"`
 	xxx_hidden_Holder      *wrapperspb.StringValue `protobuf:"bytes,2,opt,name=holder"`
 	xxx_hidden_ExpiryDate  *wrapperspb.StringValue `protobuf:"bytes,3,opt,name=expiry_date,json=expiryDate"`
-	xxx_hidden_Cvv         *wrapperspb.UInt64Value `protobuf:"bytes,4,opt,name=cvv"`
-	xxx_hidden_Pin         *wrapperspb.UInt64Value `protobuf:"bytes,5,opt,name=pin"`
+	xxx_hidden_Cvv         *wrapperspb.StringValue `protobuf:"bytes,4,opt,name=cvv"`
+	xxx_hidden_Pin         *wrapperspb.StringValue `protobuf:"bytes,5,opt,name=pin"`
 	xxx_hidden_Bank        *wrapperspb.StringValue `protobuf:"bytes,6,opt,name=bank"`
 	xxx_hidden_Brand       *wrapperspb.StringValue `protobuf:"bytes,7,opt,name=brand"`
 	xxx_hidden_Title       *wrapperspb.StringValue `protobuf:"bytes,8,opt,name=title"`
@@ -82,14 +82,14 @@ func (x *CardCreateRequest) GetExpiryDate() *wrapperspb.StringValue {
 	return nil
 }
 
-func (x *CardCreateRequest) GetCvv() *wrapperspb.UInt64Value {
+func (x *CardCreateRequest) GetCvv() *wrapperspb.StringValue {
 	if x != nil {
 		return x.xxx_hidden_Cvv
 	}
 	return nil
 }
 
-func (x *CardCreateRequest) GetPin() *wrapperspb.UInt64Value {
+func (x *CardCreateRequest) GetPin() *wrapperspb.StringValue {
 	if x != nil {
 		return x.xxx_hidden_Pin
 	}
@@ -136,11 +136,11 @@ func (x *CardCreateRequest) SetExpiryDate(v *wrapperspb.StringValue) {
 	x.xxx_hidden_ExpiryDate = v
 }
 
-func (x *CardCreateRequest) SetCvv(v *wrapperspb.UInt64Value) {
+func (x *CardCreateRequest) SetCvv(v *wrapperspb.StringValue) {
 	x.xxx_hidden_Cvv = v
 }
 
-func (x *CardCreateRequest) SetPin(v *wrapperspb.UInt64Value) {
+func (x *CardCreateRequest) SetPin(v *wrapperspb.StringValue) {
 	x.xxx_hidden_Pin = v
 }
 
@@ -265,8 +265,8 @@ type CardCreateRequest_builder struct {
 	Pan         *wrapperspb.UInt64Value
 	Holder      *wrapperspb.StringValue
 	ExpiryDate  *wrapperspb.StringValue
-	Cvv         *wrapperspb.UInt64Value
-	Pin         *wrapperspb.UInt64Value
+	Cvv         *wrapperspb.StringValue
+	Pin         *wrapperspb.StringValue
 	Bank        *wrapperspb.StringValue
 	Brand       *wrapperspb.StringValue
 	Title       *wrapperspb.StringValue
@@ -412,8 +412,8 @@ type CardGetResponse struct {
 	xxx_hidden_Pan         uint64                 `protobuf:"fixed64,1,opt,name=pan"`
 	xxx_hidden_Holder      *string                `protobuf:"bytes,2,opt,name=holder"`
 	xxx_hidden_ExpiryDate  *string                `protobuf:"bytes,3,opt,name=expiry_date,json=expiryDate"`
-	xxx_hidden_Cvv         uint64                 `protobuf:"varint,4,opt,name=cvv"`
-	xxx_hidden_Pin         uint64                 `protobuf:"varint,5,opt,name=pin"`
+	xxx_hidden_Cvv         *string                `protobuf:"bytes,4,opt,name=cvv"`
+	xxx_hidden_Pin         *string                `protobuf:"bytes,5,opt,name=pin"`
 	xxx_hidden_Bank        *string                `protobuf:"bytes,6,opt,name=bank"`
 	xxx_hidden_Brand       *string                `protobuf:"bytes,7,opt,name=brand"`
 	xxx_hidden_Title       *string                `protobuf:"bytes,8,opt,name=title"`
@@ -479,18 +479,24 @@ func (x *CardGetResponse) GetExpiryDate() string {
 	return ""
 }
 
-func (x *CardGetResponse) GetCvv() uint64 {
+func (x *CardGetResponse) GetCvv() string {
 	if x != nil {
-		return x.xxx_hidden_Cvv
+		if x.xxx_hidden_Cvv != nil {
+			return *x.xxx_hidden_Cvv
+		}
+		return ""
 	}
-	return 0
+	return ""
 }
 
-func (x *CardGetResponse) GetPin() uint64 {
+func (x *CardGetResponse) GetPin() string {
 	if x != nil {
-		return x.xxx_hidden_Pin
+		if x.xxx_hidden_Pin != nil {
+			return *x.xxx_hidden_Pin
+		}
+		return ""
 	}
-	return 0
+	return ""
 }
 
 func (x *CardGetResponse) GetBank() string {
@@ -575,13 +581,13 @@ func (x *CardGetResponse) SetExpiryDate(v string) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 12)
 }
 
-func (x *CardGetResponse) SetCvv(v uint64) {
-	x.xxx_hidden_Cvv = v
+func (x *CardGetResponse) SetCvv(v string) {
+	x.xxx_hidden_Cvv = &v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 12)
 }
 
-func (x *CardGetResponse) SetPin(v uint64) {
-	x.xxx_hidden_Pin = v
+func (x *CardGetResponse) SetPin(v string) {
+	x.xxx_hidden_Pin = &v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 12)
 }
 
@@ -721,12 +727,12 @@ func (x *CardGetResponse) ClearExpiryDate() {
 
 func (x *CardGetResponse) ClearCvv() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
-	x.xxx_hidden_Cvv = 0
+	x.xxx_hidden_Cvv = nil
 }
 
 func (x *CardGetResponse) ClearPin() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
-	x.xxx_hidden_Pin = 0
+	x.xxx_hidden_Pin = nil
 }
 
 func (x *CardGetResponse) ClearBank() {
@@ -770,8 +776,8 @@ type CardGetResponse_builder struct {
 	Pan         *uint64
 	Holder      *string
 	ExpiryDate  *string
-	Cvv         *uint64
-	Pin         *uint64
+	Cvv         *string
+	Pin         *string
 	Bank        *string
 	Brand       *string
 	Title       *string
@@ -799,11 +805,11 @@ func (b0 CardGetResponse_builder) Build() *CardGetResponse {
 	}
 	if b.Cvv != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 12)
-		x.xxx_hidden_Cvv = *b.Cvv
+		x.xxx_hidden_Cvv = b.Cvv
 	}
 	if b.Pin != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 12)
-		x.xxx_hidden_Pin = *b.Pin
+		x.xxx_hidden_Pin = b.Pin
 	}
 	if b.Bank != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 12)
@@ -841,8 +847,8 @@ type CardUpdateRequest struct {
 	xxx_hidden_Pan         *wrapperspb.UInt64Value `protobuf:"bytes,1,opt,name=pan"`
 	xxx_hidden_Holder      *wrapperspb.StringValue `protobuf:"bytes,2,opt,name=holder"`
 	xxx_hidden_ExpiryDate  *wrapperspb.StringValue `protobuf:"bytes,3,opt,name=expiry_date,json=expiryDate"`
-	xxx_hidden_Cvv         *wrapperspb.UInt64Value `protobuf:"bytes,4,opt,name=cvv"`
-	xxx_hidden_Pin         *wrapperspb.UInt64Value `protobuf:"bytes,5,opt,name=pin"`
+	xxx_hidden_Cvv         *wrapperspb.StringValue `protobuf:"bytes,4,opt,name=cvv"`
+	xxx_hidden_Pin         *wrapperspb.StringValue `protobuf:"bytes,5,opt,name=pin"`
 	xxx_hidden_Bank        *wrapperspb.StringValue `protobuf:"bytes,6,opt,name=bank"`
 	xxx_hidden_Brand       *wrapperspb.StringValue `protobuf:"bytes,7,opt,name=brand"`
 	xxx_hidden_Title       *wrapperspb.StringValue `protobuf:"bytes,8,opt,name=title"`
@@ -900,14 +906,14 @@ func (x *CardUpdateRequest) GetExpiryDate() *wrapperspb.StringValue {
 	return nil
 }
 
-func (x *CardUpdateRequest) GetCvv() *wrapperspb.UInt64Value {
+func (x *CardUpdateRequest) GetCvv() *wrapperspb.StringValue {
 	if x != nil {
 		return x.xxx_hidden_Cvv
 	}
 	return nil
 }
 
-func (x *CardUpdateRequest) GetPin() *wrapperspb.UInt64Value {
+func (x *CardUpdateRequest) GetPin() *wrapperspb.StringValue {
 	if x != nil {
 		return x.xxx_hidden_Pin
 	}
@@ -961,11 +967,11 @@ func (x *CardUpdateRequest) SetExpiryDate(v *wrapperspb.StringValue) {
 	x.xxx_hidden_ExpiryDate = v
 }
 
-func (x *CardUpdateRequest) SetCvv(v *wrapperspb.UInt64Value) {
+func (x *CardUpdateRequest) SetCvv(v *wrapperspb.StringValue) {
 	x.xxx_hidden_Cvv = v
 }
 
-func (x *CardUpdateRequest) SetPin(v *wrapperspb.UInt64Value) {
+func (x *CardUpdateRequest) SetPin(v *wrapperspb.StringValue) {
 	x.xxx_hidden_Pin = v
 }
 
@@ -1107,8 +1113,8 @@ type CardUpdateRequest_builder struct {
 	Pan         *wrapperspb.UInt64Value
 	Holder      *wrapperspb.StringValue
 	ExpiryDate  *wrapperspb.StringValue
-	Cvv         *wrapperspb.UInt64Value
-	Pin         *wrapperspb.UInt64Value
+	Cvv         *wrapperspb.StringValue
+	Pin         *wrapperspb.StringValue
 	Bank        *wrapperspb.StringValue
 	Brand       *wrapperspb.StringValue
 	Title       *wrapperspb.StringValue
@@ -1550,8 +1556,8 @@ const file_api_proto_cards_cards_proto_rawDesc = "" +
 	"\x06holder\x18\x02 \x01(\v2\x1c.google.protobuf.StringValueR\x06holder\x12=\n" +
 	"\vexpiry_date\x18\x03 \x01(\v2\x1c.google.protobuf.StringValueR\n" +
 	"expiryDate\x12.\n" +
-	"\x03cvv\x18\x04 \x01(\v2\x1c.google.protobuf.UInt64ValueR\x03cvv\x12.\n" +
-	"\x03pin\x18\x05 \x01(\v2\x1c.google.protobuf.UInt64ValueR\x03pin\x120\n" +
+	"\x03cvv\x18\x04 \x01(\v2\x1c.google.protobuf.StringValueR\x03cvv\x12.\n" +
+	"\x03pin\x18\x05 \x01(\v2\x1c.google.protobuf.StringValueR\x03pin\x120\n" +
 	"\x04bank\x18\x06 \x01(\v2\x1c.google.protobuf.StringValueR\x04bank\x122\n" +
 	"\x05brand\x18\a \x01(\v2\x1c.google.protobuf.StringValueR\x05brand\x122\n" +
 	"\x05title\x18\b \x01(\v2\x1c.google.protobuf.StringValueR\x05title\x12>\n" +
@@ -1564,8 +1570,8 @@ const file_api_proto_cards_cards_proto_rawDesc = "" +
 	"\x06holder\x18\x02 \x01(\tR\x06holder\x12\x1f\n" +
 	"\vexpiry_date\x18\x03 \x01(\tR\n" +
 	"expiryDate\x12\x10\n" +
-	"\x03cvv\x18\x04 \x01(\x04R\x03cvv\x12\x10\n" +
-	"\x03pin\x18\x05 \x01(\x04R\x03pin\x12\x12\n" +
+	"\x03cvv\x18\x04 \x01(\tR\x03cvv\x12\x10\n" +
+	"\x03pin\x18\x05 \x01(\tR\x03pin\x12\x12\n" +
 	"\x04bank\x18\x06 \x01(\tR\x04bank\x12\x14\n" +
 	"\x05brand\x18\a \x01(\tR\x05brand\x12\x14\n" +
 	"\x05title\x18\b \x01(\tR\x05title\x12 \n" +
@@ -1581,8 +1587,8 @@ const file_api_proto_cards_cards_proto_rawDesc = "" +
 	"\x06holder\x18\x02 \x01(\v2\x1c.google.protobuf.StringValueR\x06holder\x12=\n" +
 	"\vexpiry_date\x18\x03 \x01(\v2\x1c.google.protobuf.StringValueR\n" +
 	"expiryDate\x12.\n" +
-	"\x03cvv\x18\x04 \x01(\v2\x1c.google.protobuf.UInt64ValueR\x03cvv\x12.\n" +
-	"\x03pin\x18\x05 \x01(\v2\x1c.google.protobuf.UInt64ValueR\x03pin\x120\n" +
+	"\x03cvv\x18\x04 \x01(\v2\x1c.google.protobuf.StringValueR\x03cvv\x12.\n" +
+	"\x03pin\x18\x05 \x01(\v2\x1c.google.protobuf.StringValueR\x03pin\x120\n" +
 	"\x04bank\x18\x06 \x01(\v2\x1c.google.protobuf.StringValueR\x04bank\x122\n" +
 	"\x05brand\x18\a \x01(\v2\x1c.google.protobuf.StringValueR\x05brand\x122\n" +
 	"\x05title\x18\b \x01(\v2\x1c.google.protobuf.StringValueR\x05title\x12>\n" +
@@ -1630,8 +1636,8 @@ var file_api_proto_cards_cards_proto_depIdxs = []int32{
 	11, // 0: cards.CardCreateRequest.pan:type_name -> google.protobuf.UInt64Value
 	12, // 1: cards.CardCreateRequest.holder:type_name -> google.protobuf.StringValue
 	12, // 2: cards.CardCreateRequest.expiry_date:type_name -> google.protobuf.StringValue
-	11, // 3: cards.CardCreateRequest.cvv:type_name -> google.protobuf.UInt64Value
-	11, // 4: cards.CardCreateRequest.pin:type_name -> google.protobuf.UInt64Value
+	12, // 3: cards.CardCreateRequest.cvv:type_name -> google.protobuf.StringValue
+	12, // 4: cards.CardCreateRequest.pin:type_name -> google.protobuf.StringValue
 	12, // 5: cards.CardCreateRequest.bank:type_name -> google.protobuf.StringValue
 	12, // 6: cards.CardCreateRequest.brand:type_name -> google.protobuf.StringValue
 	12, // 7: cards.CardCreateRequest.title:type_name -> google.protobuf.StringValue
@@ -1639,8 +1645,8 @@ var file_api_proto_cards_cards_proto_depIdxs = []int32{
 	11, // 9: cards.CardUpdateRequest.pan:type_name -> google.protobuf.UInt64Value
 	12, // 10: cards.CardUpdateRequest.holder:type_name -> google.protobuf.StringValue
 	12, // 11: cards.CardUpdateRequest.expiry_date:type_name -> google.protobuf.StringValue
-	11, // 12: cards.CardUpdateRequest.cvv:type_name -> google.protobuf.UInt64Value
-	11, // 13: cards.CardUpdateRequest.pin:type_name -> google.protobuf.UInt64Value
+	12, // 12: cards.CardUpdateRequest.cvv:type_name -> google.protobuf.StringValue
+	12, // 13: cards.CardUpdateRequest.pin:type_name -> google.protobuf.StringValue
 	12, // 14: cards.CardUpdateRequest.bank:type_name -> google.protobuf.StringValue
 	12, // 15: cards.CardUpdateRequest.brand:type_name -> google.protobuf.StringValue
 	12, // 16: cards.CardUpdateRequest.title:type_name -> google.protobuf.StringValue

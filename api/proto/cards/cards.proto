@@ -19,8 +19,8 @@ message CardCreateRequest {
   google.protobuf.UInt64Value pan = 1;
   google.protobuf.StringValue holder = 2;
   google.protobuf.StringValue expiry_date = 3;
-  google.protobuf.UInt64Value cvv = 4;
-  google.protobuf.UInt64Value pin = 5;
+  google.protobuf.StringValue cvv = 4;
+  google.protobuf.StringValue pin = 5;
   google.protobuf.StringValue bank = 6;
   google.protobuf.StringValue brand = 7;
   google.protobuf.StringValue title = 8;
@@ -38,8 +38,8 @@ message CardGetResponse {
   fixed64 pan = 1;
   string holder = 2;
   string expiry_date = 3;
-  uint64 cvv = 4;
-  uint64 pin = 5;
+  string cvv = 4;
+  string pin = 5;
   string bank = 6;
   string brand = 7;
   string title = 8;
@@ -53,8 +53,8 @@ message CardUpdateRequest {
   google.protobuf.UInt64Value pan = 1;
   google.protobuf.StringValue holder = 2;
   google.protobuf.StringValue expiry_date = 3;
-  google.protobuf.UInt64Value cvv = 4;
-  google.protobuf.UInt64Value pin = 5;
+  google.protobuf.StringValue cvv = 4;
+  google.protobuf.StringValue pin = 5;
   google.protobuf.StringValue bank = 6;
   google.protobuf.StringValue brand = 7;
   google.protobuf.StringValue title = 8;
