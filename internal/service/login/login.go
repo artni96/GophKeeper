@@ -16,7 +16,7 @@ import (
 
 // ServiceI represents
 type ServiceI interface {
-	Create(ctx context.Context, data loginmodel.CreateLoginRequest) error
+	Create(ctx context.Context, data loginmodel.CreateLoginRequest) (uint64, error)
 	GetByNumber(ctx context.Context, number uint64, userID uuid.UUID) (*loginmodel.Login, error)
 	Update(ctx context.Context, data loginmodel.UpdateLoginRequest, number uint64, userID uuid.UUID) error
 	Delete(ctx context.Context, number uint64, userID uuid.UUID) error
@@ -38,9 +38,9 @@ func NewService(cfg *config.Config, logger *zap.Logger, repo login.RepositoryI) 
 }
 
 // Create creates a new Login entity by the repository.
-func (s *Service) Create(ctx context.Context, data loginmodel.CreateLoginRequest) error {
+func (s *Service) Create(ctx context.Context, data loginmodel.CreateLoginRequest) (uint64, error) {
 	if err := data.Validate(); err != nil {
-		return fmt.Errorf("%w: %w", constants.ErrInvalidRequest, err)
+		return 0, fmt.Errorf("%w: %w", constants.ErrInvalidRequest, err)
 	}
 	creationData := loginmodel.CreateLogin{
 		Login:       data.Login,
@@ -51,11 +51,11 @@ func (s *Service) Create(ctx context.Context, data loginmodel.CreateLoginRequest
 		Description: data.Description,
 		CreatedAt:   time.Now(),
 	}
-	err := s.repo.Create(ctx, creationData)
+	number, err := s.repo.Create(ctx, creationData)
 	if err != nil {
-		return err
+		return number, err
 	}
-	return nil
+	return number, nil
 }
 
 // GetByNumber selects and returns a Login entity by its number by the repository.

@@ -232,9 +232,12 @@ func (b0 LoginCreateRequest_builder) Build() *LoginCreateRequest {
 }
 
 type LoginCreateResponse struct {
-	state         protoimpl.MessageState `protogen:"opaque.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Number      uint64                 `protobuf:"varint,1,opt,name=number"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *LoginCreateResponse) Reset() {
@@ -262,15 +265,44 @@ func (x *LoginCreateResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
+func (x *LoginCreateResponse) GetNumber() uint64 {
+	if x != nil {
+		return x.xxx_hidden_Number
+	}
+	return 0
+}
+
+func (x *LoginCreateResponse) SetNumber(v uint64) {
+	x.xxx_hidden_Number = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 1)
+}
+
+func (x *LoginCreateResponse) HasNumber() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+}
+
+func (x *LoginCreateResponse) ClearNumber() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_Number = 0
+}
+
 type LoginCreateResponse_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
+	Number *uint64
 }
 
 func (b0 LoginCreateResponse_builder) Build() *LoginCreateResponse {
 	m0 := &LoginCreateResponse{}
 	b, x := &b0, m0
 	_, _ = b, x
+	if b.Number != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 1)
+		x.xxx_hidden_Number = *b.Number
+	}
 	return m0
 }
 
@@ -1269,8 +1301,9 @@ const file_api_proto_logins_logins_proto_rawDesc = "" +
 	"\x03url\x18\x02 \x01(\tR\x03url\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x14\n" +
 	"\x05login\x18\x04 \x01(\tR\x05login\x12\x1a\n" +
-	"\bpassword\x18\x05 \x01(\tR\bpassword\"\x15\n" +
-	"\x13LoginCreateResponse\")\n" +
+	"\bpassword\x18\x05 \x01(\tR\bpassword\"-\n" +
+	"\x13LoginCreateResponse\x12\x16\n" +
+	"\x06number\x18\x01 \x01(\x04R\x06number\")\n" +
 	"\x0fLoginGetRequest\x12\x16\n" +
 	"\x06number\x18\x01 \x01(\x04R\x06number\"\xe4\x01\n" +
 	"\x10LoginGetResponse\x12\x14\n" +

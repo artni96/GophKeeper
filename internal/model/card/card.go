@@ -139,7 +139,7 @@ func cardValidator(pan *wrapperspb.UInt64Value, expiryDate, cvv, pin, title *wra
 		if err != nil {
 			errs = append(errs, fmt.Sprintf("invalid cvv value: %d", intCVV))
 		}
-		if (len(strCVV) != 3 || len(strCVV) != 4) && intCVV < 0 {
+		if (len(strCVV) < 3 || len(strCVV) > 5) && intCVV < 0 {
 			errs = append(errs, fmt.Sprintf("invalid cvv value: %d", intCVV))
 		}
 	}
@@ -156,21 +156,21 @@ func cardValidator(pan *wrapperspb.UInt64Value, expiryDate, cvv, pin, title *wra
 	}
 	if expiryDate != nil {
 		strExpiryDate := expiryDate.Value
-		strMonth := strExpiryDate[:3]
+		strMonth := strExpiryDate[:2]
 		intMonth, err := strconv.Atoi(strMonth)
 		if err != nil {
-			errs = append(errs, fmt.Sprintf("invalid expiry date value: %d", intMonth))
+			errs = append(errs, fmt.Sprintf("invalid expiry date value: %s", strExpiryDate))
 		}
 		if intMonth < 0 || intMonth > 12 {
-			errs = append(errs, fmt.Sprintf("invalid expiry date value: %d", intMonth))
+			errs = append(errs, fmt.Sprintf("invalid expiry date value: %s", strExpiryDate))
 		}
 		strYear := strExpiryDate[3:]
 		intYear, err := strconv.Atoi(strYear)
 		if err != nil {
-			errs = append(errs, fmt.Sprintf("invalid expiry date value: %d", intMonth))
+			errs = append(errs, fmt.Sprintf("invalid expiry date value: %s", strExpiryDate))
 		}
 		if intYear < 0 || intYear > 99 {
-			errs = append(errs, fmt.Sprintf("invalid expiry date value: %d", intMonth))
+			errs = append(errs, fmt.Sprintf("invalid expiry date value: %s", strExpiryDate))
 		}
 	}
 	if len(errs) > 0 {

@@ -51,10 +51,11 @@ func (h *Handler) CreateCard(ctx context.Context, req *pb.CardCreateRequest) (*p
 	if err := entityToCreate.Validate(); err != nil {
 		return resp, status.Error(codes.InvalidArgument, err.Error())
 	}
-	err := h.Service.Create(ctx, entityToCreate)
+	number, err := h.Service.Create(ctx, entityToCreate)
 	if err != nil {
 		return resp, status.Errorf(codes.Internal, "%v", err)
 	}
+	resp.SetNumber(number)
 	return resp, nil
 }
 

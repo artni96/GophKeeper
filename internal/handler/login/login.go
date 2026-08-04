@@ -48,13 +48,14 @@ func (h *Handler) CreateLogin(ctx context.Context, req *pb.LoginCreateRequest) (
 	if err := entityToCreate.Validate(); err != nil {
 		return resp, status.Error(codes.InvalidArgument, err.Error())
 	}
-	err := h.Service.Create(ctx, entityToCreate)
+	number, err := h.Service.Create(ctx, entityToCreate)
 	if err != nil {
 		if errors.Is(err, constants.ErrEntityAlreadyExists) {
 			return resp, status.Error(codes.AlreadyExists, err.Error())
 		}
 		return resp, status.Error(codes.Internal, constants.DefaultError)
 	}
+	resp.SetNumber(number)
 	return resp, nil
 }
 

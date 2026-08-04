@@ -50,7 +50,7 @@ func cardFixture(ctx context.Context, cardRepo *Repository, entityData card.Crea
 		"created_at",
 		"number",
 	}
-	err := cardRepo.Create(ctx, entityData, notNullFields)
+	_, err := cardRepo.Create(ctx, entityData, notNullFields)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -231,10 +231,12 @@ func TestCreate(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err = tc.cardRepo.Create(tc.ctx, tt.data, tt.notNullFields)
+			number, err := tc.cardRepo.Create(tc.ctx, tt.data, tt.notNullFields)
 			assert.Equal(t, tt.failure, err != nil)
 			if tt.failure {
 				assert.ErrorIs(t, err, tt.error)
+			} else {
+				assert.Equal(t, number, uint64(1))
 			}
 		})
 	}

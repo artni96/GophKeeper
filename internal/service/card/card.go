@@ -14,7 +14,7 @@ import (
 
 // ServiceI represents the methods of the Login service.
 type ServiceI interface {
-	Create(ctx context.Context, data cardmodel.CreateCardRequest) error
+	Create(ctx context.Context, data cardmodel.CreateCardRequest) (uint64, error)
 	GetByNumber(ctx context.Context, number uint64, userID uuid.UUID) (*cardmodel.Card, error)
 	Update(ctx context.Context, data cardmodel.UpdateCardRequest, number uint64, userID uuid.UUID) error
 	Delete(ctx context.Context, number uint64, userID uuid.UUID) error
@@ -38,7 +38,7 @@ func NewService(cfg *config.Config, logger *zap.Logger, repo card.RepositoryI) *
 }
 
 // Create creates a new Card entity by the repository.
-func (s *Service) Create(ctx context.Context, data cardmodel.CreateCardRequest) error {
+func (s *Service) Create(ctx context.Context, data cardmodel.CreateCardRequest) (uint64, error) {
 	notNullFields := make([]string, 0, 9)
 	entityToCreate := cardmodel.CreateCard{}
 
@@ -89,11 +89,11 @@ func (s *Service) Create(ctx context.Context, data cardmodel.CreateCardRequest) 
 	notNullFields = append(notNullFields, "created_at")
 	notNullFields = append(notNullFields, "number")
 
-	err := s.repo.Create(ctx, entityToCreate, notNullFields)
+	number, err := s.repo.Create(ctx, entityToCreate, notNullFields)
 	if err != nil {
-		return err
+		return 0, err
 	}
-	return nil
+	return number, nil
 }
 
 // GetByNumber selects and returns a Card entity by its number by the repository.

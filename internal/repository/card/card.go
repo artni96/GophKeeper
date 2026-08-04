@@ -20,7 +20,7 @@ const tableName = "cards"
 
 // RepositoryI represents the methods of the Login repository.
 type RepositoryI interface {
-	Create(ctx context.Context, entity card.CreateCard, notNullFields []string) error
+	Create(ctx context.Context, entity card.CreateCard, notNullFields []string) (uint64, error)
 	GetByNumber(ctx context.Context, number uint64, userID uuid.UUID) (*card.Card, error)
 	Update(ctx context.Context, entity card.UpdateCard, number uint64, userID uuid.UUID, notNullFields []string) error
 	Delete(ctx context.Context, number uint64, userID uuid.UUID) error
@@ -42,13 +42,13 @@ func NewRepository(sqlxDB *sqlx.DB, logger *zap.Logger) (*Repository, error) {
 }
 
 // Create creates a new Card entity in the database.
-func (r *Repository) Create(ctx context.Context, entity card.CreateCard, notNullFields []string) error {
+func (r *Repository) Create(ctx context.Context, entity card.CreateCard, notNullFields []string) (uint64, error) {
 	tx := r.db.WithContext(ctx).Begin()
 
 	entityNumber, err := common.GetNextRecordNumber(tx, entity.UserID)
 	if err != nil {
 		tx.Rollback()
-		return fmt.Errorf("failed to get the next user entity number: %w", err)
+		return 0, fmt.Errorf("failed to get the next user entity number: %w", err)
 	}
 	entity.Number = entityNumber
 
@@ -58,18 +58,18 @@ func (r *Repository) Create(ctx context.Context, entity card.CreateCard, notNull
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
 			if pgErr.Code == "23502" {
-				return fmt.Errorf("%w: %s", constants.ErrRequiredField, pgErr.ColumnName)
+				return 0, fmt.Errorf("%w: %s", constants.ErrRequiredField, pgErr.ColumnName)
 			} else if pgErr.Code == "23505" {
-				return constants.ErrEntityAlreadyExists
+				return 0, constants.ErrEntityAlreadyExists
 			}
 		}
 	}
 
 	if err = tx.Commit().Error; err != nil {
 		tx.Rollback()
-		return fmt.Errorf("failed to create card record: %w", err)
+		return 0, fmt.Errorf("failed to create card record: %w", err)
 	}
-	return nil
+	return entityNumber, nil
 }
 
 // GetByNumber selects and returns the Card entity by its number from the database.

@@ -23,6 +23,7 @@ message LoginCreateRequest {
 }
 
 message LoginCreateResponse {
+  uint64 number = 1;
 }
 
 message LoginGetRequest {

@@ -28,6 +28,7 @@ message CardCreateRequest {
 }
 
 message CardCreateResponse {
+  uint64 number = 1;
 }
 
 message CardGetRequest {
