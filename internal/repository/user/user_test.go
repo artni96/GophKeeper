@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	usermodel "github.com/artni96/GophKeeper/internal/model/user"
-	"github.com/artni96/GophKeeper/internal/repository/test_config"
+	"github.com/artni96/GophKeeper/tests"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 )
@@ -22,13 +22,13 @@ func initUserRepo(db *sqlx.DB) (*Repository, error) {
 
 type testConfig struct {
 	ctx        context.Context
-	testConfig *test_config.TestConfig
+	testConfig *tests.TestDependencies
 	userRepo   *Repository
 }
 
 func (c *testConfig) init(t *testing.T) {
 	c.ctx = context.Background()
-	newTC, err := test_config.NewTestConfig(c.ctx)
+	newTC, err := tests.NewTestDependencies(c.ctx)
 	if err != nil {
 		log.Fatal(err)
 	}

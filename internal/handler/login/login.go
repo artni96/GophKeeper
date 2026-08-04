@@ -15,8 +15,6 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-const DefaultError = "Internal Server Error"
-
 // Handler represents the Login handler instance.
 type Handler struct {
 	pb.UnimplementedLoginServiceServer
@@ -47,14 +45,15 @@ func (h *Handler) CreateLogin(ctx context.Context, req *pb.LoginCreateRequest) (
 		URL:         req.GetUrl(),
 		UserID:      userID,
 	}
+	if err := entityToCreate.Validate(); err != nil {
+		return resp, status.Error(codes.InvalidArgument, err.Error())
+	}
 	err := h.Service.Create(ctx, entityToCreate)
 	if err != nil {
-		if errors.Is(err, constants.ErrInvalidRequest) {
-			return resp, status.Error(codes.InvalidArgument, err.Error())
-		} else if errors.Is(err, constants.ErrEntityAlreadyExists) {
+		if errors.Is(err, constants.ErrEntityAlreadyExists) {
 			return resp, status.Error(codes.AlreadyExists, err.Error())
 		}
-		return resp, status.Error(codes.Internal, DefaultError)
+		return resp, status.Error(codes.Internal, constants.DefaultError)
 	}
 	return resp, nil
 }
@@ -73,9 +72,19 @@ func (h *Handler) GetLogin(ctx context.Context, req *pb.LoginGetRequest) (*pb.Lo
 		if errors.Is(err, constants.ErrEntityNotFound) {
 			return resp, status.Errorf(codes.NotFound, "login with number %d not found", entityNumber)
 		}
-		return resp, status.Error(codes.Internal, DefaultError)
+		return resp, status.Error(codes.Internal, constants.DefaultError)
 	}
-	h.prepareResponse(*dbEntity, resp)
+
+	resp.SetUrl(dbEntity.URL)
+	resp.SetTitle(dbEntity.Title)
+	resp.SetDescription(dbEntity.Description)
+	resp.SetNumber(dbEntity.Number)
+	resp.SetLogin(dbEntity.Login)
+	resp.SetPassword(dbEntity.Password)
+	resp.SetCreatedAt(dbEntity.CreatedAt.Format(time.RFC3339))
+	if !dbEntity.UpdatedAt.IsZero() {
+		resp.SetUpdatedAt(dbEntity.UpdatedAt.Format(time.RFC3339))
+	}
 	return resp, nil
 }
 
@@ -95,6 +104,9 @@ func (h *Handler) UpdateLogin(ctx context.Context, req *pb.LoginUpdateRequest) (
 		Description: req.GetDescription(),
 		URL:         req.GetUrl(),
 	}
+	if err := dataToUpdate.Validate(); err != nil {
+		return resp, status.Error(codes.InvalidArgument, err.Error())
+	}
 
 	err := h.Service.Update(ctx, dataToUpdate, entityNumber, userID)
 	if err != nil {
@@ -102,7 +114,7 @@ func (h *Handler) UpdateLogin(ctx context.Context, req *pb.LoginUpdateRequest) (
 		if errors.Is(err, constants.ErrEntityNotFound) {
 			return resp, status.Errorf(codes.NotFound, "login with %d number not found", entityNumber)
 		}
-		return resp, status.Error(codes.Internal, DefaultError)
+		return resp, status.Error(codes.Internal, constants.DefaultError)
 	}
 	return resp, nil
 }
@@ -122,7 +134,7 @@ func (h *Handler) DeleteLogin(ctx context.Context, req *pb.LoginDeleteRequest) (
 		if errors.Is(err, constants.ErrEntityNotFound) {
 			return resp, status.Errorf(codes.NotFound, "login with %d number not found", entityNumber)
 		}
-		return resp, status.Error(codes.Internal, DefaultError)
+		return resp, status.Error(codes.Internal, constants.DefaultError)
 	}
 	return resp, nil
 }
@@ -137,7 +149,7 @@ func (h *Handler) GetListLogin(ctx context.Context, req *pb.LoginGetListRequest)
 	dbEntities, err := h.Service.GetList(ctx, userID)
 	if err != nil {
 		h.Logger.Info("failed to retrieve user's login list", zap.Error(err), zap.String("user_id", userID.String()))
-		return resp, status.Error(codes.Internal, DefaultError)
+		return resp, status.Error(codes.Internal, constants.DefaultError)
 	}
 
 	pbList := make([]*pb.LoginGetListItemResponse, 0)
@@ -151,19 +163,4 @@ func (h *Handler) GetListLogin(ctx context.Context, req *pb.LoginGetListRequest)
 	resp.SetLogins(pbList)
 
 	return resp, nil
-}
-
-// prepareResponse sets pb.LoginGetResponse field values from a Login database entity - Login service result.
-func (h *Handler) prepareResponse(dbEntity loginmodel.Login, resp *pb.LoginGetResponse) *pb.LoginGetResponse {
-	resp.SetUrl(dbEntity.URL)
-	resp.SetTitle(dbEntity.Title)
-	resp.SetDescription(dbEntity.Description)
-	resp.SetNumber(dbEntity.Number)
-	resp.SetLogin(dbEntity.Login)
-	resp.SetPassword(dbEntity.Password)
-	resp.SetCreatedAt(dbEntity.CreatedAt.Format(time.RFC3339))
-	if !dbEntity.UpdatedAt.IsZero() {
-		resp.SetUpdatedAt(dbEntity.UpdatedAt.Format(time.RFC3339))
-	}
-	return resp
 }

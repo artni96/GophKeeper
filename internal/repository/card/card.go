@@ -1,4 +1,4 @@
-package login
+package card
 
 import (
 	"context"
@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"github.com/artni96/GophKeeper/internal/constants"
+	"github.com/artni96/GophKeeper/internal/model/card"
 	commonmodel "github.com/artni96/GophKeeper/internal/model/common"
-	"github.com/artni96/GophKeeper/internal/model/login"
 	"github.com/artni96/GophKeeper/internal/repository/common"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -16,25 +16,23 @@ import (
 	"gorm.io/gorm"
 )
 
-const tableName = "logins"
+const tableName = "cards"
 
-// RepositoryI represents all method for the Login repository.
-//
-//go:generate mockgen -source=login.go -destination=mocks/login_repository_mock.go -package=mocks
+// RepositoryI represents the methods of the Login repository.
 type RepositoryI interface {
-	Create(ctx context.Context, entity login.CreateLogin) error
-	GetByNumber(ctx context.Context, number uint64, userID uuid.UUID) (*login.Login, error)
-	Update(ctx context.Context, entity login.UpdateLogin, number uint64, userID uuid.UUID, fieldsToUpdate []string) error
+	Create(ctx context.Context, entity card.CreateCard, notNullFields []string) error
+	GetByNumber(ctx context.Context, number uint64, userID uuid.UUID) (*card.Card, error)
+	Update(ctx context.Context, entity card.UpdateCard, number uint64, userID uuid.UUID, notNullFields []string) error
 	Delete(ctx context.Context, number uint64, userID uuid.UUID) error
 	GetList(ctx context.Context, userID uuid.UUID) ([]commonmodel.GetListEntityResponse, error)
 }
 
-// Repository implements the Login repository to manage login-related data through the database.
+// Repository implements the Card repository to manage card-related data through the database.
 type Repository struct {
 	db *gorm.DB
 }
 
-// NewRepository initializes and return the new Login repository instance.
+// NewRepository initializes and return the new Card repository instance.
 func NewRepository(sqlxDB *sqlx.DB, logger *zap.Logger) (*Repository, error) {
 	db, err := common.InitDBConnByGORM(sqlxDB, logger)
 	if err != nil {
@@ -43,36 +41,40 @@ func NewRepository(sqlxDB *sqlx.DB, logger *zap.Logger) (*Repository, error) {
 	return &Repository{db: db}, nil
 }
 
-// Create creates a new Login entity in the database.
-func (r *Repository) Create(ctx context.Context, entity login.CreateLogin) error {
+// Create creates a new Card entity in the database.
+func (r *Repository) Create(ctx context.Context, entity card.CreateCard, notNullFields []string) error {
 	tx := r.db.WithContext(ctx).Begin()
 
 	entityNumber, err := common.GetNextRecordNumber(tx, entity.UserID)
 	if err != nil {
 		tx.Rollback()
-		return fmt.Errorf("failed to get the next user login number: %w", err)
+		return fmt.Errorf("failed to get the next user entity number: %w", err)
 	}
 	entity.Number = entityNumber
 
-	err = tx.Table(tableName).Create(&entity).Error
+	err = tx.Table(tableName).Select(notNullFields).Create(&entity).Error
 	if err != nil {
 		tx.Rollback()
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
-			return constants.ErrEntityAlreadyExists
+			if pgErr.Code == "23502" {
+				return fmt.Errorf("%w: %s", constants.ErrRequiredField, pgErr.ColumnName)
+			} else if pgErr.Code == "23505" {
+				return constants.ErrEntityAlreadyExists
+			}
 		}
 	}
 
 	if err = tx.Commit().Error; err != nil {
 		tx.Rollback()
-		return fmt.Errorf("failed to create login: %w", err)
+		return fmt.Errorf("failed to create card record: %w", err)
 	}
 	return nil
 }
 
-// GetByNumber selects and returns the Login entity by its number from the database.
-func (r *Repository) GetByNumber(ctx context.Context, number uint64, userID uuid.UUID) (*login.Login, error) {
-	var entity login.Login
+// GetByNumber selects and returns the Card entity by its number from the database.
+func (r *Repository) GetByNumber(ctx context.Context, number uint64, userID uuid.UUID) (*card.Card, error) {
+	var entity card.Card
 
 	db := r.db.WithContext(ctx)
 	if err := db.Table(tableName).Where("number = ? AND user_id = ?", number, userID).First(&entity).Error; err != nil {
@@ -81,14 +83,12 @@ func (r *Repository) GetByNumber(ctx context.Context, number uint64, userID uuid
 	return &entity, nil
 }
 
-// Update updates the Login entity in the database by its number (only for authors).
-func (r *Repository) Update(ctx context.Context, entity login.UpdateLogin, number uint64, userID uuid.UUID, fieldsToUpdate []string) error {
-	x, _ := userID.Value()
-	fmt.Println(x)
+// Update updates the Card entity in the database by its number (only for authors).
+func (r *Repository) Update(ctx context.Context, entity card.UpdateCard, number uint64, userID uuid.UUID, notNullFields []string) error {
 	db := r.db.WithContext(ctx)
-	result := db.Table(tableName).Select(fieldsToUpdate).Where("number = ? AND user_id = ?", number, userID).Updates(entity)
+	result := db.Table(tableName).Select(notNullFields).Where("number = ? AND user_id = ?", number, userID).Updates(entity)
 	if result.Error != nil {
-		return fmt.Errorf("failed to update login with the number %d: %w", number, result.Error)
+		return fmt.Errorf("failed to update card with the number %d: %w", number, result.Error)
 	}
 
 	if result.RowsAffected == 0 {
@@ -97,12 +97,12 @@ func (r *Repository) Update(ctx context.Context, entity login.UpdateLogin, numbe
 	return nil
 }
 
-// Delete removes the Login entity from the database by its number (only for authors).
+// Delete removes the Card entity from the database by its number (only for authors).
 func (r *Repository) Delete(ctx context.Context, number uint64, userID uuid.UUID) error {
 	db := r.db.WithContext(ctx)
 	result := db.Table(tableName).Where("number = ? AND user_id = ?", number, userID).Delete(nil)
 	if result.Error != nil {
-		return fmt.Errorf("failed to delete login with the number %d: %w", number, result.Error)
+		return fmt.Errorf("failed to delete card with the number %d: %w", number, result.Error)
 	}
 
 	if result.RowsAffected == 0 {
@@ -111,7 +111,7 @@ func (r *Repository) Delete(ctx context.Context, number uint64, userID uuid.UUID
 	return nil
 }
 
-// GetList returns the list of user's login-related entities from the database (only for authors).
+// GetList returns the list of user's card-related entities from the database (only for authors).
 func (r *Repository) GetList(ctx context.Context, userID uuid.UUID) ([]commonmodel.GetListEntityResponse, error) {
 	var dbEntities []commonmodel.GetListEntityResponse
 	result := r.db.WithContext(ctx).Table(tableName).Where("user_id = ?", userID).Find(&dbEntities)

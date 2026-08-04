@@ -1,4 +1,4 @@
-package test_config
+package tests
 
 import (
 	"context"
@@ -18,24 +18,24 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
-type TestConfig struct {
+type TestDependencies struct {
 	cfg *config.Config
 	DB  *sqlx.DB
 }
 
-func NewTestConfig(ctx context.Context) (*TestConfig, error) {
-	app := &TestConfig{}
-	if err := app.initConfig(); err != nil {
+func NewTestDependencies(ctx context.Context) (*TestDependencies, error) {
+	td := &TestDependencies{}
+	if err := td.initConfig(); err != nil {
 		return nil, err
 	}
-	if err := app.initDBConn(ctx); err != nil {
+	if err := td.initDBConn(ctx); err != nil {
 		return nil, err
 	}
-	if err := app.applyMigrations(); err != nil {
+	if err := td.applyMigrations(); err != nil {
 		return nil, err
 	}
 
-	return app, nil
+	return td, nil
 
 }
 
@@ -58,7 +58,7 @@ func findProjectRoot() (string, error) {
 	}
 }
 
-func (c *TestConfig) initConfig() error {
+func (td *TestDependencies) initConfig() error {
 	cfg := config.Config{}
 	configFile := config.ConfigFile{}
 
@@ -67,7 +67,7 @@ func (c *TestConfig) initConfig() error {
 		return err
 	}
 
-	configPath := filepath.Join(root, "internal/repository/test_config/test_config.json")
+	configPath := filepath.Join(root, "tests/test_config.json")
 
 	file, err := os.ReadFile(configPath)
 	if err != nil {
@@ -83,15 +83,15 @@ func (c *TestConfig) initConfig() error {
 		return fmt.Errorf("failed to parse config file: %w", err)
 	}
 	cfg.DBDsn = dbDSN
-	c.cfg = &cfg
+	td.cfg = &cfg
 	return nil
 }
 
-func (c *TestConfig) initDBConn(ctx context.Context) error {
-	if c.cfg.DBDsn == "" {
+func (td *TestDependencies) initDBConn(ctx context.Context) error {
+	if td.cfg.DBDsn == "" {
 		return fmt.Errorf("database dsn is not provided")
 	}
-	db, err := sqlx.Open("pgx", c.cfg.DBDsn)
+	db, err := sqlx.Open("pgx", td.cfg.DBDsn)
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %w", err)
 	}
@@ -103,11 +103,11 @@ func (c *TestConfig) initDBConn(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("failed to ping database: %w", err)
 	}
-	c.DB = db
+	td.DB = db
 	return nil
 }
 
-func (c *TestConfig) applyMigrations() error {
+func (c *TestDependencies) applyMigrations() error {
 	driver, err := postgres.WithInstance(c.DB.DB, &postgres.Config{})
 	if err != nil {
 		log.Println(fmt.Errorf("failed to create database driver: %w", err))

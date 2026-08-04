@@ -8,10 +8,11 @@ import (
 	"time"
 
 	"github.com/artni96/GophKeeper/internal/constants"
+	"github.com/artni96/GophKeeper/internal/model/common"
 	"github.com/artni96/GophKeeper/internal/model/login"
-	"github.com/artni96/GophKeeper/internal/repository/test_config"
 	"github.com/artni96/GophKeeper/internal/repository/user"
 	userfixture "github.com/artni96/GophKeeper/internal/repository/user/fixture"
+	"github.com/artni96/GophKeeper/tests"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
@@ -33,40 +34,33 @@ func initLoginRepo(db *sqlx.DB) (*Repository, error) {
 	return repo, nil
 }
 
-func loginFixture(ctx context.Context, loginRepo *Repository, entityData login.CreateLogin, userID uuid.UUID) {
-	testEntity := login.CreateLogin{
-		UserID:    entityData.UserID,
-		Login:     entityData.Login,
-		Password:  entityData.Password,
-		Title:     entityData.Title,
-		CreatedAt: entityData.CreatedAt,
-	}
-	err := loginRepo.Create(ctx, testEntity)
+func loginFixture(ctx context.Context, loginRepo *Repository, entityData login.CreateLogin) {
+	err := loginRepo.Create(ctx, entityData)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
 type testConfig struct {
-	ctx        context.Context
-	testConfig *test_config.TestConfig
-	loginRepo  *Repository
-	userRepo   *user.Repository
+	ctx       context.Context
+	depends   *tests.TestDependencies
+	loginRepo *Repository
+	userRepo  *user.Repository
 }
 
 func (c *testConfig) init(t *testing.T) {
 	c.ctx = context.Background()
-	newTC, err := test_config.NewTestConfig(c.ctx)
+	newTC, err := tests.NewTestDependencies(c.ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
-	c.testConfig = newTC
-	loginRepo, err := initLoginRepo(c.testConfig.DB)
+	c.depends = newTC
+	loginRepo, err := initLoginRepo(c.depends.DB)
 	if err != nil {
 		t.Fatal(err)
 	}
 	c.loginRepo = loginRepo
-	userRepo, err := initUserRepo(c.testConfig.DB)
+	userRepo, err := initUserRepo(c.depends.DB)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -81,7 +75,7 @@ func newTestConfig(t *testing.T) *testConfig {
 
 func TestCreate(t *testing.T) {
 	tc := newTestConfig(t)
-	firstUser, err := userfixture.CreateFirstUser(tc.ctx, tc.testConfig.DB, tc.userRepo)
+	firstUser, err := userfixture.CreateFirstUser(tc.ctx, tc.depends.DB, tc.userRepo)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -98,22 +92,9 @@ func TestCreate(t *testing.T) {
 				Password:  "test password",
 				UserID:    firstUser,
 				Title:     "test title",
-				Number:    1,
 				CreatedAt: time.Now(),
 			},
 			failure: false,
-		},
-		{
-			name: "failure - number unique constraint violation",
-			data: login.CreateLogin{
-				Login:     "test login",
-				Password:  "test password",
-				UserID:    firstUser,
-				Title:     "test title",
-				Number:    1,
-				CreatedAt: time.Now(),
-			},
-			failure: true,
 		},
 		{
 			name: "failure - no login",
@@ -121,7 +102,6 @@ func TestCreate(t *testing.T) {
 				Password:  "test password",
 				UserID:    uuid.New(),
 				Title:     "test title",
-				Number:    2,
 				CreatedAt: time.Now(),
 			},
 			failure: true,
@@ -132,7 +112,6 @@ func TestCreate(t *testing.T) {
 				Login:     "test login",
 				UserID:    firstUser,
 				Title:     "test title",
-				Number:    3,
 				CreatedAt: time.Now(),
 			},
 			failure: true,
@@ -143,7 +122,6 @@ func TestCreate(t *testing.T) {
 				Login:     "test login",
 				Password:  "test password",
 				Title:     "test title",
-				Number:    4,
 				CreatedAt: time.Now(),
 			},
 			failure: true,
@@ -155,7 +133,6 @@ func TestCreate(t *testing.T) {
 				Login:     "test login",
 				Password:  "test password",
 				UserID:    firstUser,
-				Number:    5,
 				CreatedAt: time.Now(),
 			},
 			failure: true,
@@ -167,7 +144,6 @@ func TestCreate(t *testing.T) {
 				Password: "test password",
 				UserID:   firstUser,
 				Title:    "test title",
-				Number:   6,
 			},
 			failure: true,
 		},
@@ -176,7 +152,6 @@ func TestCreate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err = tc.loginRepo.Create(tc.ctx, tt.data)
-			fmt.Println(tt.data)
 			assert.Equal(t, tt.failure, err != nil)
 		})
 	}
@@ -185,11 +160,11 @@ func TestCreate(t *testing.T) {
 
 func TestGetByNumber(t *testing.T) {
 	tc := newTestConfig(t)
-	firstUser, err := userfixture.CreateFirstUser(tc.ctx, tc.testConfig.DB, tc.userRepo)
+	firstUser, err := userfixture.CreateFirstUser(tc.ctx, tc.depends.DB, tc.userRepo)
 	if err != nil {
 		t.Fatal(err)
 	}
-	secondUser, err := userfixture.CreateSecondUser(tc.ctx, tc.testConfig.DB, tc.userRepo)
+	secondUser, err := userfixture.CreateSecondUser(tc.ctx, tc.depends.DB, tc.userRepo)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -200,11 +175,11 @@ func TestGetByNumber(t *testing.T) {
 		UserID:   firstUser,
 		Title:    "test title",
 	}
-	loginFixture(tc.ctx, tc.loginRepo, fixtureData, fixtureData.UserID)
+	loginFixture(tc.ctx, tc.loginRepo, fixtureData)
 
 	tests := []struct {
 		name    string
-		number  int64
+		number  uint64
 		userID  uuid.UUID
 		failure bool
 	}{
@@ -215,13 +190,13 @@ func TestGetByNumber(t *testing.T) {
 			failure: false,
 		},
 		{
-			name:    "failure - login does not exist",
+			name:    "failure - the first user does not have a login with number 2",
 			number:  2,
-			userID:  firstUser,
+			userID:  fixtureData.UserID,
 			failure: true,
 		},
 		{
-			name:    "failure - login does not exist",
+			name:    "failure - the second user does not have a card with number 1",
 			number:  1,
 			userID:  secondUser,
 			failure: true,
@@ -232,7 +207,6 @@ func TestGetByNumber(t *testing.T) {
 			dbEntity, err := tc.loginRepo.GetByNumber(tc.ctx, tt.number, tt.userID)
 			if err != nil {
 				if !tt.failure {
-					fmt.Println(dbEntity)
 					assert.Equal(t, fixtureData.UserID.String(), dbEntity.UserID.String())
 					assert.Equal(t, fixtureData.Number, dbEntity.Number)
 					assert.Equal(t, fixtureData.CreatedAt, dbEntity.CreatedAt)
@@ -247,11 +221,11 @@ func TestGetByNumber(t *testing.T) {
 
 func TestUpdate(t *testing.T) {
 	tc := newTestConfig(t)
-	firstUser, err := userfixture.CreateFirstUser(tc.ctx, tc.testConfig.DB, tc.userRepo)
+	firstUser, err := userfixture.CreateFirstUser(tc.ctx, tc.depends.DB, tc.userRepo)
 	if err != nil {
 		t.Fatal(err)
 	}
-	secondUser, err := userfixture.CreateSecondUser(tc.ctx, tc.testConfig.DB, tc.userRepo)
+	secondUser, err := userfixture.CreateSecondUser(tc.ctx, tc.depends.DB, tc.userRepo)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -262,12 +236,14 @@ func TestUpdate(t *testing.T) {
 		UserID:   firstUser,
 		Title:    "test title",
 	}
-	loginFixture(tc.ctx, tc.loginRepo, fixtureData, fixtureData.UserID)
+	loginFixture(tc.ctx, tc.loginRepo, fixtureData)
 	tests := []struct {
-		name    string
-		userID  uuid.UUID
-		data    login.UpdateLogin
-		failure bool
+		name           string
+		userID         uuid.UUID
+		data           login.UpdateLogin
+		number         uint64
+		fieldsToUpdate []string
+		failure        bool
 	}{
 		{
 			name: "success",
@@ -277,6 +253,14 @@ func TestUpdate(t *testing.T) {
 				Title:       "updated title",
 				URL:         "updated url",
 				Description: "updated description",
+			},
+			number: uint64(1),
+			fieldsToUpdate: []string{
+				"hashed_login",
+				"hashed_password",
+				"title",
+				"url",
+				"description",
 			},
 			failure: false,
 			userID:  firstUser,
@@ -290,20 +274,28 @@ func TestUpdate(t *testing.T) {
 				URL:         "updated url",
 				Description: "updated description",
 			},
+			number: uint64(1),
+			fieldsToUpdate: []string{
+				"hashed_login",
+				"hashed_password",
+				"title",
+				"url",
+				"description",
+			},
 			failure: true,
 			userID:  secondUser,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err = tc.loginRepo.Update(tc.ctx, tt.data, 1, tt.userID)
+			err = tc.loginRepo.Update(tc.ctx, tt.data, tt.number, tt.userID, tt.fieldsToUpdate)
 			assert.Equal(t, tt.failure, err != nil)
 			if !tt.failure {
-				dbEntity, err := tc.loginRepo.GetByNumber(tc.ctx, 1, tt.userID)
+				dbEntity, err := tc.loginRepo.GetByNumber(tc.ctx, tt.number, tt.userID)
 				if err != nil {
 					t.Fatal(err)
 				}
-				assert.Equal(t, firstUser, dbEntity.UserID)
+				assert.Equal(t, tt.userID, dbEntity.UserID)
 				assert.Equal(t, tt.data.Title, dbEntity.Title)
 				assert.Equal(t, tt.data.Description, dbEntity.Description)
 				assert.Equal(t, tt.data.URL, dbEntity.URL)
@@ -319,11 +311,11 @@ func TestUpdate(t *testing.T) {
 
 func TestGetList(t *testing.T) {
 	tc := newTestConfig(t)
-	firstUser, err := userfixture.CreateFirstUser(tc.ctx, tc.testConfig.DB, tc.userRepo)
+	firstUser, err := userfixture.CreateFirstUser(tc.ctx, tc.depends.DB, tc.userRepo)
 	if err != nil {
 		t.Fatal(err)
 	}
-	secondUser, err := userfixture.CreateSecondUser(tc.ctx, tc.testConfig.DB, tc.userRepo)
+	secondUser, err := userfixture.CreateSecondUser(tc.ctx, tc.depends.DB, tc.userRepo)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -343,7 +335,7 @@ func TestGetList(t *testing.T) {
 			UserID:   userID,
 			Title:    fmt.Sprintf("test title %d", i),
 		}
-		loginFixture(tc.ctx, tc.loginRepo, fixtureData, firstUser)
+		loginFixture(tc.ctx, tc.loginRepo, fixtureData)
 
 		if _, ok := userLoginNumberMap[userID.String()]; !ok {
 			userLoginNumberMap[userID.String()] = 1
@@ -375,23 +367,19 @@ func TestGetList(t *testing.T) {
 				t.Fatal(err)
 			}
 			assert.Equal(t, tt.correctNumber, len(result))
-			assert.IsType(t, result[0], login.GetListLoginResponse{})
-			if tt.name == "first user" {
-				assert.Equal(t, result[0].Number, int64(1))
-			} else if tt.name == "second user" {
-				assert.Equal(t, result[0].Number, int64(1))
-			}
+			assert.IsType(t, result[0], common.GetListEntityResponse{})
+			assert.Equal(t, result[0].Number, uint64(1))
 		})
 	}
 }
 
 func TestDelete(t *testing.T) {
 	tc := newTestConfig(t)
-	firstUser, err := userfixture.CreateFirstUser(tc.ctx, tc.testConfig.DB, tc.userRepo)
+	firstUser, err := userfixture.CreateFirstUser(tc.ctx, tc.depends.DB, tc.userRepo)
 	if err != nil {
 		t.Fatal(err)
 	}
-	secondUser, err := userfixture.CreateSecondUser(tc.ctx, tc.testConfig.DB, tc.userRepo)
+	secondUser, err := userfixture.CreateSecondUser(tc.ctx, tc.depends.DB, tc.userRepo)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -401,12 +389,12 @@ func TestDelete(t *testing.T) {
 		UserID:   firstUser,
 		Title:    "test title",
 	}
-	loginFixture(tc.ctx, tc.loginRepo, fixtureData, fixtureData.UserID)
+	loginFixture(tc.ctx, tc.loginRepo, fixtureData)
 
 	tests := []struct {
 		name    string
 		userID  uuid.UUID
-		number  int64
+		number  uint64
 		failure bool
 	}{
 		{

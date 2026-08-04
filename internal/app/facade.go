@@ -9,9 +9,11 @@ import (
 
 	"github.com/artni96/GophKeeper/internal/config"
 	applog "github.com/artni96/GophKeeper/internal/logger"
+	cardrepo "github.com/artni96/GophKeeper/internal/repository/card"
 	loginrepo "github.com/artni96/GophKeeper/internal/repository/login"
 	userrepo "github.com/artni96/GophKeeper/internal/repository/user"
 	"github.com/artni96/GophKeeper/internal/server"
+	cardserv "github.com/artni96/GophKeeper/internal/service/card"
 	loginserv "github.com/artni96/GophKeeper/internal/service/login"
 	userserv "github.com/artni96/GophKeeper/internal/service/user"
 	"github.com/golang-migrate/migrate/v4"
@@ -32,6 +34,7 @@ type App struct {
 	server       server.GRPCServer
 	userService  *userserv.Service
 	loginService *loginserv.Service
+	cardService  *cardserv.Service
 }
 
 // NewApp initializes and returns a new instance of App.
@@ -123,12 +126,20 @@ func (a *App) initDependencies() error {
 		return fmt.Errorf("failed to initialize login repository: %w", err)
 	}
 	a.loginService = loginserv.NewService(a.Cfg, a.Logger, loginRepository)
+
+	cardRepository, err := cardrepo.NewRepository(a.DB, a.Logger)
+	if err != nil {
+		a.Logger.Error("failed to initialize card repository", zap.Error(err))
+		return fmt.Errorf("failed to initialize card repository: %w", err)
+	}
+	a.cardService = cardserv.NewService(a.Cfg, a.Logger, cardRepository)
+
 	return nil
 }
 
 // initServer initializes a new gRPC server instance.
 func (a *App) initServer() error {
-	newServer := server.NewGRPCServer(a.Cfg, a.Logger, a.userService, a.loginService)
+	newServer := server.NewGRPCServer(a.Cfg, a.Logger, a.userService, a.loginService, a.cardService)
 	err := newServer.Init()
 	if err != nil {
 		return fmt.Errorf("failed to initialize gRPC server: %w", err)

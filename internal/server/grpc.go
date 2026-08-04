@@ -4,14 +4,17 @@ import (
 	"fmt"
 	"net"
 
+	cardspb "github.com/artni96/GophKeeper/api/proto/cards"
 	loginspb "github.com/artni96/GophKeeper/api/proto/logins"
 	userspb "github.com/artni96/GophKeeper/api/proto/users"
 	"github.com/artni96/GophKeeper/internal/config"
+	cardhandler "github.com/artni96/GophKeeper/internal/handler/card"
 	loginhandler "github.com/artni96/GophKeeper/internal/handler/login"
 	userhandler "github.com/artni96/GophKeeper/internal/handler/user"
 	"github.com/artni96/GophKeeper/internal/interceptors"
-	"github.com/artni96/GophKeeper/internal/service/login"
-	"github.com/artni96/GophKeeper/internal/service/user"
+	cardserv "github.com/artni96/GophKeeper/internal/service/card"
+	loginserv "github.com/artni96/GophKeeper/internal/service/login"
+	userserv "github.com/artni96/GophKeeper/internal/service/user"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -24,11 +27,14 @@ type GRPCServer struct {
 	server *grpc.Server
 
 	creds       credentials.TransportCredentials
-	userService *user.Service
+	userService *userserv.Service
 	userHandler *userhandler.Handler
 
-	loginService *login.Service
+	loginService *loginserv.Service
 	loginHandler *loginhandler.Handler
+
+	cardService *cardserv.Service
+	cardHandler *cardhandler.Handler
 }
 
 // Init initializes a new grpc server instance.
@@ -84,6 +90,9 @@ func (s *GRPCServer) Launch() error {
 	loginHandler := loginhandler.NewHandler(s.loginService, s.logger)
 	loginspb.RegisterLoginServiceServer(s.server, loginHandler)
 
+	cardHandler := cardhandler.NewHandler(s.cardService, s.logger)
+	cardspb.RegisterCardServiceServer(s.server, cardHandler)
+
 	if err = s.server.Serve(listen); err != nil {
 		return fmt.Errorf("failed to launch gRPC server: %w", err)
 	}
@@ -96,11 +105,12 @@ func (s *GRPCServer) Stop() {
 }
 
 // NewGRPCServer returns a new gRPC server instance.
-func NewGRPCServer(cfg *config.Config, logger *zap.Logger, userService *user.Service, loginService *login.Service) *GRPCServer {
+func NewGRPCServer(cfg *config.Config, logger *zap.Logger, userService *userserv.Service, loginService *loginserv.Service, cardService *cardserv.Service) *GRPCServer {
 	return &GRPCServer{
 		cfg:          cfg,
 		logger:       logger,
 		userService:  userService,
 		loginService: loginService,
+		cardService:  cardService,
 	}
 }
