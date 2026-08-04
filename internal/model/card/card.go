@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -28,7 +29,7 @@ type CreateCardRequest struct {
 }
 
 func (c *CreateCardRequest) Validate() error {
-	err := cardValidator(c.PAN, c.CVV, c.PIN, c.Title)
+	err := cardValidator(c.PAN, c.ExpiryDate, c.CVV, c.PIN, c.Title)
 	if err != nil {
 		return err
 	}
@@ -79,7 +80,7 @@ type UpdateCardRequest struct {
 }
 
 func (c *UpdateCardRequest) Validate() error {
-	err := cardValidator(c.PAN, c.CVV, c.PIN, c.Title)
+	err := cardValidator(c.PAN, c.ExpiryDate, c.CVV, c.PIN, c.Title)
 	if err != nil {
 		return err
 	}
@@ -121,37 +122,59 @@ func luhnValidator(number uint64) bool {
 }
 
 // cardValidator unifies the single validation flow for UpdateCardRequest and CreateCardRequest.
-func cardValidator(pan *wrapperspb.UInt64Value, cvv, pin, title *wrapperspb.StringValue) error {
+func cardValidator(pan *wrapperspb.UInt64Value, expiryDate, cvv, pin, title *wrapperspb.StringValue) error {
+	var errs []string
 	if title != nil && title.String() == "" {
-		return fmt.Errorf("title field is required")
+		errs = append(errs, "title is required")
 	}
 	if pan != nil && pan.Value != 0 {
 		ok := luhnValidator(pan.Value)
 		if !ok {
-			return ErrInvalidPAN
+			errs = append(errs, fmt.Sprintf("invalid pan value: %d", pan.Value))
 		}
 	}
 	if cvv != nil {
 		strCVV := cvv.Value
 		intCVV, err := strconv.Atoi(strCVV)
 		if err != nil {
-			return err
+			errs = append(errs, fmt.Sprintf("invalid cvv value: %d", intCVV))
 		}
-		if (len(strCVV) == 4 || len(strCVV) == 3) && intCVV > 0 {
-			return nil
+		if (len(strCVV) != 3 || len(strCVV) != 4) && intCVV < 0 {
+			errs = append(errs, fmt.Sprintf("invalid cvv value: %d", intCVV))
 		}
-		return fmt.Errorf("invalid CVV value: %d", intCVV)
 	}
 
 	if pin != nil {
 		strPIN := pin.Value
 		intPIN, err := strconv.Atoi(strPIN)
 		if err != nil {
-			return err
+			errs = append(errs, fmt.Sprintf("invalid pin value: %d", intPIN))
 		}
 		if len(strPIN) != 4 && (intPIN < 0 || intPIN > 10000) {
-			return fmt.Errorf("invalid PIN value: %d", intPIN)
+			errs = append(errs, fmt.Sprintf("invalid pin value: %d", intPIN))
 		}
+	}
+	if expiryDate != nil {
+		strExpiryDate := expiryDate.Value
+		strMonth := strExpiryDate[:3]
+		intMonth, err := strconv.Atoi(strMonth)
+		if err != nil {
+			errs = append(errs, fmt.Sprintf("invalid expiry date value: %d", intMonth))
+		}
+		if intMonth < 0 || intMonth > 12 {
+			errs = append(errs, fmt.Sprintf("invalid expiry date value: %d", intMonth))
+		}
+		strYear := strExpiryDate[3:]
+		intYear, err := strconv.Atoi(strYear)
+		if err != nil {
+			errs = append(errs, fmt.Sprintf("invalid expiry date value: %d", intMonth))
+		}
+		if intYear < 0 || intYear > 99 {
+			errs = append(errs, fmt.Sprintf("invalid expiry date value: %d", intMonth))
+		}
+	}
+	if len(errs) > 0 {
+		return errors.New(strings.Join(errs, "; "))
 	}
 	return nil
 }
