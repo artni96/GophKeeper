@@ -43,6 +43,5 @@ type UpdateText struct {
 	Title       string
 	Description string
 	Text        string `gorm:"column:hashed_text"`
-	UserID      uuid.UUID
 	UpdatedAt   time.Time
 }

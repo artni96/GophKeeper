@@ -54,7 +54,6 @@ func cardFixture(ctx context.Context, cardRepo *Repository, entityData card.Crea
 	if err != nil {
 		log.Fatal(err)
 	}
-
 }
 
 type testConfig struct {
@@ -297,9 +296,9 @@ func TestGetByNumber(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			dbEntity, err := tc.cardRepo.GetByNumber(tc.ctx, tt.number, tt.userID)
+			assert.Equal(t, tt.failure, err != nil)
 			if err != nil {
 				if !tt.failure {
-					fmt.Println(dbEntity)
 					assert.Equal(t, fixtureData.PAN, dbEntity.PAN)
 					assert.Equal(t, fixtureData.Holder, dbEntity.Holder)
 					assert.Equal(t, fixtureData.ExpiryDate, dbEntity.ExpiryDate)
@@ -594,7 +593,7 @@ func TestDelete(t *testing.T) {
 		},
 		{
 			name:    "failure - the first user does not have a card number with number 1 (already deleted)",
-			userID:  secondUser,
+			userID:  firstUser,
 			number:  1,
 			failure: true,
 		},
