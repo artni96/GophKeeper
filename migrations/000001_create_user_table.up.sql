@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS logins (
     hashed_password VARCHAR (60),
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP,
-    CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT logins_fk_user FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT logins_unique_constraint_user_title UNIQUE (user_id, title),
     CONSTRAINT logins_unique_constraint_unqiue_user_number UNIQUE (user_id, number)
 );
@@ -41,7 +41,22 @@ CREATE TABLE IF NOT EXISTS cards (
     brand VARCHAR(255),
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP,
+    CONSTRAINT cardss_fk_user FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT cards_unique_constraint_user_title UNIQUE (user_id, title),
     CONSTRAINT cards_unqiue_constraint_user_number UNIQUE (user_id, number),
     CONStRAINT cards_unqiue_constraint_user_pan UNIQUE (user_id, hashed_pan)
+);
+
+CREATE TABLE IF NOT EXISTS texts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    number INTEGER NOT NULL,
+    hashed_text VARCHAR(255),
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP,
+    CONSTRAINT texts_fk_user FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT texts_unique_constraint_user_title UNIQUE (user_id, title),
+    CONSTRAINT texts_unique_constraint_user_number UNIQUE (user_id, number)
 )

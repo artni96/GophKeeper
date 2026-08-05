@@ -3,6 +3,7 @@ package card
 import (
 	"context"
 	"errors"
+	"time"
 
 	pb "github.com/artni96/GophKeeper/api/proto/cards"
 	"github.com/artni96/GophKeeper/internal/constants"
@@ -69,9 +70,9 @@ func (h *Handler) GetCard(ctx context.Context, req *pb.CardGetRequest) (*pb.Card
 	entityNumber := req.GetNumber()
 	dbEntity, err := h.Service.GetByNumber(ctx, entityNumber, userID)
 	if err != nil {
-		h.Logger.Info("failed to get login", zap.Error(err))
+		h.Logger.Info("failed to get card record", zap.Error(err))
 		if errors.Is(err, constants.ErrEntityNotFound) {
-			return resp, status.Errorf(codes.NotFound, "login with number %d not found", entityNumber)
+			return resp, status.Errorf(codes.NotFound, "card record with number %d not found", entityNumber)
 		}
 		return resp, status.Error(codes.Internal, constants.DefaultError)
 	}
@@ -85,12 +86,15 @@ func (h *Handler) GetCard(ctx context.Context, req *pb.CardGetRequest) (*pb.Card
 	resp.SetBrand(dbEntity.Brand)
 	resp.SetTitle(dbEntity.Title)
 	resp.SetDescription(dbEntity.Description)
-	resp.SetCreatedAt(dbEntity.CreatedAt.String())
+	resp.SetCreatedAt(dbEntity.CreatedAt.Format(time.RFC3339))
+	if !dbEntity.UpdatedAt.IsZero() {
+		resp.SetUpdatedAt(dbEntity.UpdatedAt.Format(time.RFC3339))
+	}
 	resp.SetNumber(dbEntity.Number)
 	return resp, nil
 }
 
-// UpdateCard is a handler to update the Card entity by its number (only for authors).
+// UpdateCard is a handler to update a Card entity by its number (only for authors).
 func (h *Handler) UpdateCard(ctx context.Context, req *pb.CardUpdateRequest) (*pb.CardUpdateResponse, error) {
 	resp := &pb.CardUpdateResponse{}
 	userID, ok := interceptors.GetUserIDFromContext(ctx)
@@ -119,16 +123,16 @@ func (h *Handler) UpdateCard(ctx context.Context, req *pb.CardUpdateRequest) (*p
 
 	err := h.Service.Update(ctx, dataToUpdate, entityNumber, userID)
 	if err != nil {
-		h.Logger.Info("failed to update card", zap.Error(err))
+		h.Logger.Info("failed to update card record", zap.Error(err))
 		if errors.Is(err, constants.ErrEntityNotFound) {
-			return resp, status.Errorf(codes.NotFound, "card with %d number not found", entityNumber)
+			return resp, status.Errorf(codes.NotFound, "card record with %d number not found", entityNumber)
 		}
 		return resp, status.Error(codes.Internal, constants.DefaultError)
 	}
 	return resp, nil
 }
 
-// DeleteCard is a handler to delete the Card entity by its number (only for authors).
+// DeleteCard is a handler to delete a Card entity by its number (only for authors).
 func (h *Handler) DeleteCard(ctx context.Context, req *pb.CardDeleteRequest) (*pb.CardDeleteResponse, error) {
 	resp := &pb.CardDeleteResponse{}
 	userID, ok := interceptors.GetUserIDFromContext(ctx)
@@ -139,15 +143,16 @@ func (h *Handler) DeleteCard(ctx context.Context, req *pb.CardDeleteRequest) (*p
 
 	err := h.Service.Delete(ctx, entityNumber, userID)
 	if err != nil {
-		h.Logger.Info("failed to delete login", zap.Error(err))
+		h.Logger.Info("failed to delete card record", zap.Error(err))
 		if errors.Is(err, constants.ErrEntityNotFound) {
-			return resp, status.Errorf(codes.NotFound, "login with %d number not found", entityNumber)
+			return resp, status.Errorf(codes.NotFound, "card record with %d number not found", entityNumber)
 		}
 		return resp, status.Error(codes.Internal, constants.DefaultError)
 	}
 	return resp, nil
 }
 
+// GetListCard is a handler to retrieve user's Cart entities list.
 func (h *Handler) GetListCard(ctx context.Context, req *pb.CardGetListRequest) (*pb.CardGetListResponse, error) {
 	resp := &pb.CardGetListResponse{}
 	userID, ok := interceptors.GetUserIDFromContext(ctx)
@@ -157,7 +162,7 @@ func (h *Handler) GetListCard(ctx context.Context, req *pb.CardGetListRequest) (
 
 	dbEntities, err := h.Service.GetList(ctx, userID)
 	if err != nil {
-		h.Logger.Info("failed to retrieve user's login list", zap.Error(err), zap.String("user_id", userID.String()))
+		h.Logger.Info("failed to retrieve user's card records list", zap.Error(err), zap.String("user_id", userID.String()))
 		return resp, status.Error(codes.Internal, constants.DefaultError)
 	}
 

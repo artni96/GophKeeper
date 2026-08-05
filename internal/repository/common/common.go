@@ -17,6 +17,8 @@ func GetNextRecordNumber(tx *gorm.DB, userID uuid.UUID) (uint64, error) {
 	var nextNumber uint64 = 1
 
 	result := tx.Raw(updateQuery, userID).Scan(&nextNumber)
+	//x := userID.String()
+	//fmt.Println(x)
 	if result.RowsAffected == 0 {
 		insertQuery := "INSERT INTO user_record_number(user_id, current_number) VALUES(?, ?);"
 		err := tx.Exec(insertQuery, userID, nextNumber).Error

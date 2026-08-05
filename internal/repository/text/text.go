@@ -1,4 +1,4 @@
-package card
+package text
 
 import (
 	"context"
@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"github.com/artni96/GophKeeper/internal/constants"
-	"github.com/artni96/GophKeeper/internal/model/card"
 	commonmodel "github.com/artni96/GophKeeper/internal/model/common"
+	"github.com/artni96/GophKeeper/internal/model/text"
 	"github.com/artni96/GophKeeper/internal/repository/common"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -16,23 +16,23 @@ import (
 	"gorm.io/gorm"
 )
 
-const tableName = "cards"
+const tableName = "texts"
 
-// RepositoryI represents the methods of the Login repository.
+// RepositoryI represents the methods of the Text repository.
 type RepositoryI interface {
-	Create(ctx context.Context, entity card.CreateCard, notNullFields []string) (uint64, error)
-	GetByNumber(ctx context.Context, number uint64, userID uuid.UUID) (*card.Card, error)
-	Update(ctx context.Context, entity card.UpdateCard, number uint64, userID uuid.UUID, notNullFields []string) error
+	Create(ctx context.Context, entity text.CreateText, notNullFields []string) (uint64, error)
+	GetByNumber(ctx context.Context, number uint64, userID uuid.UUID) (*text.Text, error)
+	Update(ctx context.Context, entity text.UpdateText, number uint64, userID uuid.UUID, notNullFields []string) error
 	Delete(ctx context.Context, number uint64, userID uuid.UUID) error
 	GetList(ctx context.Context, userID uuid.UUID) ([]commonmodel.GetListEntityResponse, error)
 }
 
-// Repository implements the Card repository to manage card-related data through the database.
+// Repository implements the Text repository to manage text-related data through the database.
 type Repository struct {
 	db *gorm.DB
 }
 
-// NewRepository initializes and return the new Card repository instance.
+// NewRepository initializes and return the new Text repository instance.
 func NewRepository(sqlxDB *sqlx.DB, logger *zap.Logger) (*Repository, error) {
 	db, err := common.InitDBConnByGORM(sqlxDB, logger)
 	if err != nil {
@@ -41,8 +41,8 @@ func NewRepository(sqlxDB *sqlx.DB, logger *zap.Logger) (*Repository, error) {
 	return &Repository{db: db}, nil
 }
 
-// Create creates a new Card entity in the database.
-func (r *Repository) Create(ctx context.Context, entity card.CreateCard, notNullFields []string) (uint64, error) {
+// Create creates a new Text entity in the database.
+func (r *Repository) Create(ctx context.Context, entity text.CreateText, notNullFields []string) (uint64, error) {
 	tx := r.db.WithContext(ctx).Begin()
 
 	entityNumber, err := common.GetNextRecordNumber(tx, entity.UserID)
@@ -67,14 +67,14 @@ func (r *Repository) Create(ctx context.Context, entity card.CreateCard, notNull
 
 	if err = tx.Commit().Error; err != nil {
 		tx.Rollback()
-		return 0, fmt.Errorf("failed to create the card record: %w", err)
+		return 0, fmt.Errorf("failed to create the text record: %w", err)
 	}
 	return entityNumber, nil
 }
 
-// GetByNumber selects and returns the Card entity by its number from the database.
-func (r *Repository) GetByNumber(ctx context.Context, number uint64, userID uuid.UUID) (*card.Card, error) {
-	var entity card.Card
+// GetByNumber selects and returns the Text entity by its number from the database.
+func (r *Repository) GetByNumber(ctx context.Context, number uint64, userID uuid.UUID) (*text.Text, error) {
+	var entity text.Text
 
 	db := r.db.WithContext(ctx)
 	if err := db.Table(tableName).Where(
@@ -84,14 +84,14 @@ func (r *Repository) GetByNumber(ctx context.Context, number uint64, userID uuid
 	return &entity, nil
 }
 
-// Update updates the Card entity in the database by its number (only for authors).
+// Update updates the Text entity in the database by its number (only for authors).
 func (r *Repository) Update(
-	ctx context.Context, entity card.UpdateCard, number uint64, userID uuid.UUID, notNullFields []string) error {
+	ctx context.Context, entity text.UpdateText, number uint64, userID uuid.UUID, notNullFields []string) error {
 	db := r.db.WithContext(ctx)
 	result := db.Table(tableName).Select(notNullFields).Where(
 		"number = ? AND user_id = ?", number, userID).Updates(entity)
 	if result.Error != nil {
-		return fmt.Errorf("failed to update the card record with the number %d: %w", number, result.Error)
+		return fmt.Errorf("failed to update the text record with the number %d: %w", number, result.Error)
 	}
 
 	if result.RowsAffected == 0 {
@@ -100,12 +100,12 @@ func (r *Repository) Update(
 	return nil
 }
 
-// Delete removes the Card entity from the database by its number (only for authors).
+// Delete removes the Text entity from the database by its number (only for authors).
 func (r *Repository) Delete(ctx context.Context, number uint64, userID uuid.UUID) error {
 	db := r.db.WithContext(ctx)
 	result := db.Table(tableName).Where("number = ? AND user_id = ?", number, userID).Delete(nil)
 	if result.Error != nil {
-		return fmt.Errorf("failed to delete the card record with the number %d: %w", number, result.Error)
+		return fmt.Errorf("failed to delete the text record with the number %d: %w", number, result.Error)
 	}
 
 	if result.RowsAffected == 0 {
@@ -114,7 +114,7 @@ func (r *Repository) Delete(ctx context.Context, number uint64, userID uuid.UUID
 	return nil
 }
 
-// GetList returns the list of user's card-related entities from the database (only for authors).
+// GetList returns the list of user's text-related entities from the database (only for authors).
 func (r *Repository) GetList(ctx context.Context, userID uuid.UUID) ([]commonmodel.GetListEntityResponse, error) {
 	var dbEntities []commonmodel.GetListEntityResponse
 	result := r.db.WithContext(ctx).Table(tableName).Where("user_id = ?", userID).Find(&dbEntities)

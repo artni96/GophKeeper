@@ -77,7 +77,7 @@ func run(ctx context.Context, cfg *config.Config) error {
 	return nil
 }
 
-// ffCountdown counts down left time of forceful shutdown.
+// ffCountdown counts down left time for forceful shutdown.
 func ffCountdown(ctx context.Context, logger *zap.Logger, gsChan <-chan struct{}) {
 	deadline, _ := ctx.Deadline()
 	ticker := time.NewTicker(1 * time.Second)

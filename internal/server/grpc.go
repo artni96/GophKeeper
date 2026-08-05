@@ -6,14 +6,17 @@ import (
 
 	cardspb "github.com/artni96/GophKeeper/api/proto/cards"
 	loginspb "github.com/artni96/GophKeeper/api/proto/logins"
+	textspb "github.com/artni96/GophKeeper/api/proto/texts"
 	userspb "github.com/artni96/GophKeeper/api/proto/users"
 	"github.com/artni96/GophKeeper/internal/config"
 	cardhandler "github.com/artni96/GophKeeper/internal/handler/card"
 	loginhandler "github.com/artni96/GophKeeper/internal/handler/login"
+	texthandler "github.com/artni96/GophKeeper/internal/handler/text"
 	userhandler "github.com/artni96/GophKeeper/internal/handler/user"
 	"github.com/artni96/GophKeeper/internal/interceptors"
 	cardserv "github.com/artni96/GophKeeper/internal/service/card"
 	loginserv "github.com/artni96/GophKeeper/internal/service/login"
+	textserv "github.com/artni96/GophKeeper/internal/service/text"
 	userserv "github.com/artni96/GophKeeper/internal/service/user"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -35,6 +38,9 @@ type GRPCServer struct {
 
 	cardService *cardserv.Service
 	cardHandler *cardhandler.Handler
+
+	textService *textserv.Service
+	textHandler *texthandler.Handler
 }
 
 // Init initializes a new grpc server instance.
@@ -93,6 +99,9 @@ func (s *GRPCServer) Launch() error {
 	cardHandler := cardhandler.NewHandler(s.cardService, s.logger)
 	cardspb.RegisterCardServiceServer(s.server, cardHandler)
 
+	textHandler := texthandler.NewHandler(s.textService, s.logger)
+	textspb.RegisterTextServiceServer(s.server, textHandler)
+
 	if err = s.server.Serve(listen); err != nil {
 		return fmt.Errorf("failed to launch gRPC server: %w", err)
 	}
@@ -105,12 +114,20 @@ func (s *GRPCServer) Stop() {
 }
 
 // NewGRPCServer returns a new gRPC server instance.
-func NewGRPCServer(cfg *config.Config, logger *zap.Logger, userService *userserv.Service, loginService *loginserv.Service, cardService *cardserv.Service) *GRPCServer {
+func NewGRPCServer(
+	cfg *config.Config,
+	logger *zap.Logger,
+	userService *userserv.Service,
+	loginService *loginserv.Service,
+	cardService *cardserv.Service,
+	textService *textserv.Service,
+) *GRPCServer {
 	return &GRPCServer{
 		cfg:          cfg,
 		logger:       logger,
 		userService:  userService,
 		loginService: loginService,
 		cardService:  cardService,
+		textService:  textService,
 	}
 }

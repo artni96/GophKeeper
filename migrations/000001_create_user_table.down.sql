@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS texts;
 DROP TABLE IF EXISTS cards;
 DROP TABLE IF EXISTS user_record_number;
 DROP TABLE IF EXISTS logins;

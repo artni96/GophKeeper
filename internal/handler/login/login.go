@@ -69,9 +69,9 @@ func (h *Handler) GetLogin(ctx context.Context, req *pb.LoginGetRequest) (*pb.Lo
 	entityNumber := req.GetNumber()
 	dbEntity, err := h.Service.GetByNumber(ctx, entityNumber, userID)
 	if err != nil {
-		h.Logger.Info("failed to get login", zap.Error(err))
+		h.Logger.Info("failed to the get login record", zap.Error(err))
 		if errors.Is(err, constants.ErrEntityNotFound) {
-			return resp, status.Errorf(codes.NotFound, "login with number %d not found", entityNumber)
+			return resp, status.Errorf(codes.NotFound, "login record with number %d not found", entityNumber)
 		}
 		return resp, status.Error(codes.Internal, constants.DefaultError)
 	}
@@ -89,7 +89,7 @@ func (h *Handler) GetLogin(ctx context.Context, req *pb.LoginGetRequest) (*pb.Lo
 	return resp, nil
 }
 
-// UpdateLogin is a handler to update the Login entity by its number (only for authors).
+// UpdateLogin is a handler to update a Login entity by its number (only for authors).
 func (h *Handler) UpdateLogin(ctx context.Context, req *pb.LoginUpdateRequest) (*pb.LoginUpdateResponse, error) {
 	resp := &pb.LoginUpdateResponse{}
 	userID, ok := interceptors.GetUserIDFromContext(ctx)
@@ -111,16 +111,16 @@ func (h *Handler) UpdateLogin(ctx context.Context, req *pb.LoginUpdateRequest) (
 
 	err := h.Service.Update(ctx, dataToUpdate, entityNumber, userID)
 	if err != nil {
-		h.Logger.Info("failed to update login", zap.Error(err))
+		h.Logger.Info("failed to update login record", zap.Error(err))
 		if errors.Is(err, constants.ErrEntityNotFound) {
-			return resp, status.Errorf(codes.NotFound, "login with %d number not found", entityNumber)
+			return resp, status.Errorf(codes.NotFound, "login record with %d number not found", entityNumber)
 		}
 		return resp, status.Error(codes.Internal, constants.DefaultError)
 	}
 	return resp, nil
 }
 
-// DeleteLogin is a handler to delete the Login entity by its number (only for authors).
+// DeleteLogin is a handler to delete a Login entity by its number (only for authors).
 func (h *Handler) DeleteLogin(ctx context.Context, req *pb.LoginDeleteRequest) (*pb.LoginDeleteResponse, error) {
 	resp := &pb.LoginDeleteResponse{}
 	userID, ok := interceptors.GetUserIDFromContext(ctx)
@@ -131,15 +131,16 @@ func (h *Handler) DeleteLogin(ctx context.Context, req *pb.LoginDeleteRequest) (
 
 	err := h.Service.Delete(ctx, entityNumber, userID)
 	if err != nil {
-		h.Logger.Info("failed to delete login", zap.Error(err))
+		h.Logger.Info("failed to delete login record", zap.Error(err))
 		if errors.Is(err, constants.ErrEntityNotFound) {
-			return resp, status.Errorf(codes.NotFound, "login with %d number not found", entityNumber)
+			return resp, status.Errorf(codes.NotFound, "login record with %d number not found", entityNumber)
 		}
 		return resp, status.Error(codes.Internal, constants.DefaultError)
 	}
 	return resp, nil
 }
 
+// GetListLogin is a handler to retrieve user's Login entities list.
 func (h *Handler) GetListLogin(ctx context.Context, req *pb.LoginGetListRequest) (*pb.LoginGetListResponse, error) {
 	resp := &pb.LoginGetListResponse{}
 	userID, ok := interceptors.GetUserIDFromContext(ctx)
@@ -149,7 +150,7 @@ func (h *Handler) GetListLogin(ctx context.Context, req *pb.LoginGetListRequest)
 
 	dbEntities, err := h.Service.GetList(ctx, userID)
 	if err != nil {
-		h.Logger.Info("failed to retrieve user's login list", zap.Error(err), zap.String("user_id", userID.String()))
+		h.Logger.Info("failed to retrieve user's login records list", zap.Error(err), zap.String("user_id", userID.String()))
 		return resp, status.Error(codes.Internal, constants.DefaultError)
 	}
 

@@ -11,10 +11,6 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
-var ErrInvalidPAN = errors.New("invalid PAN value")
-var ErrInvalidCVV = errors.New("invalid CVV value")
-var ErrInvalidPIN = errors.New("invalid PIN value")
-
 type CreateCardRequest struct {
 	PAN         *wrapperspb.UInt64Value `protobuf:"fixed64,1,opt,name=pan" json:"pan,omitempty"`
 	Holder      *wrapperspb.StringValue `protobuf:"bytes,2,opt,name=holder" json:"holder,omitempty"`

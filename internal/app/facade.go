@@ -11,10 +11,12 @@ import (
 	applog "github.com/artni96/GophKeeper/internal/logger"
 	cardrepo "github.com/artni96/GophKeeper/internal/repository/card"
 	loginrepo "github.com/artni96/GophKeeper/internal/repository/login"
+	"github.com/artni96/GophKeeper/internal/repository/text"
 	userrepo "github.com/artni96/GophKeeper/internal/repository/user"
 	"github.com/artni96/GophKeeper/internal/server"
 	cardserv "github.com/artni96/GophKeeper/internal/service/card"
 	loginserv "github.com/artni96/GophKeeper/internal/service/login"
+	textserv "github.com/artni96/GophKeeper/internal/service/text"
 	userserv "github.com/artni96/GophKeeper/internal/service/user"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
@@ -35,6 +37,7 @@ type App struct {
 	userService  *userserv.Service
 	loginService *loginserv.Service
 	cardService  *cardserv.Service
+	textService  *textserv.Service
 }
 
 // NewApp initializes and returns a new instance of App.
@@ -134,12 +137,19 @@ func (a *App) initDependencies() error {
 	}
 	a.cardService = cardserv.NewService(a.Cfg, a.Logger, cardRepository)
 
+	textRepository, err := text.NewRepository(a.DB, a.Logger)
+	if err != nil {
+		a.Logger.Error("failed to initialize text repository", zap.Error(err))
+		return fmt.Errorf("failed to initialize text repository: %w", err)
+	}
+	a.textService = textserv.NewService(a.Cfg, a.Logger, textRepository)
+
 	return nil
 }
 
 // initServer initializes a new gRPC server instance.
 func (a *App) initServer() error {
-	newServer := server.NewGRPCServer(a.Cfg, a.Logger, a.userService, a.loginService, a.cardService)
+	newServer := server.NewGRPCServer(a.Cfg, a.Logger, a.userService, a.loginService, a.cardService, a.textService)
 	err := newServer.Init()
 	if err != nil {
 		return fmt.Errorf("failed to initialize gRPC server: %w", err)
