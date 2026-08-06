@@ -58,11 +58,6 @@ message TextGetListRequest {
 }
 
 message TextGetListResponse {
-  repeated TextGetListItemResponse texts = 1;
+  repeated TextGetResponse texts = 1;
 }
 
-message TextGetListItemResponse {
-  string title = 1;
-  uint64 number = 2;
-  string description = 3;
-}

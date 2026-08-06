@@ -114,7 +114,7 @@ func (c *TestDependencies) applyMigrations() error {
 		return err
 	}
 
-	migrator, err := migrate.NewWithDatabaseInstance("file://../../../migrations", "postgres", driver)
+	migrator, err := migrate.NewWithDatabaseInstance("file://../../../../migrations", "postgres", driver)
 	if err != nil {
 		log.Println(fmt.Errorf("failed to initialize test migrator: %w", err))
 		return err

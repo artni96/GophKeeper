@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"github.com/artni96/GophKeeper/internal/server/constants"
-	commonmodel "github.com/artni96/GophKeeper/internal/server/model/common"
 	"github.com/artni96/GophKeeper/internal/server/model/text"
 	"github.com/artni96/GophKeeper/internal/server/repository/common"
 	"github.com/google/uuid"
@@ -24,7 +23,7 @@ type RepositoryI interface {
 	GetByNumber(ctx context.Context, number uint64, userID uuid.UUID) (*text.Text, error)
 	Update(ctx context.Context, entity text.UpdateText, number uint64, userID uuid.UUID, notNullFields []string) error
 	Delete(ctx context.Context, number uint64, userID uuid.UUID) error
-	GetList(ctx context.Context, userID uuid.UUID) ([]commonmodel.GetListEntityResponse, error)
+	GetList(ctx context.Context, userID uuid.UUID) ([]text.Text, error)
 }
 
 // Repository implements the Text repository to manage text-related data through the database.
@@ -115,8 +114,8 @@ func (r *Repository) Delete(ctx context.Context, number uint64, userID uuid.UUID
 }
 
 // GetList returns the list of user's text-related entities from the database (only for authors).
-func (r *Repository) GetList(ctx context.Context, userID uuid.UUID) ([]commonmodel.GetListEntityResponse, error) {
-	var dbEntities []commonmodel.GetListEntityResponse
+func (r *Repository) GetList(ctx context.Context, userID uuid.UUID) ([]text.Text, error) {
+	var dbEntities []text.Text
 	result := r.db.WithContext(ctx).Table(tableName).Where("user_id = ?", userID).Find(&dbEntities)
 	if result.Error != nil {
 		return nil, fmt.Errorf("failed to get list of logins: %w", result.Error)

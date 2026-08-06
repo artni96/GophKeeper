@@ -142,12 +142,17 @@ func (h *Handler) GetListText(ctx context.Context, req *pb.TextGetListRequest) (
 		return resp, status.Error(codes.Internal, constants.DefaultError)
 	}
 
-	pbList := make([]*pb.TextGetListItemResponse, 0)
+	pbList := make([]*pb.TextGetResponse, 0)
 	for _, entity := range dbEntities {
-		i := &pb.TextGetListItemResponse{}
-		i.SetNumber(entity.Number)
+		i := &pb.TextGetResponse{}
 		i.SetTitle(entity.Title)
 		i.SetDescription(entity.Description)
+		i.SetText(entity.Text)
+		i.SetNumber(entity.Number)
+		i.SetCreatedAt(entity.CreatedAt.Format(time.RFC3339))
+		if !entity.UpdatedAt.IsZero() {
+			i.SetUpdatedAt(entity.UpdatedAt.Format(time.RFC3339))
+		}
 		pbList = append(pbList, i)
 	}
 	resp.SetTexts(pbList)

@@ -1379,8 +1379,8 @@ func (b0 CardGetListRequest_builder) Build() *CardGetListRequest {
 }
 
 type CardGetListResponse struct {
-	state            protoimpl.MessageState      `protogen:"opaque.v1"`
-	xxx_hidden_Cards *[]*CardGetListItemResponse `protobuf:"bytes,1,rep,name=cards"`
+	state            protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Cards *[]*CardGetResponse    `protobuf:"bytes,1,rep,name=cards"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -1410,7 +1410,7 @@ func (x *CardGetListResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *CardGetListResponse) GetCards() []*CardGetListItemResponse {
+func (x *CardGetListResponse) GetCards() []*CardGetResponse {
 	if x != nil {
 		if x.xxx_hidden_Cards != nil {
 			return *x.xxx_hidden_Cards
@@ -1419,14 +1419,14 @@ func (x *CardGetListResponse) GetCards() []*CardGetListItemResponse {
 	return nil
 }
 
-func (x *CardGetListResponse) SetCards(v []*CardGetListItemResponse) {
+func (x *CardGetListResponse) SetCards(v []*CardGetResponse) {
 	x.xxx_hidden_Cards = &v
 }
 
 type CardGetListResponse_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Cards []*CardGetListItemResponse
+	Cards []*CardGetResponse
 }
 
 func (b0 CardGetListResponse_builder) Build() *CardGetListResponse {
@@ -1434,147 +1434,6 @@ func (b0 CardGetListResponse_builder) Build() *CardGetListResponse {
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Cards = &b.Cards
-	return m0
-}
-
-type CardGetListItemResponse struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Title       *string                `protobuf:"bytes,1,opt,name=title"`
-	xxx_hidden_Number      uint64                 `protobuf:"varint,2,opt,name=number"`
-	xxx_hidden_Description *string                `protobuf:"bytes,3,opt,name=description"`
-	XXX_raceDetectHookData protoimpl.RaceDetectHookData
-	XXX_presence           [1]uint32
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
-}
-
-func (x *CardGetListItemResponse) Reset() {
-	*x = CardGetListItemResponse{}
-	mi := &file_api_proto_cards_cards_proto_msgTypes[10]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CardGetListItemResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CardGetListItemResponse) ProtoMessage() {}
-
-func (x *CardGetListItemResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_cards_cards_proto_msgTypes[10]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *CardGetListItemResponse) GetTitle() string {
-	if x != nil {
-		if x.xxx_hidden_Title != nil {
-			return *x.xxx_hidden_Title
-		}
-		return ""
-	}
-	return ""
-}
-
-func (x *CardGetListItemResponse) GetNumber() uint64 {
-	if x != nil {
-		return x.xxx_hidden_Number
-	}
-	return 0
-}
-
-func (x *CardGetListItemResponse) GetDescription() string {
-	if x != nil {
-		if x.xxx_hidden_Description != nil {
-			return *x.xxx_hidden_Description
-		}
-		return ""
-	}
-	return ""
-}
-
-func (x *CardGetListItemResponse) SetTitle(v string) {
-	x.xxx_hidden_Title = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 3)
-}
-
-func (x *CardGetListItemResponse) SetNumber(v uint64) {
-	x.xxx_hidden_Number = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 3)
-}
-
-func (x *CardGetListItemResponse) SetDescription(v string) {
-	x.xxx_hidden_Description = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 3)
-}
-
-func (x *CardGetListItemResponse) HasTitle() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
-}
-
-func (x *CardGetListItemResponse) HasNumber() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
-}
-
-func (x *CardGetListItemResponse) HasDescription() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
-}
-
-func (x *CardGetListItemResponse) ClearTitle() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
-	x.xxx_hidden_Title = nil
-}
-
-func (x *CardGetListItemResponse) ClearNumber() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
-	x.xxx_hidden_Number = 0
-}
-
-func (x *CardGetListItemResponse) ClearDescription() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
-	x.xxx_hidden_Description = nil
-}
-
-type CardGetListItemResponse_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Title       *string
-	Number      *uint64
-	Description *string
-}
-
-func (b0 CardGetListItemResponse_builder) Build() *CardGetListItemResponse {
-	m0 := &CardGetListItemResponse{}
-	b, x := &b0, m0
-	_, _ = b, x
-	if b.Title != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 3)
-		x.xxx_hidden_Title = b.Title
-	}
-	if b.Number != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 3)
-		x.xxx_hidden_Number = *b.Number
-	}
-	if b.Description != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 3)
-		x.xxx_hidden_Description = b.Description
-	}
 	return m0
 }
 
@@ -1632,13 +1491,9 @@ const file_api_proto_cards_cards_proto_rawDesc = "" +
 	"\x11CardDeleteRequest\x12\x16\n" +
 	"\x06number\x18\x01 \x01(\x04R\x06number\"\x14\n" +
 	"\x12CardDeleteResponse\"\x14\n" +
-	"\x12CardGetListRequest\"K\n" +
-	"\x13CardGetListResponse\x124\n" +
-	"\x05cards\x18\x01 \x03(\v2\x1e.cards.CardGetListItemResponseR\x05cards\"i\n" +
-	"\x17CardGetListItemResponse\x12\x14\n" +
-	"\x05title\x18\x01 \x01(\tR\x05title\x12\x16\n" +
-	"\x06number\x18\x02 \x01(\x04R\x06number\x12 \n" +
-	"\vdescription\x18\x03 \x01(\tR\vdescription2\xd6\x02\n" +
+	"\x12CardGetListRequest\"C\n" +
+	"\x13CardGetListResponse\x12,\n" +
+	"\x05cards\x18\x01 \x03(\v2\x16.cards.CardGetResponseR\x05cards2\xd6\x02\n" +
 	"\vCardService\x12A\n" +
 	"\n" +
 	"CreateCard\x12\x18.cards.CardCreateRequest\x1a\x19.cards.CardCreateResponse\x128\n" +
@@ -1649,42 +1504,41 @@ const file_api_proto_cards_cards_proto_rawDesc = "" +
 	"DeleteCard\x12\x18.cards.CardDeleteRequest\x1a\x19.cards.CardDeleteResponse\x12D\n" +
 	"\vGetListCard\x12\x19.cards.CardGetListRequest\x1a\x1a.cards.CardGetListResponseB/Z-github.com/artni96/GophKeeper/api/proto/cardsb\beditionsp\xe8\a"
 
-var file_api_proto_cards_cards_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_api_proto_cards_cards_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_api_proto_cards_cards_proto_goTypes = []any{
-	(*CardCreateRequest)(nil),       // 0: cards.CardCreateRequest
-	(*CardCreateResponse)(nil),      // 1: cards.CardCreateResponse
-	(*CardGetRequest)(nil),          // 2: cards.CardGetRequest
-	(*CardGetResponse)(nil),         // 3: cards.CardGetResponse
-	(*CardUpdateRequest)(nil),       // 4: cards.CardUpdateRequest
-	(*CardUpdateResponse)(nil),      // 5: cards.CardUpdateResponse
-	(*CardDeleteRequest)(nil),       // 6: cards.CardDeleteRequest
-	(*CardDeleteResponse)(nil),      // 7: cards.CardDeleteResponse
-	(*CardGetListRequest)(nil),      // 8: cards.CardGetListRequest
-	(*CardGetListResponse)(nil),     // 9: cards.CardGetListResponse
-	(*CardGetListItemResponse)(nil), // 10: cards.CardGetListItemResponse
-	(*wrapperspb.UInt64Value)(nil),  // 11: google.protobuf.UInt64Value
-	(*wrapperspb.StringValue)(nil),  // 12: google.protobuf.StringValue
+	(*CardCreateRequest)(nil),      // 0: cards.CardCreateRequest
+	(*CardCreateResponse)(nil),     // 1: cards.CardCreateResponse
+	(*CardGetRequest)(nil),         // 2: cards.CardGetRequest
+	(*CardGetResponse)(nil),        // 3: cards.CardGetResponse
+	(*CardUpdateRequest)(nil),      // 4: cards.CardUpdateRequest
+	(*CardUpdateResponse)(nil),     // 5: cards.CardUpdateResponse
+	(*CardDeleteRequest)(nil),      // 6: cards.CardDeleteRequest
+	(*CardDeleteResponse)(nil),     // 7: cards.CardDeleteResponse
+	(*CardGetListRequest)(nil),     // 8: cards.CardGetListRequest
+	(*CardGetListResponse)(nil),    // 9: cards.CardGetListResponse
+	(*wrapperspb.UInt64Value)(nil), // 10: google.protobuf.UInt64Value
+	(*wrapperspb.StringValue)(nil), // 11: google.protobuf.StringValue
 }
 var file_api_proto_cards_cards_proto_depIdxs = []int32{
-	11, // 0: cards.CardCreateRequest.pan:type_name -> google.protobuf.UInt64Value
-	12, // 1: cards.CardCreateRequest.holder:type_name -> google.protobuf.StringValue
-	12, // 2: cards.CardCreateRequest.expiry_date:type_name -> google.protobuf.StringValue
-	12, // 3: cards.CardCreateRequest.cvv:type_name -> google.protobuf.StringValue
-	12, // 4: cards.CardCreateRequest.pin:type_name -> google.protobuf.StringValue
-	12, // 5: cards.CardCreateRequest.bank:type_name -> google.protobuf.StringValue
-	12, // 6: cards.CardCreateRequest.brand:type_name -> google.protobuf.StringValue
-	12, // 7: cards.CardCreateRequest.title:type_name -> google.protobuf.StringValue
-	12, // 8: cards.CardCreateRequest.description:type_name -> google.protobuf.StringValue
-	11, // 9: cards.CardUpdateRequest.pan:type_name -> google.protobuf.UInt64Value
-	12, // 10: cards.CardUpdateRequest.holder:type_name -> google.protobuf.StringValue
-	12, // 11: cards.CardUpdateRequest.expiry_date:type_name -> google.protobuf.StringValue
-	12, // 12: cards.CardUpdateRequest.cvv:type_name -> google.protobuf.StringValue
-	12, // 13: cards.CardUpdateRequest.pin:type_name -> google.protobuf.StringValue
-	12, // 14: cards.CardUpdateRequest.bank:type_name -> google.protobuf.StringValue
-	12, // 15: cards.CardUpdateRequest.brand:type_name -> google.protobuf.StringValue
-	12, // 16: cards.CardUpdateRequest.title:type_name -> google.protobuf.StringValue
-	12, // 17: cards.CardUpdateRequest.description:type_name -> google.protobuf.StringValue
-	10, // 18: cards.CardGetListResponse.cards:type_name -> cards.CardGetListItemResponse
+	10, // 0: cards.CardCreateRequest.pan:type_name -> google.protobuf.UInt64Value
+	11, // 1: cards.CardCreateRequest.holder:type_name -> google.protobuf.StringValue
+	11, // 2: cards.CardCreateRequest.expiry_date:type_name -> google.protobuf.StringValue
+	11, // 3: cards.CardCreateRequest.cvv:type_name -> google.protobuf.StringValue
+	11, // 4: cards.CardCreateRequest.pin:type_name -> google.protobuf.StringValue
+	11, // 5: cards.CardCreateRequest.bank:type_name -> google.protobuf.StringValue
+	11, // 6: cards.CardCreateRequest.brand:type_name -> google.protobuf.StringValue
+	11, // 7: cards.CardCreateRequest.title:type_name -> google.protobuf.StringValue
+	11, // 8: cards.CardCreateRequest.description:type_name -> google.protobuf.StringValue
+	10, // 9: cards.CardUpdateRequest.pan:type_name -> google.protobuf.UInt64Value
+	11, // 10: cards.CardUpdateRequest.holder:type_name -> google.protobuf.StringValue
+	11, // 11: cards.CardUpdateRequest.expiry_date:type_name -> google.protobuf.StringValue
+	11, // 12: cards.CardUpdateRequest.cvv:type_name -> google.protobuf.StringValue
+	11, // 13: cards.CardUpdateRequest.pin:type_name -> google.protobuf.StringValue
+	11, // 14: cards.CardUpdateRequest.bank:type_name -> google.protobuf.StringValue
+	11, // 15: cards.CardUpdateRequest.brand:type_name -> google.protobuf.StringValue
+	11, // 16: cards.CardUpdateRequest.title:type_name -> google.protobuf.StringValue
+	11, // 17: cards.CardUpdateRequest.description:type_name -> google.protobuf.StringValue
+	3,  // 18: cards.CardGetListResponse.cards:type_name -> cards.CardGetResponse
 	0,  // 19: cards.CardService.CreateCard:input_type -> cards.CardCreateRequest
 	2,  // 20: cards.CardService.GetCard:input_type -> cards.CardGetRequest
 	4,  // 21: cards.CardService.UpdateCard:input_type -> cards.CardUpdateRequest
@@ -1713,7 +1567,7 @@ func file_api_proto_cards_cards_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_proto_cards_cards_proto_rawDesc), len(file_api_proto_cards_cards_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   11,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

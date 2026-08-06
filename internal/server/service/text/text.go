@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/artni96/GophKeeper/internal/server/config"
-	"github.com/artni96/GophKeeper/internal/server/model/common"
 	textmodel "github.com/artni96/GophKeeper/internal/server/model/text"
 	"github.com/artni96/GophKeeper/internal/server/repository/text"
 	"github.com/google/uuid"
@@ -18,7 +17,7 @@ type ServiceI interface {
 	GetByNumber(ctx context.Context, number uint64, userID uuid.UUID) (*textmodel.Text, error)
 	Update(ctx context.Context, data textmodel.UpdateTextRequest, number uint64, userID uuid.UUID) error
 	Delete(ctx context.Context, number uint64, userID uuid.UUID) error
-	GetList(ctx context.Context, userID uuid.UUID) ([]common.GetListEntityResponse, error)
+	GetList(ctx context.Context, userID uuid.UUID) ([]textmodel.Text, error)
 }
 
 // Service implements the Text service to manage text-related data business logic.
@@ -123,7 +122,7 @@ func (s *Service) Delete(ctx context.Context, number uint64, userID uuid.UUID) e
 }
 
 // GetList returns the list of user's text-related entities by the repository.
-func (s *Service) GetList(ctx context.Context, userID uuid.UUID) ([]common.GetListEntityResponse, error) {
+func (s *Service) GetList(ctx context.Context, userID uuid.UUID) ([]textmodel.Text, error) {
 	result, err := s.repo.GetList(ctx, userID)
 	if err != nil {
 		return nil, err

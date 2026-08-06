@@ -7,7 +7,6 @@ import (
 
 	"github.com/artni96/GophKeeper/internal/server/constants"
 	"github.com/artni96/GophKeeper/internal/server/model/card"
-	commonmodel "github.com/artni96/GophKeeper/internal/server/model/common"
 	"github.com/artni96/GophKeeper/internal/server/repository/common"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -24,7 +23,7 @@ type RepositoryI interface {
 	GetByNumber(ctx context.Context, number uint64, userID uuid.UUID) (*card.Card, error)
 	Update(ctx context.Context, entity card.UpdateCard, number uint64, userID uuid.UUID, notNullFields []string) error
 	Delete(ctx context.Context, number uint64, userID uuid.UUID) error
-	GetList(ctx context.Context, userID uuid.UUID) ([]commonmodel.GetListEntityResponse, error)
+	GetList(ctx context.Context, userID uuid.UUID) ([]card.Card, error)
 }
 
 // Repository implements the Card repository to manage card-related data through the database.
@@ -115,8 +114,8 @@ func (r *Repository) Delete(ctx context.Context, number uint64, userID uuid.UUID
 }
 
 // GetList returns the list of user's card-related entities from the database (only for authors).
-func (r *Repository) GetList(ctx context.Context, userID uuid.UUID) ([]commonmodel.GetListEntityResponse, error) {
-	var dbEntities []commonmodel.GetListEntityResponse
+func (r *Repository) GetList(ctx context.Context, userID uuid.UUID) ([]card.Card, error) {
+	var dbEntities []card.Card
 	result := r.db.WithContext(ctx).Table(tableName).Where("user_id = ?", userID).Find(&dbEntities)
 	if result.Error != nil {
 		return nil, fmt.Errorf("failed to get list of logins: %w", result.Error)

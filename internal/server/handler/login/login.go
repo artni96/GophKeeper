@@ -154,12 +154,19 @@ func (h *Handler) GetListLogin(ctx context.Context, req *pb.LoginGetListRequest)
 		return resp, status.Error(codes.Internal, constants.DefaultError)
 	}
 
-	pbList := make([]*pb.LoginGetListItemResponse, 0)
+	pbList := make([]*pb.LoginGetResponse, 0)
 	for _, entity := range dbEntities {
-		i := &pb.LoginGetListItemResponse{}
-		i.SetNumber(entity.Number)
+		i := &pb.LoginGetResponse{}
 		i.SetTitle(entity.Title)
+		i.SetNumber(entity.Number)
+		i.SetUrl(entity.URL)
 		i.SetDescription(entity.Description)
+		i.SetLogin(entity.Login)
+		i.SetPassword(entity.Password)
+		i.SetCreatedAt(entity.CreatedAt.Format(time.RFC3339))
+		if !entity.UpdatedAt.IsZero() {
+			i.SetUpdatedAt(entity.UpdatedAt.Format(time.RFC3339))
+		}
 		pbList = append(pbList, i)
 	}
 	resp.SetLogins(pbList)

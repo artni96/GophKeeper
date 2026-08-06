@@ -10,7 +10,6 @@ import (
 
 	"github.com/artni96/GophKeeper/internal/server/constants"
 	"github.com/artni96/GophKeeper/internal/server/model/card"
-	"github.com/artni96/GophKeeper/internal/server/model/common"
 	"github.com/artni96/GophKeeper/internal/server/repository/user"
 	userfixture "github.com/artni96/GophKeeper/internal/server/repository/user/fixture"
 	"github.com/artni96/GophKeeper/tests"
@@ -547,7 +546,7 @@ func TestGetList(t *testing.T) {
 			}
 			fmt.Println(len(result))
 			assert.Equal(t, tt.correctNumber, len(result))
-			assert.IsType(t, result[0], common.GetListEntityResponse{})
+			assert.IsType(t, result[0], card.Card{})
 			assert.Equal(t, result[0].Number, uint64(1))
 		})
 	}

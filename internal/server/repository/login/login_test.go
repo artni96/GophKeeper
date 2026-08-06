@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/artni96/GophKeeper/internal/server/constants"
-	"github.com/artni96/GophKeeper/internal/server/model/common"
 	"github.com/artni96/GophKeeper/internal/server/model/login"
 	"github.com/artni96/GophKeeper/internal/server/repository/user"
 	userfixture "github.com/artni96/GophKeeper/internal/server/repository/user/fixture"
@@ -370,7 +369,7 @@ func TestGetList(t *testing.T) {
 				t.Fatal(err)
 			}
 			assert.Equal(t, tt.correctNumber, len(result))
-			assert.IsType(t, result[0], common.GetListEntityResponse{})
+			assert.IsType(t, result[0], login.Login{})
 			assert.Equal(t, result[0].Number, uint64(1))
 		})
 	}

@@ -6,7 +6,6 @@ import (
 
 	"github.com/artni96/GophKeeper/internal/server/config"
 	cardmodel "github.com/artni96/GophKeeper/internal/server/model/card"
-	"github.com/artni96/GophKeeper/internal/server/model/common"
 	"github.com/artni96/GophKeeper/internal/server/repository/card"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -18,7 +17,7 @@ type ServiceI interface {
 	GetByNumber(ctx context.Context, number uint64, userID uuid.UUID) (*cardmodel.Card, error)
 	Update(ctx context.Context, data cardmodel.UpdateCardRequest, number uint64, userID uuid.UUID) error
 	Delete(ctx context.Context, number uint64, userID uuid.UUID) error
-	GetList(ctx context.Context, userID uuid.UUID) ([]common.GetListEntityResponse, error)
+	GetList(ctx context.Context, userID uuid.UUID) ([]cardmodel.Card, error)
 }
 
 // Service implements the Card service to manage card-related data business logic.
@@ -175,7 +174,7 @@ func (s *Service) Delete(ctx context.Context, number uint64, userID uuid.UUID) e
 }
 
 // GetList returns the list of user's card-related entities by the repository.
-func (s *Service) GetList(ctx context.Context, userID uuid.UUID) ([]common.GetListEntityResponse, error) {
+func (s *Service) GetList(ctx context.Context, userID uuid.UUID) ([]cardmodel.Card, error) {
 	result, err := s.repo.GetList(ctx, userID)
 	if err != nil {
 		return nil, err

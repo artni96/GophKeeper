@@ -884,8 +884,8 @@ func (b0 TextGetListRequest_builder) Build() *TextGetListRequest {
 }
 
 type TextGetListResponse struct {
-	state            protoimpl.MessageState      `protogen:"opaque.v1"`
-	xxx_hidden_Texts *[]*TextGetListItemResponse `protobuf:"bytes,1,rep,name=texts"`
+	state            protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Texts *[]*TextGetResponse    `protobuf:"bytes,1,rep,name=texts"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -915,7 +915,7 @@ func (x *TextGetListResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *TextGetListResponse) GetTexts() []*TextGetListItemResponse {
+func (x *TextGetListResponse) GetTexts() []*TextGetResponse {
 	if x != nil {
 		if x.xxx_hidden_Texts != nil {
 			return *x.xxx_hidden_Texts
@@ -924,14 +924,14 @@ func (x *TextGetListResponse) GetTexts() []*TextGetListItemResponse {
 	return nil
 }
 
-func (x *TextGetListResponse) SetTexts(v []*TextGetListItemResponse) {
+func (x *TextGetListResponse) SetTexts(v []*TextGetResponse) {
 	x.xxx_hidden_Texts = &v
 }
 
 type TextGetListResponse_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Texts []*TextGetListItemResponse
+	Texts []*TextGetResponse
 }
 
 func (b0 TextGetListResponse_builder) Build() *TextGetListResponse {
@@ -939,147 +939,6 @@ func (b0 TextGetListResponse_builder) Build() *TextGetListResponse {
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Texts = &b.Texts
-	return m0
-}
-
-type TextGetListItemResponse struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Title       *string                `protobuf:"bytes,1,opt,name=title"`
-	xxx_hidden_Number      uint64                 `protobuf:"varint,2,opt,name=number"`
-	xxx_hidden_Description *string                `protobuf:"bytes,3,opt,name=description"`
-	XXX_raceDetectHookData protoimpl.RaceDetectHookData
-	XXX_presence           [1]uint32
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
-}
-
-func (x *TextGetListItemResponse) Reset() {
-	*x = TextGetListItemResponse{}
-	mi := &file_api_proto_texts_texts_proto_msgTypes[10]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *TextGetListItemResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*TextGetListItemResponse) ProtoMessage() {}
-
-func (x *TextGetListItemResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_texts_texts_proto_msgTypes[10]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *TextGetListItemResponse) GetTitle() string {
-	if x != nil {
-		if x.xxx_hidden_Title != nil {
-			return *x.xxx_hidden_Title
-		}
-		return ""
-	}
-	return ""
-}
-
-func (x *TextGetListItemResponse) GetNumber() uint64 {
-	if x != nil {
-		return x.xxx_hidden_Number
-	}
-	return 0
-}
-
-func (x *TextGetListItemResponse) GetDescription() string {
-	if x != nil {
-		if x.xxx_hidden_Description != nil {
-			return *x.xxx_hidden_Description
-		}
-		return ""
-	}
-	return ""
-}
-
-func (x *TextGetListItemResponse) SetTitle(v string) {
-	x.xxx_hidden_Title = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 3)
-}
-
-func (x *TextGetListItemResponse) SetNumber(v uint64) {
-	x.xxx_hidden_Number = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 3)
-}
-
-func (x *TextGetListItemResponse) SetDescription(v string) {
-	x.xxx_hidden_Description = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 3)
-}
-
-func (x *TextGetListItemResponse) HasTitle() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
-}
-
-func (x *TextGetListItemResponse) HasNumber() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
-}
-
-func (x *TextGetListItemResponse) HasDescription() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
-}
-
-func (x *TextGetListItemResponse) ClearTitle() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
-	x.xxx_hidden_Title = nil
-}
-
-func (x *TextGetListItemResponse) ClearNumber() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
-	x.xxx_hidden_Number = 0
-}
-
-func (x *TextGetListItemResponse) ClearDescription() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
-	x.xxx_hidden_Description = nil
-}
-
-type TextGetListItemResponse_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Title       *string
-	Number      *uint64
-	Description *string
-}
-
-func (b0 TextGetListItemResponse_builder) Build() *TextGetListItemResponse {
-	m0 := &TextGetListItemResponse{}
-	b, x := &b0, m0
-	_, _ = b, x
-	if b.Title != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 3)
-		x.xxx_hidden_Title = b.Title
-	}
-	if b.Number != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 3)
-		x.xxx_hidden_Number = *b.Number
-	}
-	if b.Description != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 3)
-		x.xxx_hidden_Description = b.Description
-	}
 	return m0
 }
 
@@ -1114,13 +973,9 @@ const file_api_proto_texts_texts_proto_rawDesc = "" +
 	"\x11TextDeleteRequest\x12\x16\n" +
 	"\x06number\x18\x01 \x01(\x04R\x06number\"\x14\n" +
 	"\x12TextDeleteResponse\"\x14\n" +
-	"\x12TextGetListRequest\"K\n" +
-	"\x13TextGetListResponse\x124\n" +
-	"\x05texts\x18\x01 \x03(\v2\x1e.texts.TextGetListItemResponseR\x05texts\"i\n" +
-	"\x17TextGetListItemResponse\x12\x14\n" +
-	"\x05title\x18\x01 \x01(\tR\x05title\x12\x16\n" +
-	"\x06number\x18\x02 \x01(\x04R\x06number\x12 \n" +
-	"\vdescription\x18\x03 \x01(\tR\vdescription2\xd6\x02\n" +
+	"\x12TextGetListRequest\"C\n" +
+	"\x13TextGetListResponse\x12,\n" +
+	"\x05texts\x18\x01 \x03(\v2\x16.texts.TextGetResponseR\x05texts2\xd6\x02\n" +
 	"\vTextService\x12A\n" +
 	"\n" +
 	"CreateText\x12\x18.texts.TextCreateRequest\x1a\x19.texts.TextCreateResponse\x128\n" +
@@ -1131,29 +986,28 @@ const file_api_proto_texts_texts_proto_rawDesc = "" +
 	"DeleteText\x12\x18.texts.TextDeleteRequest\x1a\x19.texts.TextDeleteResponse\x12D\n" +
 	"\vGetListText\x12\x19.texts.TextGetListRequest\x1a\x1a.texts.TextGetListResponseB/Z-github.com/artni96/GophKeeper/api/proto/textsb\beditionsp\xe8\a"
 
-var file_api_proto_texts_texts_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_api_proto_texts_texts_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_api_proto_texts_texts_proto_goTypes = []any{
-	(*TextCreateRequest)(nil),       // 0: texts.TextCreateRequest
-	(*TextCreateResponse)(nil),      // 1: texts.TextCreateResponse
-	(*TextGetRequest)(nil),          // 2: texts.TextGetRequest
-	(*TextGetResponse)(nil),         // 3: texts.TextGetResponse
-	(*TextUpdateRequest)(nil),       // 4: texts.TextUpdateRequest
-	(*TextUpdateResponse)(nil),      // 5: texts.TextUpdateResponse
-	(*TextDeleteRequest)(nil),       // 6: texts.TextDeleteRequest
-	(*TextDeleteResponse)(nil),      // 7: texts.TextDeleteResponse
-	(*TextGetListRequest)(nil),      // 8: texts.TextGetListRequest
-	(*TextGetListResponse)(nil),     // 9: texts.TextGetListResponse
-	(*TextGetListItemResponse)(nil), // 10: texts.TextGetListItemResponse
-	(*wrapperspb.StringValue)(nil),  // 11: google.protobuf.StringValue
+	(*TextCreateRequest)(nil),      // 0: texts.TextCreateRequest
+	(*TextCreateResponse)(nil),     // 1: texts.TextCreateResponse
+	(*TextGetRequest)(nil),         // 2: texts.TextGetRequest
+	(*TextGetResponse)(nil),        // 3: texts.TextGetResponse
+	(*TextUpdateRequest)(nil),      // 4: texts.TextUpdateRequest
+	(*TextUpdateResponse)(nil),     // 5: texts.TextUpdateResponse
+	(*TextDeleteRequest)(nil),      // 6: texts.TextDeleteRequest
+	(*TextDeleteResponse)(nil),     // 7: texts.TextDeleteResponse
+	(*TextGetListRequest)(nil),     // 8: texts.TextGetListRequest
+	(*TextGetListResponse)(nil),    // 9: texts.TextGetListResponse
+	(*wrapperspb.StringValue)(nil), // 10: google.protobuf.StringValue
 }
 var file_api_proto_texts_texts_proto_depIdxs = []int32{
-	11, // 0: texts.TextCreateRequest.title:type_name -> google.protobuf.StringValue
-	11, // 1: texts.TextCreateRequest.description:type_name -> google.protobuf.StringValue
-	11, // 2: texts.TextCreateRequest.text:type_name -> google.protobuf.StringValue
-	11, // 3: texts.TextUpdateRequest.title:type_name -> google.protobuf.StringValue
-	11, // 4: texts.TextUpdateRequest.description:type_name -> google.protobuf.StringValue
-	11, // 5: texts.TextUpdateRequest.text:type_name -> google.protobuf.StringValue
-	10, // 6: texts.TextGetListResponse.texts:type_name -> texts.TextGetListItemResponse
+	10, // 0: texts.TextCreateRequest.title:type_name -> google.protobuf.StringValue
+	10, // 1: texts.TextCreateRequest.description:type_name -> google.protobuf.StringValue
+	10, // 2: texts.TextCreateRequest.text:type_name -> google.protobuf.StringValue
+	10, // 3: texts.TextUpdateRequest.title:type_name -> google.protobuf.StringValue
+	10, // 4: texts.TextUpdateRequest.description:type_name -> google.protobuf.StringValue
+	10, // 5: texts.TextUpdateRequest.text:type_name -> google.protobuf.StringValue
+	3,  // 6: texts.TextGetListResponse.texts:type_name -> texts.TextGetResponse
 	0,  // 7: texts.TextService.CreateText:input_type -> texts.TextCreateRequest
 	2,  // 8: texts.TextService.GetText:input_type -> texts.TextGetRequest
 	4,  // 9: texts.TextService.UpdateText:input_type -> texts.TextUpdateRequest
@@ -1182,7 +1036,7 @@ func file_api_proto_texts_texts_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_proto_texts_texts_proto_rawDesc), len(file_api_proto_texts_texts_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   11,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

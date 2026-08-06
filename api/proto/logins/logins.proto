@@ -64,11 +64,5 @@ message LoginGetListRequest {
 }
 
 message LoginGetListResponse {
-  repeated LoginGetListItemResponse logins = 1;
-}
-
-message LoginGetListItemResponse {
-  string title = 1;
-  uint64 number = 2;
-  string description = 3;
+  repeated LoginGetResponse logins = 1;
 }

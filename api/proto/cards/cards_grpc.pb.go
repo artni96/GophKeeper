@@ -95,7 +95,7 @@ func (c *cardServiceClient) GetListCard(ctx context.Context, in *CardGetListRequ
 	return out, nil
 }
 
-// CardServiceServer is the grpc API for CardService service.
+// CardServiceServer is the server API for CardService service.
 // All implementations must embed UnimplementedCardServiceServer
 // for forward compatibility.
 type CardServiceServer interface {

@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"github.com/artni96/GophKeeper/internal/server/constants"
-	commonmodel "github.com/artni96/GophKeeper/internal/server/model/common"
 	"github.com/artni96/GophKeeper/internal/server/model/login"
 	"github.com/artni96/GophKeeper/internal/server/repository/common"
 	"github.com/google/uuid"
@@ -26,7 +25,7 @@ type RepositoryI interface {
 	GetByNumber(ctx context.Context, number uint64, userID uuid.UUID) (*login.Login, error)
 	Update(ctx context.Context, entity login.UpdateLogin, number uint64, userID uuid.UUID, fieldsToUpdate []string) error
 	Delete(ctx context.Context, number uint64, userID uuid.UUID) error
-	GetList(ctx context.Context, userID uuid.UUID) ([]commonmodel.GetListEntityResponse, error)
+	GetList(ctx context.Context, userID uuid.UUID) ([]login.Login, error)
 }
 
 // Repository implements the Login repository to manage login-related data through the database.
@@ -112,8 +111,8 @@ func (r *Repository) Delete(ctx context.Context, number uint64, userID uuid.UUID
 }
 
 // GetList returns the list of user's login-related entities from the database (only for authors).
-func (r *Repository) GetList(ctx context.Context, userID uuid.UUID) ([]commonmodel.GetListEntityResponse, error) {
-	var dbEntities []commonmodel.GetListEntityResponse
+func (r *Repository) GetList(ctx context.Context, userID uuid.UUID) ([]login.Login, error) {
+	var dbEntities []login.Login
 	result := r.db.WithContext(ctx).Table(tableName).Where("user_id = ?", userID).Find(&dbEntities)
 	if result.Error != nil {
 		return nil, fmt.Errorf("failed to get list of logins: %w", result.Error)

@@ -36,6 +36,4 @@ func NewUserState() *UserState {
 }
 
 type DataStorage struct {
-	Logins[]
-	Texts
 }

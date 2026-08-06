@@ -166,12 +166,23 @@ func (h *Handler) GetListCard(ctx context.Context, req *pb.CardGetListRequest) (
 		return resp, status.Error(codes.Internal, constants.DefaultError)
 	}
 
-	pbList := make([]*pb.CardGetListItemResponse, 0)
+	pbList := make([]*pb.CardGetResponse, 0)
 	for _, entity := range dbEntities {
-		i := &pb.CardGetListItemResponse{}
-		i.SetNumber(entity.Number)
+		i := &pb.CardGetResponse{}
+		i.SetPan(entity.PAN)
+		i.SetHolder(entity.Holder)
+		i.SetExpiryDate(entity.ExpiryDate)
+		i.SetCvv(entity.CVV)
+		i.SetPin(entity.PIN)
+		i.SetBank(entity.Bank)
+		i.SetBrand(entity.Brand)
 		i.SetTitle(entity.Title)
 		i.SetDescription(entity.Description)
+		i.SetNumber(entity.Number)
+		i.SetCreatedAt(entity.CreatedAt.Format(time.RFC3339))
+		if !entity.UpdatedAt.IsZero() {
+			i.SetUpdatedAt(entity.UpdatedAt.Format(time.RFC3339))
+		}
 		pbList = append(pbList, i)
 	}
 	resp.SetCards(pbList)
