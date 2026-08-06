@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 
-	"github.com/artni96/GophKeeper/internal/config"
+	"github.com/artni96/GophKeeper/internal/server/config"
 )
 
 func main() {

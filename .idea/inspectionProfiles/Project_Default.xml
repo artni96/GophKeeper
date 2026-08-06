@@ -1,11 +1,17 @@
 <component name="InspectionProjectProfileManager">
   <profile version="1.0">
     <option name="myName" value="Project Default" />
+    <inspection_tool class="GoDfaErrorMayBeNotNil" enabled="true" level="WARNING" enabled_by_default="true">
+      <methods>
+        <method importPath="github.com/artni96/GophKeeper/api/proto/users" receiver="UserServiceClient" name="Login" />
+      </methods>
+    </inspection_tool>
     <inspection_tool class="GoResourceLeak" enabled="true" level="WARNING" enabled_by_default="true">
       <functions>
         <function importPath="github.com/jmoiron/sqlx" name="Open" />
         <function importPath="net" name="Listen" />
         <function importPath="github.com/golang-migrate/migrate/database/postgres" name="WithInstance" />
+        <function importPath="google.golang.org/grpc" name="NewClient" />
       </functions>
     </inspection_tool>
     <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">

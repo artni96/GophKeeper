@@ -95,7 +95,7 @@ func (c *loginServiceClient) GetListLogin(ctx context.Context, in *LoginGetListR
 	return out, nil
 }
 
-// LoginServiceServer is the server API for LoginService service.
+// LoginServiceServer is the grpc API for LoginService service.
 // All implementations must embed UnimplementedLoginServiceServer
 // for forward compatibility.
 type LoginServiceServer interface {

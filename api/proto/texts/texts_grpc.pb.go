@@ -95,7 +95,7 @@ func (c *textServiceClient) GetListText(ctx context.Context, in *TextGetListRequ
 	return out, nil
 }
 
-// TextServiceServer is the server API for TextService service.
+// TextServiceServer is the grpc API for TextService service.
 // All implementations must embed UnimplementedTextServiceServer
 // for forward compatibility.
 type TextServiceServer interface {

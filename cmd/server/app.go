@@ -9,8 +9,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/artni96/GophKeeper/internal/app"
-	"github.com/artni96/GophKeeper/internal/config"
+	"github.com/artni96/GophKeeper/internal/server/app"
+	"github.com/artni96/GophKeeper/internal/server/config"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 
