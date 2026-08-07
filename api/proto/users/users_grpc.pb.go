@@ -19,8 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	UserService_CreateUser_FullMethodName = "/users.UserService/CreateUser"
-	UserService_Login_FullMethodName      = "/users.UserService/Login"
+	UserService_CreateUser_FullMethodName  = "/users.UserService/CreateUser"
+	UserService_Login_FullMethodName       = "/users.UserService/Login"
+	UserService_SeekUpdates_FullMethodName = "/users.UserService/SeekUpdates"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -29,6 +30,7 @@ const (
 type UserServiceClient interface {
 	CreateUser(ctx context.Context, in *UserCreateRequest, opts ...grpc.CallOption) (*UserCreateResponse, error)
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
+	SeekUpdates(ctx context.Context, in *SeekUpdateRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[UpdateNotification], error)
 }
 
 type userServiceClient struct {
@@ -59,12 +61,32 @@ func (c *userServiceClient) Login(ctx context.Context, in *LoginRequest, opts ..
 	return out, nil
 }
 
-// UserServiceServer is the grpc API for UserService service.
+func (c *userServiceClient) SeekUpdates(ctx context.Context, in *SeekUpdateRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[UpdateNotification], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &UserService_ServiceDesc.Streams[0], UserService_SeekUpdates_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[SeekUpdateRequest, UpdateNotification]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type UserService_SeekUpdatesClient = grpc.ServerStreamingClient[UpdateNotification]
+
+// UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility.
 type UserServiceServer interface {
 	CreateUser(context.Context, *UserCreateRequest) (*UserCreateResponse, error)
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
+	SeekUpdates(*SeekUpdateRequest, grpc.ServerStreamingServer[UpdateNotification]) error
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -80,6 +102,9 @@ func (UnimplementedUserServiceServer) CreateUser(context.Context, *UserCreateReq
 }
 func (UnimplementedUserServiceServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Login not implemented")
+}
+func (UnimplementedUserServiceServer) SeekUpdates(*SeekUpdateRequest, grpc.ServerStreamingServer[UpdateNotification]) error {
+	return status.Error(codes.Unimplemented, "method SeekUpdates not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 func (UnimplementedUserServiceServer) testEmbeddedByValue()                     {}
@@ -138,6 +163,17 @@ func _UserService_Login_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_SeekUpdates_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(SeekUpdateRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(UserServiceServer).SeekUpdates(m, &grpc.GenericServerStream[SeekUpdateRequest, UpdateNotification]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type UserService_SeekUpdatesServer = grpc.ServerStreamingServer[UpdateNotification]
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -154,6 +190,12 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _UserService_Login_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "SeekUpdates",
+			Handler:       _UserService_SeekUpdates_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "api/proto/users/users.proto",
 }

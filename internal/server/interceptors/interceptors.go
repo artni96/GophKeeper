@@ -66,7 +66,7 @@ func AuthInterceptor(cfg *config.Config, logger *zap.Logger) grpc.UnaryServerInt
 
 		if md, ok := metadata.FromIncomingContext(ctx); ok {
 			if len(md["authorization"]) == 0 {
-				logger.Info("there is no authorization header in the request")
+				logger.Info("no authorization header in the request")
 				return nil, status.Errorf(codes.Unauthenticated, "invalid token")
 			}
 
@@ -92,5 +92,6 @@ func AuthInterceptor(cfg *config.Config, logger *zap.Logger) grpc.UnaryServerInt
 // GetUserIDFromContext extracts the User ID from the context.
 func GetUserIDFromContext(ctx context.Context) (uuid.UUID, bool) {
 	userID, ok := ctx.Value(userIDKey{}).(uuid.UUID)
+
 	return userID, ok
 }

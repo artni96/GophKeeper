@@ -2,38 +2,52 @@ package user
 
 import (
 	"errors"
+
+	"github.com/artni96/GophKeeper/internal/client/model/common"
 )
 
 var ErrNoAttemptsLeft = errors.New("no attempts left")
 
-type UserState struct {
-	CurrentMenu    string
-	InTyping       bool
+type State struct {
+	//CurrentMenu    string
+	//InTyping       bool
 	Token          string
 	ActionAttempts uint64
 	MaxAttempts    uint64
+	DataStorage    DataStorage
+	IsOnline       bool
 }
 
-func (u *UserState) HasAttempts() bool {
+func NewUserState() *State {
+	extendedDataMap := make(map[uint64]any, 10)
+	shortDataList := make([]common.Entity, 0, 10)
+	dataStorage := DataStorage{
+		ExtendedDataMap: extendedDataMap,
+		ShortDataList:   shortDataList,
+	}
+	userState := &State{
+		DataStorage: dataStorage,
+		MaxAttempts: 3,
+	}
+	return userState
+}
+
+func (u *State) HasAttempts() bool {
 	if u.ActionAttempts == 3 {
 		return false
 	}
 	return true
 }
 
-func (u *UserState) AddAttempt() {
+func (u *State) AddAttempt() {
 	u.ActionAttempts++
 }
 
-func (u *UserState) ResetAttempts() {
+func (u *State) ResetAttempts() {
 	u.ActionAttempts = 0
 }
 
-func NewUserState() *UserState {
-	return &UserState{
-		MaxAttempts: 3,
-	}
-}
-
 type DataStorage struct {
+	ExtendedDataMap map[uint64]any
+	ShortDataList   []common.Entity
 }

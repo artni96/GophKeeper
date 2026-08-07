@@ -1,4 +1,4 @@
-package model
+package user
 
 type LoginRequest struct {
 	Login    string
@@ -9,5 +9,3 @@ type RegisterRequest struct {
 	Login    string
 	Password string
 }
-
-type Login struct{}

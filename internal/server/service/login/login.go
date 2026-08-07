@@ -25,6 +25,8 @@ type Service struct {
 	repo   login.RepositoryI
 	cfg    *config.Config
 	logger *zap.Logger
+	//notificationChan chan *userpb.UpdateNotification
+	//mu               sync.RWMutex
 }
 
 // NewService initializes and returns the new Login service instance.
@@ -33,6 +35,7 @@ func NewService(cfg *config.Config, logger *zap.Logger, repo login.RepositoryI) 
 		repo:   repo,
 		cfg:    cfg,
 		logger: logger,
+		//notificationChan: notifChan,
 	}
 }
 
@@ -54,6 +57,10 @@ func (s *Service) Create(ctx context.Context, data loginmodel.CreateLoginRequest
 	if err != nil {
 		return number, err
 	}
+
+	//event := &userpb.UpdateNotification{}
+	//event.SetUpdatedAt(timestamppb.New(time.Now()))
+
 	return number, nil
 }
 

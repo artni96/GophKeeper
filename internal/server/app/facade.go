@@ -7,6 +7,7 @@ import (
 	"log"
 	"time"
 
+	userpb "github.com/artni96/GophKeeper/api/proto/users"
 	"github.com/artni96/GophKeeper/internal/server/config"
 	"github.com/artni96/GophKeeper/internal/server/grpc"
 	applog "github.com/artni96/GophKeeper/internal/server/logger"
@@ -20,6 +21,7 @@ import (
 	userserv "github.com/artni96/GophKeeper/internal/server/service/user"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
@@ -29,22 +31,28 @@ import (
 
 // App is the app for the app with all dependencies.
 type App struct {
-	eg           *errgroup.Group
-	Cfg          *config.Config
-	DB           *sqlx.DB
-	Logger       *zap.Logger
-	server       grpc.GRPCServer
-	userService  *userserv.Service
-	loginService *loginserv.Service
-	cardService  *cardserv.Service
-	textService  *textserv.Service
+	eg               *errgroup.Group
+	Cfg              *config.Config
+	DB               *sqlx.DB
+	Logger           *zap.Logger
+	server           grpc.GRPCServer
+	userService      *userserv.Service
+	loginService     *loginserv.Service
+	cardService      *cardserv.Service
+	textService      *textserv.Service
+	notificationChan chan *userpb.UpdateNotification
+	streams          map[uuid.UUID][]chan *userpb.UpdateNotification
 }
 
 // NewApp initializes and returns a new instance of App.
 func NewApp(eg *errgroup.Group, cfg *config.Config) *App {
+	notificationChan := make(chan *userpb.UpdateNotification, 100)
+	streams := make(map[uuid.UUID][]chan *userpb.UpdateNotification, 100)
 	return &App{
-		eg:  eg,
-		Cfg: cfg,
+		eg:               eg,
+		Cfg:              cfg,
+		notificationChan: notificationChan,
+		streams:          streams,
 	}
 }
 
@@ -149,7 +157,7 @@ func (a *App) initDependencies() error {
 
 // initServer initializes a new gRPC server instance.
 func (a *App) initServer() error {
-	newServer := grpc.NewGRPCServer(a.Cfg, a.Logger, a.userService, a.loginService, a.cardService, a.textService)
+	newServer := grpc.NewGRPCServer(a.Cfg, a.Logger, a.userService, a.loginService, a.cardService, a.textService, a.streams)
 	err := newServer.Init()
 	if err != nil {
 		return fmt.Errorf("failed to initialize gRPC grpc: %w", err)

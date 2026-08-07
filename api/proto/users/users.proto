@@ -2,11 +2,14 @@ edition = "2023";
 
 package users;
 
+import "google/protobuf/timestamp.proto";
+
 option go_package = "github.com/artni96/GophKeeper/api/proto/users";
 
 service UserService {
   rpc CreateUser (UserCreateRequest) returns (UserCreateResponse);
   rpc Login (LoginRequest) returns (LoginResponse);
+  rpc SeekUpdates(SeekUpdateRequest) returns (stream UpdateNotification);
 }
 
 message UserCreateRequest {
@@ -25,4 +28,12 @@ message LoginRequest {
 
 message LoginResponse {
   string token = 1;
+}
+
+message SeekUpdateRequest {
+  string client_id = 1;
+}
+
+message UpdateNotification {
+  google.protobuf.Timestamp updated_at = 1;
 }

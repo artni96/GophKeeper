@@ -3,16 +3,20 @@ package login
 import (
 	"context"
 	"errors"
+	"sync"
 	"time"
 
 	pb "github.com/artni96/GophKeeper/api/proto/logins"
+	userspb "github.com/artni96/GophKeeper/api/proto/users"
 	"github.com/artni96/GophKeeper/internal/server/constants"
 	"github.com/artni96/GophKeeper/internal/server/interceptors"
 	loginmodel "github.com/artni96/GophKeeper/internal/server/model/login"
 	"github.com/artni96/GophKeeper/internal/server/service/login"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // Handler represents the Login handler instance.
@@ -20,13 +24,16 @@ type Handler struct {
 	pb.UnimplementedLoginServiceServer
 	Service login.ServiceI
 	Logger  *zap.Logger
+	streams map[uuid.UUID][]chan *userspb.UpdateNotification
+	mu      sync.Mutex
 }
 
 // NewHandler initializes and returns the Login Handler instance.
-func NewHandler(service login.ServiceI, logger *zap.Logger) *Handler {
+func NewHandler(service login.ServiceI, logger *zap.Logger, streams map[uuid.UUID][]chan *userspb.UpdateNotification) *Handler {
 	return &Handler{
 		Service: service,
 		Logger:  logger,
+		streams: streams,
 	}
 }
 
@@ -56,6 +63,22 @@ func (h *Handler) CreateLogin(ctx context.Context, req *pb.LoginCreateRequest) (
 		return resp, status.Error(codes.Internal, constants.DefaultError)
 	}
 	resp.SetNumber(number)
+
+	h.mu.Lock()
+	userStreams := h.streams[userID]
+	h.mu.Unlock()
+
+	notification := &userspb.UpdateNotification{}
+	notification.SetUpdatedAt(timestamppb.Now())
+	for _, stream := range userStreams {
+		select {
+		case stream <- notification:
+			h.Logger.Debug("update notification added to stream channel")
+		default:
+			h.Logger.Debug("stream channel is full")
+		}
+	}
+
 	return resp, nil
 }
 
@@ -117,6 +140,22 @@ func (h *Handler) UpdateLogin(ctx context.Context, req *pb.LoginUpdateRequest) (
 		}
 		return resp, status.Error(codes.Internal, constants.DefaultError)
 	}
+
+	h.mu.Lock()
+	userStreams := h.streams[userID]
+	h.mu.Unlock()
+
+	notification := &userspb.UpdateNotification{}
+	notification.SetUpdatedAt(timestamppb.Now())
+	for _, stream := range userStreams {
+		select {
+		case stream <- notification:
+			h.Logger.Debug("update notification added to stream channel")
+		default:
+			h.Logger.Debug("stream channel is full")
+		}
+	}
+
 	return resp, nil
 }
 
@@ -137,6 +176,22 @@ func (h *Handler) DeleteLogin(ctx context.Context, req *pb.LoginDeleteRequest) (
 		}
 		return resp, status.Error(codes.Internal, constants.DefaultError)
 	}
+	
+	h.mu.Lock()
+	userStreams := h.streams[userID]
+	h.mu.Unlock()
+
+	notification := &userspb.UpdateNotification{}
+	notification.SetUpdatedAt(timestamppb.Now())
+	for _, stream := range userStreams {
+		select {
+		case stream <- notification:
+			h.Logger.Debug("update notification added to stream channel")
+		default:
+			h.Logger.Debug("stream channel is full")
+		}
+	}
+
 	return resp, nil
 }
 

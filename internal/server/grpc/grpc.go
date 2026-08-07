@@ -20,6 +20,7 @@ import (
 	loginserv "github.com/artni96/GophKeeper/internal/server/service/login"
 	textserv "github.com/artni96/GophKeeper/internal/server/service/text"
 	userserv "github.com/artni96/GophKeeper/internal/server/service/user"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -45,6 +46,8 @@ type GRPCServer struct {
 	textHandler *texthandler.Handler
 
 	healthHandler *healthhandler.Handler
+
+	streams map[uuid.UUID][]chan *userspb.UpdateNotification
 }
 
 // Init initializes a new gRPC server instance.
@@ -94,10 +97,10 @@ func (s *GRPCServer) Launch() error {
 		return fmt.Errorf("failed to announce on the local network address.: %w", err)
 	}
 
-	userHandler := userhandler.NewHandler(s.userService, s.logger)
+	userHandler := userhandler.NewHandler(s.userService, s.logger, s.streams, s.cfg)
 	userspb.RegisterUserServiceServer(s.server, userHandler)
 
-	loginHandler := loginhandler.NewHandler(s.loginService, s.logger)
+	loginHandler := loginhandler.NewHandler(s.loginService, s.logger, s.streams)
 	loginspb.RegisterLoginServiceServer(s.server, loginHandler)
 
 	cardHandler := cardhandler.NewHandler(s.cardService, s.logger)
@@ -128,6 +131,7 @@ func NewGRPCServer(
 	loginService *loginserv.Service,
 	cardService *cardserv.Service,
 	textService *textserv.Service,
+	streams map[uuid.UUID][]chan *userspb.UpdateNotification,
 ) *GRPCServer {
 	return &GRPCServer{
 		cfg:          cfg,
@@ -136,5 +140,6 @@ func NewGRPCServer(
 		loginService: loginService,
 		cardService:  cardService,
 		textService:  textService,
+		streams:      streams,
 	}
 }

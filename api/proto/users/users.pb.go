@@ -9,6 +9,7 @@ package users
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	unsafe "unsafe"
 )
@@ -398,11 +399,157 @@ func (b0 LoginResponse_builder) Build() *LoginResponse {
 	return m0
 }
 
+type SeekUpdateRequest struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_ClientId    *string                `protobuf:"bytes,1,opt,name=client_id,json=clientId"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *SeekUpdateRequest) Reset() {
+	*x = SeekUpdateRequest{}
+	mi := &file_api_proto_users_users_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SeekUpdateRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SeekUpdateRequest) ProtoMessage() {}
+
+func (x *SeekUpdateRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_users_users_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *SeekUpdateRequest) GetClientId() string {
+	if x != nil {
+		if x.xxx_hidden_ClientId != nil {
+			return *x.xxx_hidden_ClientId
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *SeekUpdateRequest) SetClientId(v string) {
+	x.xxx_hidden_ClientId = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 1)
+}
+
+func (x *SeekUpdateRequest) HasClientId() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+}
+
+func (x *SeekUpdateRequest) ClearClientId() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_ClientId = nil
+}
+
+type SeekUpdateRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	ClientId *string
+}
+
+func (b0 SeekUpdateRequest_builder) Build() *SeekUpdateRequest {
+	m0 := &SeekUpdateRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.ClientId != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 1)
+		x.xxx_hidden_ClientId = b.ClientId
+	}
+	return m0
+}
+
+type UpdateNotification struct {
+	state                protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_UpdatedAt *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=updated_at,json=updatedAt"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
+}
+
+func (x *UpdateNotification) Reset() {
+	*x = UpdateNotification{}
+	mi := &file_api_proto_users_users_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateNotification) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateNotification) ProtoMessage() {}
+
+func (x *UpdateNotification) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_users_users_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *UpdateNotification) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_UpdatedAt
+	}
+	return nil
+}
+
+func (x *UpdateNotification) SetUpdatedAt(v *timestamppb.Timestamp) {
+	x.xxx_hidden_UpdatedAt = v
+}
+
+func (x *UpdateNotification) HasUpdatedAt() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_UpdatedAt != nil
+}
+
+func (x *UpdateNotification) ClearUpdatedAt() {
+	x.xxx_hidden_UpdatedAt = nil
+}
+
+type UpdateNotification_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	UpdatedAt *timestamppb.Timestamp
+}
+
+func (b0 UpdateNotification_builder) Build() *UpdateNotification {
+	m0 := &UpdateNotification{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_UpdatedAt = b.UpdatedAt
+	return m0
+}
+
 var File_api_proto_users_users_proto protoreflect.FileDescriptor
 
 const file_api_proto_users_users_proto_rawDesc = "" +
 	"\n" +
-	"\x1bapi/proto/users/users.proto\x12\x05users\"K\n" +
+	"\x1bapi/proto/users/users.proto\x12\x05users\x1a\x1fgoogle/protobuf/timestamp.proto\"K\n" +
 	"\x11UserCreateRequest\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\",\n" +
@@ -412,29 +559,41 @@ const file_api_proto_users_users_proto_rawDesc = "" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\"%\n" +
 	"\rLoginResponse\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token2\x84\x01\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\"0\n" +
+	"\x11SeekUpdateRequest\x12\x1b\n" +
+	"\tclient_id\x18\x01 \x01(\tR\bclientId\"O\n" +
+	"\x12UpdateNotification\x129\n" +
+	"\n" +
+	"updated_at\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt2\xca\x01\n" +
 	"\vUserService\x12A\n" +
 	"\n" +
 	"CreateUser\x12\x18.users.UserCreateRequest\x1a\x19.users.UserCreateResponse\x122\n" +
-	"\x05Login\x12\x13.users.LoginRequest\x1a\x14.users.LoginResponseB/Z-github.com/artni96/GophKeeper/api/proto/usersb\beditionsp\xe8\a"
+	"\x05Login\x12\x13.users.LoginRequest\x1a\x14.users.LoginResponse\x12D\n" +
+	"\vSeekUpdates\x12\x18.users.SeekUpdateRequest\x1a\x19.users.UpdateNotification0\x01B/Z-github.com/artni96/GophKeeper/api/proto/usersb\beditionsp\xe8\a"
 
-var file_api_proto_users_users_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_api_proto_users_users_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_api_proto_users_users_proto_goTypes = []any{
-	(*UserCreateRequest)(nil),  // 0: users.UserCreateRequest
-	(*UserCreateResponse)(nil), // 1: users.UserCreateResponse
-	(*LoginRequest)(nil),       // 2: users.LoginRequest
-	(*LoginResponse)(nil),      // 3: users.LoginResponse
+	(*UserCreateRequest)(nil),     // 0: users.UserCreateRequest
+	(*UserCreateResponse)(nil),    // 1: users.UserCreateResponse
+	(*LoginRequest)(nil),          // 2: users.LoginRequest
+	(*LoginResponse)(nil),         // 3: users.LoginResponse
+	(*SeekUpdateRequest)(nil),     // 4: users.SeekUpdateRequest
+	(*UpdateNotification)(nil),    // 5: users.UpdateNotification
+	(*timestamppb.Timestamp)(nil), // 6: google.protobuf.Timestamp
 }
 var file_api_proto_users_users_proto_depIdxs = []int32{
-	0, // 0: users.UserService.CreateUser:input_type -> users.UserCreateRequest
-	2, // 1: users.UserService.Login:input_type -> users.LoginRequest
-	1, // 2: users.UserService.CreateUser:output_type -> users.UserCreateResponse
-	3, // 3: users.UserService.Login:output_type -> users.LoginResponse
-	2, // [2:4] is the sub-list for method output_type
-	0, // [0:2] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	6, // 0: users.UpdateNotification.updated_at:type_name -> google.protobuf.Timestamp
+	0, // 1: users.UserService.CreateUser:input_type -> users.UserCreateRequest
+	2, // 2: users.UserService.Login:input_type -> users.LoginRequest
+	4, // 3: users.UserService.SeekUpdates:input_type -> users.SeekUpdateRequest
+	1, // 4: users.UserService.CreateUser:output_type -> users.UserCreateResponse
+	3, // 5: users.UserService.Login:output_type -> users.LoginResponse
+	5, // 6: users.UserService.SeekUpdates:output_type -> users.UpdateNotification
+	4, // [4:7] is the sub-list for method output_type
+	1, // [1:4] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_api_proto_users_users_proto_init() }
@@ -448,7 +607,7 @@ func file_api_proto_users_users_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_proto_users_users_proto_rawDesc), len(file_api_proto_users_users_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
