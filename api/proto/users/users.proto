@@ -6,6 +6,19 @@ import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/artni96/GophKeeper/api/proto/users";
 
+enum entityType {
+  Binary = 0;
+  Card = 1;
+  Login = 2;
+  Text = 3;
+}
+
+enum actionType {
+  Create = 0;
+  Delete = 1;
+  Update = 2;
+}
+
 service UserService {
   rpc CreateUser (UserCreateRequest) returns (UserCreateResponse);
   rpc Login (LoginRequest) returns (LoginResponse);
@@ -35,5 +48,8 @@ message SeekUpdateRequest {
 }
 
 message UpdateNotification {
-  google.protobuf.Timestamp updated_at = 1;
+  entityType entity_type = 1;
+  uint64 number = 2;
+  actionType action_type = 3;
+  google.protobuf.Timestamp updated_at = 4;
 }

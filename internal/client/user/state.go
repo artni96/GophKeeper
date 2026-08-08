@@ -9,8 +9,6 @@ import (
 var ErrNoAttemptsLeft = errors.New("no attempts left")
 
 type State struct {
-	//CurrentMenu    string
-	//InTyping       bool
 	Token          string
 	ActionAttempts uint64
 	MaxAttempts    uint64

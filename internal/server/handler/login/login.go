@@ -55,14 +55,14 @@ func (h *Handler) CreateLogin(ctx context.Context, req *pb.LoginCreateRequest) (
 	if err := entityToCreate.Validate(); err != nil {
 		return resp, status.Error(codes.InvalidArgument, err.Error())
 	}
-	number, err := h.Service.Create(ctx, entityToCreate)
+	entityNumber, err := h.Service.Create(ctx, entityToCreate)
 	if err != nil {
 		if errors.Is(err, constants.ErrEntityAlreadyExists) {
 			return resp, status.Error(codes.AlreadyExists, err.Error())
 		}
 		return resp, status.Error(codes.Internal, constants.DefaultError)
 	}
-	resp.SetNumber(number)
+	resp.SetNumber(entityNumber)
 
 	h.mu.Lock()
 	userStreams := h.streams[userID]
@@ -70,6 +70,9 @@ func (h *Handler) CreateLogin(ctx context.Context, req *pb.LoginCreateRequest) (
 
 	notification := &userspb.UpdateNotification{}
 	notification.SetUpdatedAt(timestamppb.Now())
+	notification.SetNumber(entityNumber)
+	notification.SetEntityType(2)
+	notification.SetActionType(2)
 	for _, stream := range userStreams {
 		select {
 		case stream <- notification:
@@ -147,6 +150,9 @@ func (h *Handler) UpdateLogin(ctx context.Context, req *pb.LoginUpdateRequest) (
 
 	notification := &userspb.UpdateNotification{}
 	notification.SetUpdatedAt(timestamppb.Now())
+	notification.SetNumber(entityNumber)
+	notification.SetEntityType(2)
+	notification.SetActionType(2)
 	for _, stream := range userStreams {
 		select {
 		case stream <- notification:
@@ -176,13 +182,15 @@ func (h *Handler) DeleteLogin(ctx context.Context, req *pb.LoginDeleteRequest) (
 		}
 		return resp, status.Error(codes.Internal, constants.DefaultError)
 	}
-	
+
 	h.mu.Lock()
 	userStreams := h.streams[userID]
 	h.mu.Unlock()
 
 	notification := &userspb.UpdateNotification{}
-	notification.SetUpdatedAt(timestamppb.Now())
+	notification.SetNumber(entityNumber)
+	notification.SetEntityType(2)
+	notification.SetActionType(1)
 	for _, stream := range userStreams {
 		select {
 		case stream <- notification:

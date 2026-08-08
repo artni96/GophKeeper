@@ -21,6 +21,97 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type EntityType int32
+
+const (
+	EntityType_Binary EntityType = 0
+	EntityType_Card   EntityType = 1
+	EntityType_Login  EntityType = 2
+	EntityType_Text   EntityType = 3
+)
+
+// Enum value maps for EntityType.
+var (
+	EntityType_name = map[int32]string{
+		0: "Binary",
+		1: "Card",
+		2: "Login",
+		3: "Text",
+	}
+	EntityType_value = map[string]int32{
+		"Binary": 0,
+		"Card":   1,
+		"Login":  2,
+		"Text":   3,
+	}
+)
+
+func (x EntityType) Enum() *EntityType {
+	p := new(EntityType)
+	*p = x
+	return p
+}
+
+func (x EntityType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (EntityType) Descriptor() protoreflect.EnumDescriptor {
+	return file_api_proto_users_users_proto_enumTypes[0].Descriptor()
+}
+
+func (EntityType) Type() protoreflect.EnumType {
+	return &file_api_proto_users_users_proto_enumTypes[0]
+}
+
+func (x EntityType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+type ActionType int32
+
+const (
+	ActionType_Create ActionType = 0
+	ActionType_Delete ActionType = 1
+	ActionType_Update ActionType = 2
+)
+
+// Enum value maps for ActionType.
+var (
+	ActionType_name = map[int32]string{
+		0: "Create",
+		1: "Delete",
+		2: "Update",
+	}
+	ActionType_value = map[string]int32{
+		"Create": 0,
+		"Delete": 1,
+		"Update": 2,
+	}
+)
+
+func (x ActionType) Enum() *ActionType {
+	p := new(ActionType)
+	*p = x
+	return p
+}
+
+func (x ActionType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ActionType) Descriptor() protoreflect.EnumDescriptor {
+	return file_api_proto_users_users_proto_enumTypes[1].Descriptor()
+}
+
+func (ActionType) Type() protoreflect.EnumType {
+	return &file_api_proto_users_users_proto_enumTypes[1]
+}
+
+func (x ActionType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
 type UserCreateRequest struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Username    *string                `protobuf:"bytes,1,opt,name=username"`
@@ -478,10 +569,15 @@ func (b0 SeekUpdateRequest_builder) Build() *SeekUpdateRequest {
 }
 
 type UpdateNotification struct {
-	state                protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_UpdatedAt *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=updated_at,json=updatedAt"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_EntityType  EntityType             `protobuf:"varint,1,opt,name=entity_type,json=entityType,enum=users.EntityType"`
+	xxx_hidden_Number      uint64                 `protobuf:"varint,2,opt,name=number"`
+	xxx_hidden_ActionType  ActionType             `protobuf:"varint,3,opt,name=action_type,json=actionType,enum=users.ActionType"`
+	xxx_hidden_UpdatedAt   *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=updated_at,json=updatedAt"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *UpdateNotification) Reset() {
@@ -509,6 +605,31 @@ func (x *UpdateNotification) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
+func (x *UpdateNotification) GetEntityType() EntityType {
+	if x != nil {
+		if protoimpl.X.Present(&(x.XXX_presence[0]), 0) {
+			return x.xxx_hidden_EntityType
+		}
+	}
+	return EntityType_Binary
+}
+
+func (x *UpdateNotification) GetNumber() uint64 {
+	if x != nil {
+		return x.xxx_hidden_Number
+	}
+	return 0
+}
+
+func (x *UpdateNotification) GetActionType() ActionType {
+	if x != nil {
+		if protoimpl.X.Present(&(x.XXX_presence[0]), 2) {
+			return x.xxx_hidden_ActionType
+		}
+	}
+	return ActionType_Create
+}
+
 func (x *UpdateNotification) GetUpdatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.xxx_hidden_UpdatedAt
@@ -516,8 +637,44 @@ func (x *UpdateNotification) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *UpdateNotification) SetEntityType(v EntityType) {
+	x.xxx_hidden_EntityType = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 4)
+}
+
+func (x *UpdateNotification) SetNumber(v uint64) {
+	x.xxx_hidden_Number = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 4)
+}
+
+func (x *UpdateNotification) SetActionType(v ActionType) {
+	x.xxx_hidden_ActionType = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 4)
+}
+
 func (x *UpdateNotification) SetUpdatedAt(v *timestamppb.Timestamp) {
 	x.xxx_hidden_UpdatedAt = v
+}
+
+func (x *UpdateNotification) HasEntityType() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+}
+
+func (x *UpdateNotification) HasNumber() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
+}
+
+func (x *UpdateNotification) HasActionType() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
 }
 
 func (x *UpdateNotification) HasUpdatedAt() bool {
@@ -527,6 +684,21 @@ func (x *UpdateNotification) HasUpdatedAt() bool {
 	return x.xxx_hidden_UpdatedAt != nil
 }
 
+func (x *UpdateNotification) ClearEntityType() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_EntityType = EntityType_Binary
+}
+
+func (x *UpdateNotification) ClearNumber() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	x.xxx_hidden_Number = 0
+}
+
+func (x *UpdateNotification) ClearActionType() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
+	x.xxx_hidden_ActionType = ActionType_Create
+}
+
 func (x *UpdateNotification) ClearUpdatedAt() {
 	x.xxx_hidden_UpdatedAt = nil
 }
@@ -534,13 +706,28 @@ func (x *UpdateNotification) ClearUpdatedAt() {
 type UpdateNotification_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	UpdatedAt *timestamppb.Timestamp
+	EntityType *EntityType
+	Number     *uint64
+	ActionType *ActionType
+	UpdatedAt  *timestamppb.Timestamp
 }
 
 func (b0 UpdateNotification_builder) Build() *UpdateNotification {
 	m0 := &UpdateNotification{}
 	b, x := &b0, m0
 	_, _ = b, x
+	if b.EntityType != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 4)
+		x.xxx_hidden_EntityType = *b.EntityType
+	}
+	if b.Number != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 4)
+		x.xxx_hidden_Number = *b.Number
+	}
+	if b.ActionType != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 4)
+		x.xxx_hidden_ActionType = *b.ActionType
+	}
 	x.xxx_hidden_UpdatedAt = b.UpdatedAt
 	return m0
 }
@@ -561,39 +748,64 @@ const file_api_proto_users_users_proto_rawDesc = "" +
 	"\rLoginResponse\x12\x14\n" +
 	"\x05token\x18\x01 \x01(\tR\x05token\"0\n" +
 	"\x11SeekUpdateRequest\x12\x1b\n" +
-	"\tclient_id\x18\x01 \x01(\tR\bclientId\"O\n" +
-	"\x12UpdateNotification\x129\n" +
+	"\tclient_id\x18\x01 \x01(\tR\bclientId\"\xcf\x01\n" +
+	"\x12UpdateNotification\x122\n" +
+	"\ventity_type\x18\x01 \x01(\x0e2\x11.users.entityTypeR\n" +
+	"entityType\x12\x16\n" +
+	"\x06number\x18\x02 \x01(\x04R\x06number\x122\n" +
+	"\vaction_type\x18\x03 \x01(\x0e2\x11.users.actionTypeR\n" +
+	"actionType\x129\n" +
 	"\n" +
-	"updated_at\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt2\xca\x01\n" +
+	"updated_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt*7\n" +
+	"\n" +
+	"entityType\x12\n" +
+	"\n" +
+	"\x06Binary\x10\x00\x12\b\n" +
+	"\x04Card\x10\x01\x12\t\n" +
+	"\x05Login\x10\x02\x12\b\n" +
+	"\x04Text\x10\x03*0\n" +
+	"\n" +
+	"actionType\x12\n" +
+	"\n" +
+	"\x06Create\x10\x00\x12\n" +
+	"\n" +
+	"\x06Delete\x10\x01\x12\n" +
+	"\n" +
+	"\x06Update\x10\x022\xca\x01\n" +
 	"\vUserService\x12A\n" +
 	"\n" +
 	"CreateUser\x12\x18.users.UserCreateRequest\x1a\x19.users.UserCreateResponse\x122\n" +
 	"\x05Login\x12\x13.users.LoginRequest\x1a\x14.users.LoginResponse\x12D\n" +
 	"\vSeekUpdates\x12\x18.users.SeekUpdateRequest\x1a\x19.users.UpdateNotification0\x01B/Z-github.com/artni96/GophKeeper/api/proto/usersb\beditionsp\xe8\a"
 
+var file_api_proto_users_users_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_api_proto_users_users_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_api_proto_users_users_proto_goTypes = []any{
-	(*UserCreateRequest)(nil),     // 0: users.UserCreateRequest
-	(*UserCreateResponse)(nil),    // 1: users.UserCreateResponse
-	(*LoginRequest)(nil),          // 2: users.LoginRequest
-	(*LoginResponse)(nil),         // 3: users.LoginResponse
-	(*SeekUpdateRequest)(nil),     // 4: users.SeekUpdateRequest
-	(*UpdateNotification)(nil),    // 5: users.UpdateNotification
-	(*timestamppb.Timestamp)(nil), // 6: google.protobuf.Timestamp
+	(EntityType)(0),               // 0: users.entityType
+	(ActionType)(0),               // 1: users.actionType
+	(*UserCreateRequest)(nil),     // 2: users.UserCreateRequest
+	(*UserCreateResponse)(nil),    // 3: users.UserCreateResponse
+	(*LoginRequest)(nil),          // 4: users.LoginRequest
+	(*LoginResponse)(nil),         // 5: users.LoginResponse
+	(*SeekUpdateRequest)(nil),     // 6: users.SeekUpdateRequest
+	(*UpdateNotification)(nil),    // 7: users.UpdateNotification
+	(*timestamppb.Timestamp)(nil), // 8: google.protobuf.Timestamp
 }
 var file_api_proto_users_users_proto_depIdxs = []int32{
-	6, // 0: users.UpdateNotification.updated_at:type_name -> google.protobuf.Timestamp
-	0, // 1: users.UserService.CreateUser:input_type -> users.UserCreateRequest
-	2, // 2: users.UserService.Login:input_type -> users.LoginRequest
-	4, // 3: users.UserService.SeekUpdates:input_type -> users.SeekUpdateRequest
-	1, // 4: users.UserService.CreateUser:output_type -> users.UserCreateResponse
-	3, // 5: users.UserService.Login:output_type -> users.LoginResponse
-	5, // 6: users.UserService.SeekUpdates:output_type -> users.UpdateNotification
-	4, // [4:7] is the sub-list for method output_type
-	1, // [1:4] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	0, // 0: users.UpdateNotification.entity_type:type_name -> users.entityType
+	1, // 1: users.UpdateNotification.action_type:type_name -> users.actionType
+	8, // 2: users.UpdateNotification.updated_at:type_name -> google.protobuf.Timestamp
+	2, // 3: users.UserService.CreateUser:input_type -> users.UserCreateRequest
+	4, // 4: users.UserService.Login:input_type -> users.LoginRequest
+	6, // 5: users.UserService.SeekUpdates:input_type -> users.SeekUpdateRequest
+	3, // 6: users.UserService.CreateUser:output_type -> users.UserCreateResponse
+	5, // 7: users.UserService.Login:output_type -> users.LoginResponse
+	7, // 8: users.UserService.SeekUpdates:output_type -> users.UpdateNotification
+	6, // [6:9] is the sub-list for method output_type
+	3, // [3:6] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_api_proto_users_users_proto_init() }
@@ -606,13 +818,14 @@ func file_api_proto_users_users_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_proto_users_users_proto_rawDesc), len(file_api_proto_users_users_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      2,
 			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_api_proto_users_users_proto_goTypes,
 		DependencyIndexes: file_api_proto_users_users_proto_depIdxs,
+		EnumInfos:         file_api_proto_users_users_proto_enumTypes,
 		MessageInfos:      file_api_proto_users_users_proto_msgTypes,
 	}.Build()
 	File_api_proto_users_users_proto = out.File

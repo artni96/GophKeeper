@@ -16,9 +16,7 @@ import (
 
 func main() {
 	eg := errgroup.Group{}
-
 	ctx := context.Background()
-
 	app := clientapp.NewApp(&eg)
 
 	err := app.InitServerConn(ctx)
@@ -28,9 +26,16 @@ func main() {
 	}
 	defer app.CloseServerConn()
 
-	app.InitClients()
+	app.InitDependencies()
 
-	menu.AuthMenu(ctx, app)
+	clientMenu := menu.InitMenu(app)
+	clientMenu.Run(ctx)
+
+	//err = app.UploadData(ctx)
+	//if err != nil {
+	//	fmt.Println("failed to upload data")
+	//	os.Exit(0)
+	//}
 
 	sig, stop := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
 	defer stop()

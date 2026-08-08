@@ -5,7 +5,7 @@ type LoginRequest struct {
 	Password string
 }
 
-type RegisterRequest struct {
+type RegistrationRequest struct {
 	Login    string
 	Password string
 }
