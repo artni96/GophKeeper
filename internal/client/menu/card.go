@@ -14,7 +14,7 @@ import (
 )
 
 func (m *Menu) initCardMenu() {
-	m.routes[cardList] = StepInfo{
+	m.routes[cardMenu] = StepInfo{
 		Logic: func(ctx context.Context) error {
 			entityList := m.app.CardService.GetList()
 			fmt.Println()
@@ -44,7 +44,7 @@ func (m *Menu) initCardMenu() {
 				return exit, nil
 			default:
 				fmt.Println("Invalid choice")
-				return cardList, nil
+				return cardMenu, nil
 			}
 		},
 		NextSteps: []int{createCard, getCardAskNumber, main, exit},
@@ -52,7 +52,7 @@ func (m *Menu) initCardMenu() {
 
 	m.routes[getCardAskNumber] = StepInfo{
 		Logic: func(ctx context.Context) error {
-			fmt.Printf("Enter card number: ")
+			fmt.Printf("Enter card record number: ")
 			_, err := fmt.Scanln(&m.currentEntityNumber)
 			if err != nil {
 				return err
@@ -75,6 +75,7 @@ func (m *Menu) initCardMenu() {
 		Logic: func(ctx context.Context) error {
 			entity, err := m.app.CardService.Get(m.currentEntityNumber)
 			if err != nil {
+				m.needInput = false
 				return err
 			}
 			fmt.Println()
@@ -106,12 +107,12 @@ func (m *Menu) initCardMenu() {
 			case "2":
 				return deleteCard, nil
 			case "3":
-				return cardList, nil
+				return cardMenu, nil
 			case "4":
 				return main, nil
 			default:
 				fmt.Println("Invalid choice")
-				return cardList, nil
+				return cardMenu, nil
 			}
 
 		},
@@ -325,13 +326,16 @@ func (m *Menu) initCardMenu() {
 				if ok {
 					if st.Code() == codes.AlreadyExists {
 						fmt.Printf("Failed to create card record: %s\n", st.Message())
+						fmt.Println()
 						return err
 					}
 				}
 				fmt.Println("Failed to create card record")
+				fmt.Println()
 				return err
 			}
-			fmt.Println("Card created successfully!")
+			fmt.Println("Card record created successfully!")
+			fmt.Println()
 			return nil
 		},
 		HandleNextStep: func(choice string) (int, error) {
@@ -546,14 +550,17 @@ func (m *Menu) initCardMenu() {
 				st, ok := status.FromError(err)
 				if ok {
 					if st.Code() == codes.AlreadyExists {
-						fmt.Printf("Failed to create card: %s\n", st.Message())
+						fmt.Printf("Failed to create card record: %s\n", st.Message())
+						fmt.Println()
 						return err
 					}
 				}
 				fmt.Println("Failed to update card")
+				fmt.Println()
 				return err
 			}
-			fmt.Println("Card updated successfully!")
+			fmt.Println("Card record updated successfully!")
+			fmt.Println()
 			return nil
 		},
 		HandleNextStep: func(choice string) (int, error) {
@@ -578,11 +585,12 @@ func (m *Menu) initCardMenu() {
 			if err != nil {
 				m.isFailed = true
 				fmt.Println("Failed to delete card record")
+				fmt.Println()
 				return err
 			}
 
+			fmt.Println("Card record deleted successfully!")
 			fmt.Println()
-			fmt.Println("Card deleted successfully!")
 			return nil
 		},
 		HandleNextStep: func(choice string) (int, error) {

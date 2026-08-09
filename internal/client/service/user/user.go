@@ -80,7 +80,6 @@ Reconnection:
 			if !lostConn {
 				lostConn = true
 				s.state.IsOnline = false
-				fmt.Println("You are being offline - failed to connect to the server.")
 			}
 			time.Sleep(timeout)
 			continue Reconnection
@@ -88,7 +87,8 @@ Reconnection:
 		if lostConn {
 			lostConn = false
 			s.state.IsOnline = true
-			fmt.Println("You are being online - reconnected to the server.")
+			fmt.Println()
+			fmt.Println("You are being online - reconnected to the server")
 		}
 		for {
 			select {
@@ -98,18 +98,19 @@ Reconnection:
 				update, err := stream.Recv()
 				if err != nil {
 					lostConn = true
-					fmt.Println("You are being offline - lost connection to the server.")
+					fmt.Println()
+					fmt.Println("You are being offline - lost connection to the server")
 					time.Sleep(timeout)
 					continue Reconnection
 				}
-				fmt.Println("\n\nupdate received")
+				//fmt.Println("\n\nupdate received")
 
 				notification := common.Notification{
 					EntityType:   update.GetEntityType(),
 					ActionType:   update.GetActionType(),
 					EntityNumber: update.GetNumber(),
 				}
-				fmt.Println(notification)
+				//fmt.Println(notification)
 				s.notificationChan <- notification
 				s.isBeingUpdated = true
 			}

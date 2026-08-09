@@ -52,11 +52,8 @@ func ParseConfig() (*Config, error) {
 	confFile := ConfigFile{}
 
 	fs := flag.NewFlagSet("config", flag.ExitOnError)
-
-	var configFilePath string
+	
 	declaredFlags := make(map[string]bool)
-
-	fs.StringVar(&configFilePath, "c", "", "json config file")
 
 	fs.StringVar(&conf.ServerAddr, "a", "", "grpc address")
 	fs.BoolVar(&conf.EnableTCP, "t", false, "enable tps")
@@ -79,11 +76,9 @@ func ParseConfig() (*Config, error) {
 		declaredFlags[f.Name] = true
 	})
 
-	if configFilePath != "" {
-		err = confFile.parseFile(configFilePath)
-		if err != nil {
-			return &conf, err
-		}
+	err = confFile.parseFile()
+	if err != nil {
+		return &conf, err
 	}
 
 	var errs []string
@@ -176,9 +171,9 @@ func ParseConfig() (*Config, error) {
 	return &conf, nil
 }
 
-// parseFile collects data from the file filename into ConfigFile.
-func (f *ConfigFile) parseFile(filename string) error {
-	file, err := os.ReadFile(filename)
+// parseFile collects configuration settings from config.json into ConfigFile.
+func (f *ConfigFile) parseFile() error {
+	file, err := os.ReadFile("./internal/server/config/config.json")
 	if err != nil {
 		return fmt.Errorf("failed to read config file: %w", err)
 	}

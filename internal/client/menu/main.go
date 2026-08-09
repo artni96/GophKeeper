@@ -18,19 +18,26 @@ const (
 	main
 	exit
 
-	cardList
+	cardMenu
 	createCard
 	getCardAskNumber
 	getCard
 	updateCard
 	deleteCard
 
-	loginList
+	loginMenu
 	createLogin
 	getLoginAskNumber
 	getLogin
 	updateLogin
 	deleteLogin
+
+	textMenu
+	createText
+	getTextAskNumber
+	getText
+	updateText
+	deleteText
 )
 
 type StepInfo struct {
@@ -63,6 +70,7 @@ func (m *Menu) initSteps() {
 	m.initUserMenu()
 	m.initCardMenu()
 	m.initLoginMenu()
+	m.initTextMenu()
 
 	m.routes[initial] = StepInfo{
 		Logic: func(ctx context.Context) error {
@@ -103,12 +111,11 @@ func (m *Menu) initSteps() {
 		HandleNextStep: func(choice string) (int, error) {
 			switch choice {
 			case "1":
-				return cardList, nil
+				return cardMenu, nil
 			case "2":
-				return loginList, nil
+				return loginMenu, nil
 			case "3":
-
-				return main, nil
+				return textMenu, nil
 			case "0":
 				m.app.State.IsOnline = false
 				m.app.Cfg.Token = ""

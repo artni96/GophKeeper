@@ -116,8 +116,9 @@ func (s *Service) GetList() []common.Entity {
 }
 
 // Update updates the Text entity in the repository.
-func (s *Service) Update(ctx context.Context) error {
+func (s *Service) Update(ctx context.Context, entityNumber uint64) error {
 	req := &textspb.TextGetRequest{}
+	req.SetNumber(entityNumber)
 	pbEntity, err := s.Client.GetText(ctx, req)
 	if err != nil {
 		return constants.ErrEntityNotFound

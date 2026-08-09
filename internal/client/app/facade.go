@@ -83,17 +83,7 @@ func (app *App) InitServerConn(ctx context.Context) error {
 		if i != 0 {
 			fmt.Printf("Attempt #%d\n", i+1)
 		}
-		fmt.Printf("Enter server address: ")
-		_, err := fmt.Scanln(&app.Cfg.ServerAddress)
-		if err != nil {
-			if err.Error() == "unexpected newline" {
-				app.Cfg.ServerAddress = ":3200"
-			} else {
-				app.State.AddAttempt()
-				continue
-			}
-		}
-		fmt.Printf("Trying to connect to the server: %s\n", app.Cfg.ServerAddress)
+
 		conn, err := grpc.NewClient(app.Cfg.ServerAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
 			fmt.Println("Failed to connect to the server")
@@ -129,7 +119,7 @@ func (app *App) testServerConn(ctx context.Context) error {
 	if err != nil {
 		return errors.New("failed to connect to the server")
 	}
-	fmt.Println("Successfully connected to the server")
+	fmt.Println("Successfully connected to the server!")
 	return nil
 }
 
@@ -221,6 +211,23 @@ func (app *App) UpdateStorage(ctx context.Context, n common.Notification) error 
 			}
 		} else if n.ActionType == userspb.ActionType_Delete {
 			err := app.LoginService.Delete(entityNumber)
+			if err != nil {
+				return err
+			}
+		}
+	} else if n.EntityType == userspb.EntityType_Text {
+		if n.ActionType == userspb.ActionType_Create {
+			err := app.TextService.Add(mdCtx, entityNumber)
+			if err != nil {
+				return err
+			}
+		} else if n.ActionType == userspb.ActionType_Update {
+			err := app.TextService.Update(mdCtx, entityNumber)
+			if err != nil {
+				return err
+			}
+		} else if n.ActionType == userspb.ActionType_Delete {
+			err := app.TextService.Delete(entityNumber)
 			if err != nil {
 				return err
 			}

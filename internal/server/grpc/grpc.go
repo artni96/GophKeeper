@@ -106,7 +106,7 @@ func (s *GRPCServer) Launch() error {
 	cardHandler := cardhandler.NewHandler(s.cardService, s.logger, s.streams)
 	cardspb.RegisterCardServiceServer(s.server, cardHandler)
 
-	textHandler := texthandler.NewHandler(s.textService, s.logger)
+	textHandler := texthandler.NewHandler(s.textService, s.logger, s.streams)
 	textspb.RegisterTextServiceServer(s.server, textHandler)
 
 	healthHandler := healthhandler.NewHandler(s.logger)

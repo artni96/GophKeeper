@@ -4,25 +4,25 @@ import (
 	"context"
 	"fmt"
 
-	loginspb "github.com/artni96/GophKeeper/api/proto/logins"
+	textspb "github.com/artni96/GophKeeper/api/proto/texts"
 	"github.com/artni96/GophKeeper/internal/client/utils"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
-func (m *Menu) initLoginMenu() {
-	m.routes[loginMenu] = StepInfo{
+func (m *Menu) initTextMenu() {
+	m.routes[textMenu] = StepInfo{
 		Logic: func(ctx context.Context) error {
-			entityList := m.app.LoginService.GetList()
+			entityList := m.app.TextService.GetList()
 			fmt.Println()
 			fmt.Println("Number		Title		Description")
 			for _, entity := range entityList {
 				fmt.Printf("%d       %s       %s\n", entity.Number, entity.Title, entity.Description)
 			}
 			fmt.Println()
-			fmt.Println("1. Get login by number")
-			fmt.Println("2. Create new login record")
+			fmt.Println("1. Get text by number")
+			fmt.Println("2. Create new text record")
 			fmt.Println("3. Back")
 			fmt.Println("0. Exit")
 			fmt.Printf("Choose option: ")
@@ -33,24 +33,24 @@ func (m *Menu) initLoginMenu() {
 		HandleNextStep: func(choice string) (int, error) {
 			switch choice {
 			case "1":
-				return getLoginAskNumber, nil
+				return getTextAskNumber, nil
 			case "2":
-				return createLogin, nil
+				return createText, nil
 			case "3":
 				return main, nil
 			case "0":
 				return exit, nil
 			default:
 				fmt.Println("Invalid choice")
-				return loginMenu, nil
+				return textMenu, nil
 			}
 		},
-		NextSteps: []int{createLogin, getLoginAskNumber, main, exit},
+		NextSteps: []int{createText, getTextAskNumber, main, exit},
 	}
 
-	m.routes[getLoginAskNumber] = StepInfo{
+	m.routes[getTextAskNumber] = StepInfo{
 		Logic: func(ctx context.Context) error {
-			fmt.Printf("Enter Login record number: ")
+			fmt.Printf("Enter Text record number: ")
 			_, err := fmt.Scanln(&m.currentEntityNumber)
 			if err != nil {
 				return err
@@ -63,15 +63,15 @@ func (m *Menu) initLoginMenu() {
 			return nil
 		},
 		HandleNextStep: func(choice string) (int, error) {
-			return getLogin, nil
+			return getText, nil
 
 		},
-		NextSteps: []int{getLogin},
+		NextSteps: []int{getText},
 	}
 
-	m.routes[getLogin] = StepInfo{
+	m.routes[getText] = StepInfo{
 		Logic: func(ctx context.Context) error {
-			entity, err := m.app.LoginService.Get(m.currentEntityNumber)
+			entity, err := m.app.TextService.Get(m.currentEntityNumber)
 			if err != nil {
 				m.needInput = false
 				return err
@@ -80,8 +80,7 @@ func (m *Menu) initLoginMenu() {
 			fmt.Printf("Number: %d\n", entity.Number)
 			fmt.Printf("Title: %s\n", entity.Title)
 			fmt.Printf("Description: %s\n", entity.Description)
-			fmt.Printf("Login: %s\n", entity.Login)
-			fmt.Printf("Password: %s\n", entity.Password)
+			fmt.Printf("Text: %s\n", entity.Text)
 			fmt.Printf("Created at: %s\n", entity.CreatedAt)
 			fmt.Printf("Updated at: %s\n", entity.UpdatedAt)
 			fmt.Println()
@@ -96,26 +95,25 @@ func (m *Menu) initLoginMenu() {
 		HandleNextStep: func(choice string) (int, error) {
 			switch choice {
 			case "1":
-				return updateLogin, nil
+				return updateText, nil
 			case "2":
-				return deleteLogin, nil
+				return deleteText, nil
 			case "3":
-				return loginMenu, nil
+				return textMenu, nil
 			case "4":
 				return main, nil
 			default:
 				fmt.Println("Invalid choice")
-				return loginMenu, nil
+				return textMenu, nil
 			}
-
 		},
-		NextSteps: []int{updateLogin, deleteLogin, main},
+		NextSteps: []int{updateText, deleteText, textMenu},
 	}
 
-	m.routes[createLogin] = StepInfo{
+	m.routes[createText] = StepInfo{
 		Logic: func(ctx context.Context) error {
 			m.needInput = false
-			pbEntity := &loginspb.LoginCreateRequest{}
+			pbEntity := &textspb.TextCreateRequest{}
 
 			for i := range m.app.Cfg.MaxAttempts {
 				fmt.Printf("Enter title: ")
@@ -154,44 +152,16 @@ func (m *Menu) initLoginMenu() {
 			}
 
 			for i := range m.app.Cfg.MaxAttempts {
-				fmt.Printf("Enter login: ")
-				loginVal, err := m.app.ReadLine()
-				if err != nil {
-					if i == m.app.Cfg.MaxAttempts-1 {
-						m.isFailed = true
-					}
-					fmt.Println("Invalid login")
-					continue
-				}
-				pbEntity.SetLogin(wrapperspb.String(loginVal))
-				break
-			}
-
-			for i := range m.app.Cfg.MaxAttempts {
-				fmt.Printf("Enter password: ")
+				fmt.Printf("Enter text: ")
 				password, err := m.app.ReadLine()
 				if err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
 					}
-					fmt.Println("Invalid password")
+					fmt.Println("Invalid text")
 					continue
 				}
-				pbEntity.SetPassword(wrapperspb.String(password))
-				break
-			}
-
-			for i := range m.app.Cfg.MaxAttempts {
-				fmt.Printf("Enter URL: ")
-				url, err := m.app.ReadLine()
-				if err != nil {
-					if i == m.app.Cfg.MaxAttempts-1 {
-						m.isFailed = true
-					}
-					fmt.Println("Invalid URL")
-					continue
-				}
-				pbEntity.SetUrl(wrapperspb.String(url))
+				pbEntity.SetText(wrapperspb.String(password))
 				break
 			}
 
@@ -199,21 +169,21 @@ func (m *Menu) initLoginMenu() {
 
 			mdCtx := utils.PrepareMDContext(ctx, m.app.Cfg)
 
-			_, err := m.app.LoginService.Client.CreateLogin(mdCtx, pbEntity)
+			_, err := m.app.TextService.Client.CreateText(mdCtx, pbEntity)
 			if err != nil {
 				m.isFailed = true
 				st, ok := status.FromError(err)
 				if ok {
 					if st.Code() == codes.AlreadyExists {
-						fmt.Printf("Failed to create login record: %s\n", st.Message())
+						fmt.Printf("Failed to create text record: %s\n", st.Message())
 						return err
 					}
 				}
-				fmt.Println("Failed to create login record")
+				fmt.Println("Failed to create text record")
 				fmt.Println()
 				return err
 			}
-			fmt.Println("Login record created successfully!")
+			fmt.Println("Text record created successfully!")
 			fmt.Println()
 			return nil
 		},
@@ -223,10 +193,10 @@ func (m *Menu) initLoginMenu() {
 		NextSteps: []int{main},
 	}
 
-	m.routes[updateLogin] = StepInfo{
+	m.routes[updateText] = StepInfo{
 		Logic: func(ctx context.Context) error {
 			m.needInput = false
-			pbEntity := &loginspb.LoginUpdateRequest{}
+			pbEntity := &textspb.TextUpdateRequest{}
 
 			for i := range m.app.Cfg.MaxAttempts {
 				fmt.Printf("Enter title: ")
@@ -258,44 +228,16 @@ func (m *Menu) initLoginMenu() {
 			}
 
 			for i := range m.app.Cfg.MaxAttempts {
-				fmt.Printf("Enter login: ")
-				loginVal, err := m.app.ReadLine()
-				if err != nil {
-					if i == m.app.Cfg.MaxAttempts-1 {
-						m.isFailed = true
-					}
-					fmt.Println("Invalid login")
-					continue
-				}
-				pbEntity.SetLogin(wrapperspb.String(loginVal))
-				break
-			}
-
-			for i := range m.app.Cfg.MaxAttempts {
-				fmt.Printf("Enter password: ")
-				password, err := m.app.ReadLine()
-				if err != nil {
-					if i == m.app.Cfg.MaxAttempts-1 {
-						m.isFailed = true
-					}
-					fmt.Println("Invalid password")
-					continue
-				}
-				pbEntity.SetPassword(wrapperspb.String(password))
-				break
-			}
-
-			for i := range m.app.Cfg.MaxAttempts {
-				fmt.Printf("Enter URL: ")
+				fmt.Printf("Enter text: ")
 				url, err := m.app.ReadLine()
 				if err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
 					}
-					fmt.Println("Invalid URL")
+					fmt.Println("Invalid text")
 					continue
 				}
-				pbEntity.SetUrl(wrapperspb.String(url))
+				pbEntity.SetText(wrapperspb.String(url))
 				break
 			}
 
@@ -305,22 +247,22 @@ func (m *Menu) initLoginMenu() {
 
 			mdCtx := utils.PrepareMDContext(ctx, m.app.Cfg)
 
-			_, err := m.app.LoginService.Client.UpdateLogin(mdCtx, pbEntity)
+			_, err := m.app.TextService.Client.UpdateText(mdCtx, pbEntity)
 			if err != nil {
 				m.isFailed = true
 				st, ok := status.FromError(err)
 				if ok {
 					if st.Code() == codes.AlreadyExists {
-						fmt.Printf("Failed to update login record: %s\n", st.Message())
+						fmt.Printf("Failed to update text record: %s\n", st.Message())
 						fmt.Println()
 						return err
 					}
 				}
-				fmt.Println("Failed to update login record")
+				fmt.Println("Failed to update text record")
 				fmt.Println()
 				return err
 			}
-			fmt.Println("Login record updated successfully!")
+			fmt.Println("Text record updated successfully!")
 			fmt.Println()
 			return nil
 		},
@@ -330,7 +272,7 @@ func (m *Menu) initLoginMenu() {
 		NextSteps: []int{main},
 	}
 
-	m.routes[deleteLogin] = StepInfo{
+	m.routes[deleteText] = StepInfo{
 		Logic: func(ctx context.Context) error {
 			err := m.confirmAction()
 			if err != nil {
@@ -338,19 +280,19 @@ func (m *Menu) initLoginMenu() {
 			}
 
 			m.needInput = false
-			req := &loginspb.LoginDeleteRequest{}
+			req := &textspb.TextDeleteRequest{}
 			req.SetNumber(m.currentEntityNumber)
 
 			mdCtx := utils.PrepareMDContext(ctx, m.app.Cfg)
-			_, err = m.app.LoginService.Client.DeleteLogin(mdCtx, req)
+			_, err = m.app.TextService.Client.DeleteText(mdCtx, req)
 			if err != nil {
 				m.isFailed = true
-				fmt.Println("Failed to delete login record")
+				fmt.Println("Failed to delete text record")
 				fmt.Println()
 				return err
 			}
 
-			fmt.Println("Login record deleted successfully!")
+			fmt.Println("Text record deleted successfully!")
 			fmt.Println()
 			return nil
 		},
