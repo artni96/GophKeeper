@@ -10,16 +10,16 @@ import (
 
 // CreateLoginRequest is a model-mediator for transferring the gRPC request data to the Login service.
 type CreateLoginRequest struct {
-	Login       string
-	Password    string
+	Login       *wrapperspb.StringValue
+	Password    *wrapperspb.StringValue
 	UserID      uuid.UUID
-	Title       string
-	URL         string
-	Description string
+	Title       *wrapperspb.StringValue
+	URL         *wrapperspb.StringValue
+	Description *wrapperspb.StringValue
 }
 
 func (m *CreateLoginRequest) Validate() error {
-	if m.Title == "" {
+	if m.Title.Value == "" {
 		return fmt.Errorf("title field is required")
 	}
 	return nil

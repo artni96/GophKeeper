@@ -102,13 +102,14 @@ Reconnection:
 					time.Sleep(timeout)
 					continue Reconnection
 				}
-				fmt.Println("update received")
+				fmt.Println("\n\nupdate received")
 
 				notification := common.Notification{
 					EntityType:   update.GetEntityType(),
 					ActionType:   update.GetActionType(),
 					EntityNumber: update.GetNumber(),
 				}
+				fmt.Println(notification)
 				s.notificationChan <- notification
 				s.isBeingUpdated = true
 			}

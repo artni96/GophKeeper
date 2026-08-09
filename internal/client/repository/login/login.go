@@ -132,6 +132,5 @@ func (repo *Repository) Delete(entityNumber uint64) error {
 		}
 	}
 	delete(repo.numberMap, entityNumber)
-	delete(repo.extendedDataStorage, entityNumber)
 	return nil
 }

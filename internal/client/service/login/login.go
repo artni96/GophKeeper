@@ -123,8 +123,9 @@ func (s *Service) GetList() []common.Entity {
 }
 
 // Update updates the Login entity in the repository.
-func (s *Service) Update(ctx context.Context) error {
+func (s *Service) Update(ctx context.Context, entityNumber uint64) error {
 	req := &loginspb.LoginGetRequest{}
+	req.SetNumber(entityNumber)
 	resp, err := s.Client.GetLogin(ctx, req)
 	if err != nil {
 		return constants.ErrEntityNotFound

@@ -208,6 +208,23 @@ func (app *App) UpdateStorage(ctx context.Context, n common.Notification) error 
 				return err
 			}
 		}
+	} else if n.EntityType == userspb.EntityType_Login {
+		if n.ActionType == userspb.ActionType_Create {
+			err := app.LoginService.Add(mdCtx, entityNumber)
+			if err != nil {
+				return err
+			}
+		} else if n.ActionType == userspb.ActionType_Update {
+			err := app.LoginService.Update(mdCtx, entityNumber)
+			if err != nil {
+				return err
+			}
+		} else if n.ActionType == userspb.ActionType_Delete {
+			err := app.LoginService.Delete(entityNumber)
+			if err != nil {
+				return err
+			}
+		}
 	}
 	app.IsBeingUpdated = false
 	return nil

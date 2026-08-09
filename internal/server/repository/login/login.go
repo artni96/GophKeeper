@@ -21,7 +21,7 @@ const tableName = "logins"
 //
 //go:generate mockgen -source=login.go -destination=mocks/login_repository_mock.go -package=mocks
 type RepositoryI interface {
-	Create(ctx context.Context, entity login.CreateLogin) (uint64, error)
+	Create(ctx context.Context, entity login.CreateLogin, notNullFields []string) (uint64, error)
 	GetByNumber(ctx context.Context, number uint64, userID uuid.UUID) (*login.Login, error)
 	Update(ctx context.Context, entity login.UpdateLogin, number uint64, userID uuid.UUID, fieldsToUpdate []string) error
 	Delete(ctx context.Context, number uint64, userID uuid.UUID) error
@@ -43,7 +43,7 @@ func NewRepository(sqlxDB *sqlx.DB, logger *zap.Logger) (*Repository, error) {
 }
 
 // Create creates a new Login entity in the database.
-func (r *Repository) Create(ctx context.Context, entity login.CreateLogin) (uint64, error) {
+func (r *Repository) Create(ctx context.Context, entity login.CreateLogin, notNullFields []string) (uint64, error) {
 	tx := r.db.WithContext(ctx).Begin()
 
 	entityNumber, err := common.GetNextRecordNumber(tx, entity.UserID)
@@ -53,7 +53,7 @@ func (r *Repository) Create(ctx context.Context, entity login.CreateLogin) (uint
 	}
 	entity.Number = entityNumber
 
-	err = tx.Table(tableName).Create(&entity).Error
+	err = tx.Table(tableName).Select(notNullFields).Create(&entity).Error
 	if err != nil {
 		tx.Rollback()
 		var pgErr *pgconn.PgError

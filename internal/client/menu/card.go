@@ -13,7 +13,7 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
-func (m *Menu) initCardList() {
+func (m *Menu) initCardMenu() {
 	m.routes[cardList] = StepInfo{
 		Logic: func(ctx context.Context) error {
 			entityList := m.app.CardService.GetList()
@@ -28,7 +28,7 @@ func (m *Menu) initCardList() {
 			fmt.Println("3. Back")
 			fmt.Println("0. Exit")
 			fmt.Printf("Choose option: ")
-			m.NeedInput = true
+			m.needInput = true
 
 			return nil
 		},
@@ -61,7 +61,7 @@ func (m *Menu) initCardList() {
 			if err != nil {
 				return err
 			}
-			m.NeedInput = false
+			m.needInput = false
 			return nil
 		},
 		HandleNextStep: func(choice string) (int, error) {
@@ -96,7 +96,7 @@ func (m *Menu) initCardList() {
 			fmt.Println("3. Back to menu")
 			fmt.Printf("Choose option: ")
 
-			m.NeedInput = true
+			m.needInput = true
 			return nil
 		},
 		HandleNextStep: func(choice string) (int, error) {
@@ -106,6 +106,8 @@ func (m *Menu) initCardList() {
 			case "2":
 				return deleteCard, nil
 			case "3":
+				return cardList, nil
+			case "4":
 				return main, nil
 			default:
 				fmt.Println("Invalid choice")
@@ -118,7 +120,7 @@ func (m *Menu) initCardList() {
 
 	m.routes[createCard] = StepInfo{
 		Logic: func(ctx context.Context) error {
-			m.NeedInput = false
+			m.needInput = false
 			pbEntity := &cardspb.CardCreateRequest{}
 
 			for i := range m.app.Cfg.MaxAttempts {
@@ -322,25 +324,25 @@ func (m *Menu) initCardList() {
 				st, ok := status.FromError(err)
 				if ok {
 					if st.Code() == codes.AlreadyExists {
-						fmt.Printf("Failed to create card: %s\n", st.Message())
+						fmt.Printf("Failed to create card record: %s\n", st.Message())
 						return err
 					}
 				}
-				fmt.Println("Failed to create card")
+				fmt.Println("Failed to create card record")
 				return err
 			}
 			fmt.Println("Card created successfully!")
 			return nil
 		},
 		HandleNextStep: func(choice string) (int, error) {
-			return cardList, nil
+			return main, nil
 		},
-		NextSteps: []int{cardList},
+		NextSteps: []int{main},
 	}
 
 	m.routes[updateCard] = StepInfo{
 		Logic: func(ctx context.Context) error {
-			m.NeedInput = false
+			m.needInput = false
 			pbEntity := &cardspb.CardUpdateRequest{}
 
 			pbEntity.SetNumber(m.currentEntityNumber)
@@ -555,9 +557,9 @@ func (m *Menu) initCardList() {
 			return nil
 		},
 		HandleNextStep: func(choice string) (int, error) {
-			return cardList, nil
+			return main, nil
 		},
-		NextSteps: []int{cardList},
+		NextSteps: []int{main},
 	}
 
 	m.routes[deleteCard] = StepInfo{
@@ -567,7 +569,7 @@ func (m *Menu) initCardList() {
 				return err
 			}
 
-			m.NeedInput = false
+			m.needInput = false
 			req := &cardspb.CardDeleteRequest{}
 			req.SetNumber(m.currentEntityNumber)
 
@@ -575,7 +577,7 @@ func (m *Menu) initCardList() {
 			_, err = m.app.CardService.Client.DeleteCard(mdCtx, req)
 			if err != nil {
 				m.isFailed = true
-				fmt.Println("Failed to delete card")
+				fmt.Println("Failed to delete card record")
 				return err
 			}
 
@@ -584,8 +586,8 @@ func (m *Menu) initCardList() {
 			return nil
 		},
 		HandleNextStep: func(choice string) (int, error) {
-			return cardList, nil
+			return main, nil
 		},
-		NextSteps: []int{cardList},
+		NextSteps: []int{main},
 	}
 }

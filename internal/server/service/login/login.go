@@ -44,23 +44,44 @@ func (s *Service) Create(ctx context.Context, data loginmodel.CreateLoginRequest
 	if err := data.Validate(); err != nil {
 		return 0, fmt.Errorf("%w: %w", constants.ErrInvalidRequest, err)
 	}
-	creationData := loginmodel.CreateLogin{
-		Login:       data.Login,
-		Password:    data.Password,
-		UserID:      data.UserID,
-		Title:       data.Title,
-		URL:         data.URL,
-		Description: data.Description,
-		CreatedAt:   time.Now(),
+	notNullFields := make([]string, 0, 7)
+	entityToCreate := loginmodel.CreateLogin{}
+
+	if data.Login != nil {
+		entityToCreate.Login = data.Login.Value
+		notNullFields = append(notNullFields, "hashed_login")
 	}
-	number, err := s.repo.Create(ctx, creationData)
+
+	if data.Password != nil {
+		entityToCreate.Password = data.Password.Value
+		notNullFields = append(notNullFields, "hashed_password")
+	}
+
+	if data.URL != nil {
+		entityToCreate.URL = data.URL.Value
+		notNullFields = append(notNullFields, "url")
+	}
+
+	if data.Title != nil {
+		entityToCreate.Title = data.Title.Value
+		notNullFields = append(notNullFields, "title")
+	}
+
+	if data.Description != nil {
+		entityToCreate.Description = data.Description.Value
+		notNullFields = append(notNullFields, "description")
+	}
+
+	entityToCreate.UserID = data.UserID
+	notNullFields = append(notNullFields, "user_id")
+	entityToCreate.CreatedAt = time.Now()
+	notNullFields = append(notNullFields, "created_at")
+	notNullFields = append(notNullFields, "number")
+
+	number, err := s.repo.Create(ctx, entityToCreate, notNullFields)
 	if err != nil {
 		return number, err
 	}
-
-	//event := &userpb.UpdateNotification{}
-	//event.SetUpdatedAt(timestamppb.New(time.Now()))
-
 	return number, nil
 }
 

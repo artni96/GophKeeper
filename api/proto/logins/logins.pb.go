@@ -22,14 +22,12 @@ const (
 )
 
 type LoginCreateRequest struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Title       *string                `protobuf:"bytes,1,opt,name=title"`
-	xxx_hidden_Url         *string                `protobuf:"bytes,2,opt,name=url"`
-	xxx_hidden_Description *string                `protobuf:"bytes,3,opt,name=description"`
-	xxx_hidden_Login       *string                `protobuf:"bytes,4,opt,name=login"`
-	xxx_hidden_Password    *string                `protobuf:"bytes,5,opt,name=password"`
-	XXX_raceDetectHookData protoimpl.RaceDetectHookData
-	XXX_presence           [1]uint32
+	state                  protoimpl.MessageState  `protogen:"opaque.v1"`
+	xxx_hidden_Title       *wrapperspb.StringValue `protobuf:"bytes,1,opt,name=title"`
+	xxx_hidden_Url         *wrapperspb.StringValue `protobuf:"bytes,2,opt,name=url"`
+	xxx_hidden_Description *wrapperspb.StringValue `protobuf:"bytes,3,opt,name=description"`
+	xxx_hidden_Login       *wrapperspb.StringValue `protobuf:"bytes,4,opt,name=login"`
+	xxx_hidden_Password    *wrapperspb.StringValue `protobuf:"bytes,5,opt,name=password"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
 }
@@ -59,175 +57,135 @@ func (x *LoginCreateRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *LoginCreateRequest) GetTitle() string {
+func (x *LoginCreateRequest) GetTitle() *wrapperspb.StringValue {
 	if x != nil {
-		if x.xxx_hidden_Title != nil {
-			return *x.xxx_hidden_Title
-		}
-		return ""
+		return x.xxx_hidden_Title
 	}
-	return ""
+	return nil
 }
 
-func (x *LoginCreateRequest) GetUrl() string {
+func (x *LoginCreateRequest) GetUrl() *wrapperspb.StringValue {
 	if x != nil {
-		if x.xxx_hidden_Url != nil {
-			return *x.xxx_hidden_Url
-		}
-		return ""
+		return x.xxx_hidden_Url
 	}
-	return ""
+	return nil
 }
 
-func (x *LoginCreateRequest) GetDescription() string {
+func (x *LoginCreateRequest) GetDescription() *wrapperspb.StringValue {
 	if x != nil {
-		if x.xxx_hidden_Description != nil {
-			return *x.xxx_hidden_Description
-		}
-		return ""
+		return x.xxx_hidden_Description
 	}
-	return ""
+	return nil
 }
 
-func (x *LoginCreateRequest) GetLogin() string {
+func (x *LoginCreateRequest) GetLogin() *wrapperspb.StringValue {
 	if x != nil {
-		if x.xxx_hidden_Login != nil {
-			return *x.xxx_hidden_Login
-		}
-		return ""
+		return x.xxx_hidden_Login
 	}
-	return ""
+	return nil
 }
 
-func (x *LoginCreateRequest) GetPassword() string {
+func (x *LoginCreateRequest) GetPassword() *wrapperspb.StringValue {
 	if x != nil {
-		if x.xxx_hidden_Password != nil {
-			return *x.xxx_hidden_Password
-		}
-		return ""
+		return x.xxx_hidden_Password
 	}
-	return ""
+	return nil
 }
 
-func (x *LoginCreateRequest) SetTitle(v string) {
-	x.xxx_hidden_Title = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 5)
+func (x *LoginCreateRequest) SetTitle(v *wrapperspb.StringValue) {
+	x.xxx_hidden_Title = v
 }
 
-func (x *LoginCreateRequest) SetUrl(v string) {
-	x.xxx_hidden_Url = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 5)
+func (x *LoginCreateRequest) SetUrl(v *wrapperspb.StringValue) {
+	x.xxx_hidden_Url = v
 }
 
-func (x *LoginCreateRequest) SetDescription(v string) {
-	x.xxx_hidden_Description = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 5)
+func (x *LoginCreateRequest) SetDescription(v *wrapperspb.StringValue) {
+	x.xxx_hidden_Description = v
 }
 
-func (x *LoginCreateRequest) SetLogin(v string) {
-	x.xxx_hidden_Login = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 5)
+func (x *LoginCreateRequest) SetLogin(v *wrapperspb.StringValue) {
+	x.xxx_hidden_Login = v
 }
 
-func (x *LoginCreateRequest) SetPassword(v string) {
-	x.xxx_hidden_Password = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 5)
+func (x *LoginCreateRequest) SetPassword(v *wrapperspb.StringValue) {
+	x.xxx_hidden_Password = v
 }
 
 func (x *LoginCreateRequest) HasTitle() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+	return x.xxx_hidden_Title != nil
 }
 
 func (x *LoginCreateRequest) HasUrl() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
+	return x.xxx_hidden_Url != nil
 }
 
 func (x *LoginCreateRequest) HasDescription() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
+	return x.xxx_hidden_Description != nil
 }
 
 func (x *LoginCreateRequest) HasLogin() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
+	return x.xxx_hidden_Login != nil
 }
 
 func (x *LoginCreateRequest) HasPassword() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
+	return x.xxx_hidden_Password != nil
 }
 
 func (x *LoginCreateRequest) ClearTitle() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_Title = nil
 }
 
 func (x *LoginCreateRequest) ClearUrl() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
 	x.xxx_hidden_Url = nil
 }
 
 func (x *LoginCreateRequest) ClearDescription() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
 	x.xxx_hidden_Description = nil
 }
 
 func (x *LoginCreateRequest) ClearLogin() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
 	x.xxx_hidden_Login = nil
 }
 
 func (x *LoginCreateRequest) ClearPassword() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
 	x.xxx_hidden_Password = nil
 }
 
 type LoginCreateRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Title       *string
-	Url         *string
-	Description *string
-	Login       *string
-	Password    *string
+	Title       *wrapperspb.StringValue
+	Url         *wrapperspb.StringValue
+	Description *wrapperspb.StringValue
+	Login       *wrapperspb.StringValue
+	Password    *wrapperspb.StringValue
 }
 
 func (b0 LoginCreateRequest_builder) Build() *LoginCreateRequest {
 	m0 := &LoginCreateRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
-	if b.Title != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 5)
-		x.xxx_hidden_Title = b.Title
-	}
-	if b.Url != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 5)
-		x.xxx_hidden_Url = b.Url
-	}
-	if b.Description != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 5)
-		x.xxx_hidden_Description = b.Description
-	}
-	if b.Login != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 5)
-		x.xxx_hidden_Login = b.Login
-	}
-	if b.Password != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 5)
-		x.xxx_hidden_Password = b.Password
-	}
+	x.xxx_hidden_Title = b.Title
+	x.xxx_hidden_Url = b.Url
+	x.xxx_hidden_Description = b.Description
+	x.xxx_hidden_Login = b.Login
+	x.xxx_hidden_Password = b.Password
 	return m0
 }
 
@@ -1154,13 +1112,13 @@ var File_api_proto_logins_logins_proto protoreflect.FileDescriptor
 
 const file_api_proto_logins_logins_proto_rawDesc = "" +
 	"\n" +
-	"\x1dapi/proto/logins/logins.proto\x12\x06logins\x1a\x1egoogle/protobuf/wrappers.proto\"\x90\x01\n" +
-	"\x12LoginCreateRequest\x12\x14\n" +
-	"\x05title\x18\x01 \x01(\tR\x05title\x12\x10\n" +
-	"\x03url\x18\x02 \x01(\tR\x03url\x12 \n" +
-	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x14\n" +
-	"\x05login\x18\x04 \x01(\tR\x05login\x12\x1a\n" +
-	"\bpassword\x18\x05 \x01(\tR\bpassword\"-\n" +
+	"\x1dapi/proto/logins/logins.proto\x12\x06logins\x1a\x1egoogle/protobuf/wrappers.proto\"\xa6\x02\n" +
+	"\x12LoginCreateRequest\x122\n" +
+	"\x05title\x18\x01 \x01(\v2\x1c.google.protobuf.StringValueR\x05title\x12.\n" +
+	"\x03url\x18\x02 \x01(\v2\x1c.google.protobuf.StringValueR\x03url\x12>\n" +
+	"\vdescription\x18\x03 \x01(\v2\x1c.google.protobuf.StringValueR\vdescription\x122\n" +
+	"\x05login\x18\x04 \x01(\v2\x1c.google.protobuf.StringValueR\x05login\x128\n" +
+	"\bpassword\x18\x05 \x01(\v2\x1c.google.protobuf.StringValueR\bpassword\"-\n" +
 	"\x13LoginCreateResponse\x12\x16\n" +
 	"\x06number\x18\x01 \x01(\x04R\x06number\")\n" +
 	"\x0fLoginGetRequest\x12\x16\n" +
@@ -1212,27 +1170,32 @@ var file_api_proto_logins_logins_proto_goTypes = []any{
 	(*wrapperspb.StringValue)(nil), // 10: google.protobuf.StringValue
 }
 var file_api_proto_logins_logins_proto_depIdxs = []int32{
-	10, // 0: logins.LoginUpdateRequest.title:type_name -> google.protobuf.StringValue
-	10, // 1: logins.LoginUpdateRequest.url:type_name -> google.protobuf.StringValue
-	10, // 2: logins.LoginUpdateRequest.description:type_name -> google.protobuf.StringValue
-	10, // 3: logins.LoginUpdateRequest.login:type_name -> google.protobuf.StringValue
-	10, // 4: logins.LoginUpdateRequest.password:type_name -> google.protobuf.StringValue
-	3,  // 5: logins.LoginGetListResponse.logins:type_name -> logins.LoginGetResponse
-	0,  // 6: logins.LoginService.CreateLogin:input_type -> logins.LoginCreateRequest
-	2,  // 7: logins.LoginService.GetLogin:input_type -> logins.LoginGetRequest
-	4,  // 8: logins.LoginService.UpdateLogin:input_type -> logins.LoginUpdateRequest
-	6,  // 9: logins.LoginService.DeleteLogin:input_type -> logins.LoginDeleteRequest
-	8,  // 10: logins.LoginService.GetListLogin:input_type -> logins.LoginGetListRequest
-	1,  // 11: logins.LoginService.CreateLogin:output_type -> logins.LoginCreateResponse
-	3,  // 12: logins.LoginService.GetLogin:output_type -> logins.LoginGetResponse
-	5,  // 13: logins.LoginService.UpdateLogin:output_type -> logins.LoginUpdateResponse
-	7,  // 14: logins.LoginService.DeleteLogin:output_type -> logins.LoginDeleteResponse
-	9,  // 15: logins.LoginService.GetListLogin:output_type -> logins.LoginGetListResponse
-	11, // [11:16] is the sub-list for method output_type
-	6,  // [6:11] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	10, // 0: logins.LoginCreateRequest.title:type_name -> google.protobuf.StringValue
+	10, // 1: logins.LoginCreateRequest.url:type_name -> google.protobuf.StringValue
+	10, // 2: logins.LoginCreateRequest.description:type_name -> google.protobuf.StringValue
+	10, // 3: logins.LoginCreateRequest.login:type_name -> google.protobuf.StringValue
+	10, // 4: logins.LoginCreateRequest.password:type_name -> google.protobuf.StringValue
+	10, // 5: logins.LoginUpdateRequest.title:type_name -> google.protobuf.StringValue
+	10, // 6: logins.LoginUpdateRequest.url:type_name -> google.protobuf.StringValue
+	10, // 7: logins.LoginUpdateRequest.description:type_name -> google.protobuf.StringValue
+	10, // 8: logins.LoginUpdateRequest.login:type_name -> google.protobuf.StringValue
+	10, // 9: logins.LoginUpdateRequest.password:type_name -> google.protobuf.StringValue
+	3,  // 10: logins.LoginGetListResponse.logins:type_name -> logins.LoginGetResponse
+	0,  // 11: logins.LoginService.CreateLogin:input_type -> logins.LoginCreateRequest
+	2,  // 12: logins.LoginService.GetLogin:input_type -> logins.LoginGetRequest
+	4,  // 13: logins.LoginService.UpdateLogin:input_type -> logins.LoginUpdateRequest
+	6,  // 14: logins.LoginService.DeleteLogin:input_type -> logins.LoginDeleteRequest
+	8,  // 15: logins.LoginService.GetListLogin:input_type -> logins.LoginGetListRequest
+	1,  // 16: logins.LoginService.CreateLogin:output_type -> logins.LoginCreateResponse
+	3,  // 17: logins.LoginService.GetLogin:output_type -> logins.LoginGetResponse
+	5,  // 18: logins.LoginService.UpdateLogin:output_type -> logins.LoginUpdateResponse
+	7,  // 19: logins.LoginService.DeleteLogin:output_type -> logins.LoginDeleteResponse
+	9,  // 20: logins.LoginService.GetListLogin:output_type -> logins.LoginGetListResponse
+	16, // [16:21] is the sub-list for method output_type
+	11, // [11:16] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_api_proto_logins_logins_proto_init() }

@@ -15,11 +15,11 @@ service LoginService {
 }
 
 message LoginCreateRequest {
-  string title = 1;
-  string url = 2;
-  string description = 3;
-  string login = 4;
-  string password = 5;
+  google.protobuf.StringValue title = 1;
+  google.protobuf.StringValue url = 2;
+  google.protobuf.StringValue description = 3;
+  google.protobuf.StringValue login = 4;
+  google.protobuf.StringValue password = 5;
 }
 
 message LoginCreateResponse {
