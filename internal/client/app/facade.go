@@ -1,14 +1,18 @@
 package app
 
 import (
+	"bufio"
 	"context"
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
+	userspb "github.com/artni96/GophKeeper/api/proto/users"
 	"github.com/artni96/GophKeeper/internal/client/config"
+	"github.com/artni96/GophKeeper/internal/client/model/common"
 	cardrepo "github.com/artni96/GophKeeper/internal/client/repository/card"
 	loginrepo "github.com/artni96/GophKeeper/internal/client/repository/login"
 	textrepo "github.com/artni96/GophKeeper/internal/client/repository/text"
@@ -39,16 +43,21 @@ type App struct {
 	State    *config.State
 	ClientID uuid.UUID
 	mu       sync.Mutex
+	Reader   *bufio.Reader
+
+	NotificationChan chan common.Notification
+	IsBeingUpdated   bool
 }
 
 func NewApp(eg *errgroup.Group) *App {
 	return &App{
-		EG:        eg,
-		State:     config.NewState(),
-		Cfg:       config.NewConfig(),
-		ClientID:  uuid.New(),
-		NumberMap: make(map[uint64]string, 100),
-	}
+		EG:               eg,
+		State:            config.NewState(),
+		Cfg:              config.NewConfig(),
+		ClientID:         uuid.New(),
+		NumberMap:        make(map[uint64]string, 100),
+		Reader:           bufio.NewReader(os.Stdin),
+		NotificationChan: make(chan common.Notification, 100)}
 }
 
 func (app *App) InitDependencies() {
@@ -61,7 +70,7 @@ func (app *App) InitDependencies() {
 	textRepo := textrepo.NewRepository(app.NumberMap)
 	app.TextService = textserv.NewService(app.Cfg, app.conn, textRepo)
 
-	app.UserService = userserv.NewService(app.Cfg, app.State, app.conn)
+	app.UserService = userserv.NewService(app.Cfg, app.State, app.conn, app.NotificationChan, app.IsBeingUpdated)
 
 }
 
@@ -169,4 +178,37 @@ func (app *App) PrepareMDContext(ctx context.Context) context.Context {
 	md := metadata.Pairs("authorization", app.Cfg.Token)
 	ctx = metadata.NewOutgoingContext(ctx, md)
 	return ctx
+}
+
+func (app *App) ReadLine() (string, error) {
+	line, err := app.Reader.ReadString('\n')
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(line), nil
+}
+
+func (app *App) UpdateStorage(ctx context.Context, n common.Notification) error {
+	mdCtx := app.PrepareMDContext(ctx)
+	entityNumber := n.EntityNumber
+	if n.EntityType == userspb.EntityType_Card {
+		if n.ActionType == userspb.ActionType_Create {
+			err := app.CardService.Add(mdCtx, entityNumber)
+			if err != nil {
+				return err
+			}
+		} else if n.ActionType == userspb.ActionType_Update {
+			err := app.CardService.Update(mdCtx, entityNumber)
+			if err != nil {
+				return err
+			}
+		} else if n.ActionType == userspb.ActionType_Delete {
+			err := app.CardService.Delete(entityNumber)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	app.IsBeingUpdated = false
+	return nil
 }

@@ -1,11 +1,14 @@
 package menu
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
 func (m *Menu) initLoginList() {
 	m.routes[listLogin] = StepInfo{
-		Output: func(cfg *config) error {
-			entityList := m.cfg.app.LoginService.GetList()
+		Logic: func(ctx context.Context) error {
+			entityList := m.app.LoginService.GetList()
 			fmt.Println("Number	Title		Description")
 			for _, entity := range entityList {
 				fmt.Printf("%d       %s       %s\n", entity.Number, entity.Title, entity.Description)
@@ -15,11 +18,11 @@ func (m *Menu) initLoginList() {
 			fmt.Println("2. Create new card")
 			fmt.Println("0. Exit")
 			fmt.Printf("Choose option: ")
-			m.cfg.NeedChoice = true
+			m.NeedInput = true
 
 			return nil
 		},
-		Handler: func(cfg *config, choice string) (int, error) {
+		HandleNextStep: func(choice string) (int, error) {
 			switch choice {
 			case "1":
 				return getLogin, nil

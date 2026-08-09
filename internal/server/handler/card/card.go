@@ -3,16 +3,20 @@ package card
 import (
 	"context"
 	"errors"
+	"sync"
 	"time"
 
 	pb "github.com/artni96/GophKeeper/api/proto/cards"
+	userspb "github.com/artni96/GophKeeper/api/proto/users"
 	"github.com/artni96/GophKeeper/internal/server/constants"
 	"github.com/artni96/GophKeeper/internal/server/interceptors"
 	cardmodel "github.com/artni96/GophKeeper/internal/server/model/card"
 	"github.com/artni96/GophKeeper/internal/server/service/card"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // Handler represents the Card handler instance.
@@ -20,13 +24,16 @@ type Handler struct {
 	pb.UnimplementedCardServiceServer
 	Service card.ServiceI
 	Logger  *zap.Logger
+	streams map[uuid.UUID][]chan *userspb.UpdateNotification
+	mu      sync.Mutex
 }
 
 // NewHandler initializes and returns the Card Handler instance.
-func NewHandler(service card.ServiceI, logger *zap.Logger) *Handler {
+func NewHandler(service card.ServiceI, logger *zap.Logger, streams map[uuid.UUID][]chan *userspb.UpdateNotification) *Handler {
 	return &Handler{
 		Service: service,
 		Logger:  logger,
+		streams: streams,
 	}
 }
 
@@ -52,11 +59,32 @@ func (h *Handler) CreateCard(ctx context.Context, req *pb.CardCreateRequest) (*p
 	if err := entityToCreate.Validate(); err != nil {
 		return resp, status.Error(codes.InvalidArgument, err.Error())
 	}
-	number, err := h.Service.Create(ctx, entityToCreate)
+	entityNumber, err := h.Service.Create(ctx, entityToCreate)
 	if err != nil {
+		if errors.Is(err, constants.ErrEntityAlreadyExists) {
+			return resp, status.Errorf(codes.AlreadyExists, "%v", err)
+		}
 		return resp, status.Errorf(codes.Internal, "%v", err)
 	}
-	resp.SetNumber(number)
+	resp.SetNumber(entityNumber)
+
+	h.mu.Lock()
+	userStreams := h.streams[userID]
+	h.mu.Unlock()
+
+	notification := &userspb.UpdateNotification{}
+	notification.SetUpdatedAt(timestamppb.Now())
+	notification.SetNumber(entityNumber)
+	notification.SetEntityType(userspb.EntityType_Card)
+	notification.SetActionType(userspb.ActionType_Create)
+	for _, stream := range userStreams {
+		select {
+		case stream <- notification:
+			h.Logger.Debug("update notification added to stream channel")
+		default:
+			h.Logger.Debug("stream channel is full")
+		}
+	}
 	return resp, nil
 }
 
@@ -129,6 +157,24 @@ func (h *Handler) UpdateCard(ctx context.Context, req *pb.CardUpdateRequest) (*p
 		}
 		return resp, status.Error(codes.Internal, constants.DefaultError)
 	}
+
+	h.mu.Lock()
+	userStreams := h.streams[userID]
+	h.mu.Unlock()
+
+	notification := &userspb.UpdateNotification{}
+	notification.SetUpdatedAt(timestamppb.Now())
+	notification.SetNumber(entityNumber)
+	notification.SetEntityType(userspb.EntityType_Card)
+	notification.SetActionType(userspb.ActionType_Update)
+	for _, stream := range userStreams {
+		select {
+		case stream <- notification:
+			h.Logger.Debug("update notification added to stream channel")
+		default:
+			h.Logger.Debug("stream channel is full")
+		}
+	}
 	return resp, nil
 }
 
@@ -148,6 +194,24 @@ func (h *Handler) DeleteCard(ctx context.Context, req *pb.CardDeleteRequest) (*p
 			return resp, status.Errorf(codes.NotFound, "card record with %d number not found", entityNumber)
 		}
 		return resp, status.Error(codes.Internal, constants.DefaultError)
+	}
+
+	h.mu.Lock()
+	userStreams := h.streams[userID]
+	h.mu.Unlock()
+
+	notification := &userspb.UpdateNotification{}
+	notification.SetUpdatedAt(timestamppb.Now())
+	notification.SetNumber(entityNumber)
+	notification.SetEntityType(userspb.EntityType_Card)
+	notification.SetActionType(userspb.ActionType_Delete)
+	for _, stream := range userStreams {
+		select {
+		case stream <- notification:
+			h.Logger.Debug("update notification added to stream channel")
+		default:
+			h.Logger.Debug("stream channel is full")
+		}
 	}
 	return resp, nil
 }

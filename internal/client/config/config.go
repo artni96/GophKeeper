@@ -18,6 +18,7 @@ func NewConfig() *Config {
 	}
 }
 
+// State represent the client state metrics.
 type State struct {
 	ActionAttempts uint64
 	IsOnline       bool

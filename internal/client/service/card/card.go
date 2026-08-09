@@ -128,8 +128,9 @@ func (s *Service) GetList() []common.Entity {
 }
 
 // Update updates the Card entity in the repository.
-func (s *Service) Update(ctx context.Context) error {
+func (s *Service) Update(ctx context.Context, entityNumber uint64) error {
 	req := &cardspb.CardGetRequest{}
+	req.SetNumber(entityNumber)
 	pbEntity, err := s.Client.GetCard(ctx, req)
 	if err != nil {
 		return constants.ErrEntityNotFound
@@ -152,7 +153,6 @@ func (s *Service) Update(ctx context.Context) error {
 		Bank:        pbEntity.GetBank(),
 		Brand:       pbEntity.GetBrand(),
 		Title:       pbEntity.GetTitle(),
-		Number:      pbEntity.GetNumber(),
 		Description: pbEntity.GetDescription(),
 		CreatedAt:   createdAt,
 		UpdatedAt:   updatedAt,

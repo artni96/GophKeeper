@@ -71,8 +71,8 @@ func (h *Handler) CreateLogin(ctx context.Context, req *pb.LoginCreateRequest) (
 	notification := &userspb.UpdateNotification{}
 	notification.SetUpdatedAt(timestamppb.Now())
 	notification.SetNumber(entityNumber)
-	notification.SetEntityType(2)
-	notification.SetActionType(2)
+	notification.SetEntityType(userspb.EntityType_Login)
+	notification.SetActionType(userspb.ActionType_Create)
 	for _, stream := range userStreams {
 		select {
 		case stream <- notification:
@@ -151,8 +151,8 @@ func (h *Handler) UpdateLogin(ctx context.Context, req *pb.LoginUpdateRequest) (
 	notification := &userspb.UpdateNotification{}
 	notification.SetUpdatedAt(timestamppb.Now())
 	notification.SetNumber(entityNumber)
-	notification.SetEntityType(2)
-	notification.SetActionType(2)
+	notification.SetEntityType(userspb.EntityType_Login)
+	notification.SetActionType(userspb.ActionType_Update)
 	for _, stream := range userStreams {
 		select {
 		case stream <- notification:
@@ -189,8 +189,8 @@ func (h *Handler) DeleteLogin(ctx context.Context, req *pb.LoginDeleteRequest) (
 
 	notification := &userspb.UpdateNotification{}
 	notification.SetNumber(entityNumber)
-	notification.SetEntityType(2)
-	notification.SetActionType(1)
+	notification.SetEntityType(userspb.EntityType_Login)
+	notification.SetActionType(userspb.ActionType_Delete)
 	for _, stream := range userStreams {
 		select {
 		case stream <- notification:

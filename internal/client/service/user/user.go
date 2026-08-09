@@ -7,6 +7,7 @@ import (
 
 	userspb "github.com/artni96/GophKeeper/api/proto/users"
 	"github.com/artni96/GophKeeper/internal/client/config"
+	"github.com/artni96/GophKeeper/internal/client/model/common"
 	"github.com/artni96/GophKeeper/internal/client/model/user"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -14,17 +15,27 @@ import (
 
 // Service implements the User client service to manage user-related business logic.
 type Service struct {
-	cfg    *config.Config
-	client userspb.UserServiceClient
-	state  *config.State
+	cfg              *config.Config
+	client           userspb.UserServiceClient
+	state            *config.State
+	notificationChan chan common.Notification
+	isBeingUpdated   bool
 }
 
 // NewService initializes and returns the new User service instance.
-func NewService(cfg *config.Config, state *config.State, conn *grpc.ClientConn) *Service {
+func NewService(
+	cfg *config.Config,
+	state *config.State,
+	conn *grpc.ClientConn,
+	notificationChan chan common.Notification,
+	isBeingUpdated bool,
+) *Service {
 	return &Service{
-		cfg:    cfg,
-		state:  state,
-		client: userspb.NewUserServiceClient(conn),
+		cfg:              cfg,
+		state:            state,
+		client:           userspb.NewUserServiceClient(conn),
+		notificationChan: notificationChan,
+		isBeingUpdated:   isBeingUpdated,
 	}
 }
 
@@ -91,11 +102,15 @@ Reconnection:
 					time.Sleep(timeout)
 					continue Reconnection
 				}
-				fmt.Println(update)
-				//err = app.updateStorage(ctx, update)
-				//if err != nil {
-				//	fmt.Println(err)
-				//}
+				fmt.Println("update received")
+
+				notification := common.Notification{
+					EntityType:   update.GetEntityType(),
+					ActionType:   update.GetActionType(),
+					EntityNumber: update.GetNumber(),
+				}
+				s.notificationChan <- notification
+				s.isBeingUpdated = true
 			}
 		}
 	}

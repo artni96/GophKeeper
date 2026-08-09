@@ -1,6 +1,7 @@
 package menu
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"os"
@@ -15,13 +16,16 @@ const (
 	initial = iota
 	register
 	login
-	authenticated
+	main
 	exit
+	backToMain
 
 	cardList
 	createCard
+	getCardAskNumber
 	getCard
 	updateCard
+	deleteCard
 
 	listLogin
 	createLogin
@@ -30,34 +34,30 @@ const (
 )
 
 type StepInfo struct {
-	Output    func(ctx *config) error                      // Show the menu
-	Handler   func(ctx *config, input string) (int, error) // Process user choice
-	NextSteps []int                                        // Available routes from this menu
-}
-
-type config struct {
-	Token      string
-	IsLoggedIn bool
-	IsRepeated bool
-	NeedChoice bool
-	app        *app.App
+	Logic          func(ctx context.Context) error
+	HandleNextStep func(choice string) (int, error)
+	NextSteps      []int
 }
 
 type Menu struct {
-	routes map[int]StepInfo
-	cfg    *config
+	reader              *bufio.Reader
+	routes              map[int]StepInfo
+	app                 *app.App
+	NeedInput           bool
+	isRepeated          bool
+	currentEntityNumber uint64
+	isFailed            bool
 }
 
 func InitMenu(app *app.App) *Menu {
 	return &Menu{
+		reader: bufio.NewReader(os.Stdin),
 		routes: make(map[int]StepInfo),
-		cfg: &config{
-			app: app,
-		},
+		app:    app,
 	}
 }
 
-func (m *Menu) initSteps(ctx context.Context) {
+func (m *Menu) initSteps() {
 
 	m.routes = make(map[int]StepInfo)
 
@@ -65,16 +65,16 @@ func (m *Menu) initSteps(ctx context.Context) {
 	m.initLoginList()
 
 	m.routes[initial] = StepInfo{
-		Output: func(cfg *config) error {
+		Logic: func(ctx context.Context) error {
 
 			fmt.Println("1. Register")
 			fmt.Println("2. Login")
 			fmt.Println("0. Exit")
 			fmt.Print("Choose option: ")
-			cfg.NeedChoice = true
+			m.NeedInput = true
 			return nil
 		},
-		Handler: func(cfg *config, choice string) (int, error) {
+		HandleNextStep: func(choice string) (int, error) {
 			switch choice {
 			case "1":
 				//m.ctx.IsRepeated = false
@@ -94,23 +94,37 @@ func (m *Menu) initSteps(ctx context.Context) {
 	}
 
 	m.routes[register] = StepInfo{
-		Output: func(cfg *config) error {
+		Logic: func(ctx context.Context) error {
 			userEntity := user.RegistrationRequest{}
-			fmt.Print("Enter login: ")
-			_, err := fmt.Scanln(&userEntity.Login)
-			if err != nil {
-				return err
+			for i := range m.app.Cfg.MaxAttempts {
+				fmt.Print("Enter login: ")
+				loginVal, err := m.app.ReadLine()
+				if err != nil {
+					if i == m.app.Cfg.MaxAttempts-1 {
+						m.isFailed = true
+					}
+					fmt.Println("Invalid login")
+					continue
+				}
+				userEntity.Login = strings.TrimSpace(loginVal)
+				break
 			}
-			userEntity.Login = strings.TrimSpace(userEntity.Login)
 
-			fmt.Print("Enter password: ")
-			_, err = fmt.Scanln(&userEntity.Password)
-			if err != nil {
-				return err
+			for i := range m.app.Cfg.MaxAttempts {
+				fmt.Print("Enter password: ")
+				passwordVal, err := m.app.ReadLine()
+				if err != nil {
+					if i == m.app.Cfg.MaxAttempts-1 {
+						m.isFailed = true
+					}
+					fmt.Println("Invalid password")
+					continue
+				}
+				userEntity.Password = strings.TrimSpace(passwordVal)
+				break
 			}
-			userEntity.Password = strings.TrimSpace(userEntity.Password)
 
-			err = cfg.app.UserService.Register(ctx, userEntity)
+			err := m.app.UserService.Register(ctx, userEntity)
 			if err != nil {
 				fmt.Println("Failed to register user")
 
@@ -123,21 +137,21 @@ func (m *Menu) initSteps(ctx context.Context) {
 			fmt.Println("2. Login")
 			fmt.Println("0. Exit")
 			fmt.Print("Choose option: ")
-			cfg.NeedChoice = true
+			m.NeedInput = true
 			return nil
 		},
-		Handler: func(cfg *config, choice string) (int, error) {
+		HandleNextStep: func(choice string) (int, error) {
 			switch choice {
 			case "1":
-				m.cfg.IsRepeated = false
+				//m.IsRepeated = false
 				return register, nil
 			case "2":
-				m.cfg.IsRepeated = false
+				//m.IsRepeated = false
 				return login, nil
 			case "0":
 				return exit, nil
 			default:
-				m.cfg.IsRepeated = true
+				//m.IsRepeated = true
 				fmt.Println("Invalid choice. Try again")
 				return initial, nil
 			}
@@ -146,130 +160,187 @@ func (m *Menu) initSteps(ctx context.Context) {
 	}
 
 	m.routes[login] = StepInfo{
-		Output: func(cfg *config) error {
-			fmt.Print("Enter username: ")
+		Logic: func(ctx context.Context) error {
 			userEntity := user.LoginRequest{}
-			_, err := fmt.Scanln(&userEntity.Login)
-			if err != nil {
-				return err
+			for i := range m.app.Cfg.MaxAttempts {
+				fmt.Print("Enter login: ")
+				loginVal, err := m.app.ReadLine()
+				if err != nil {
+					if i == m.app.Cfg.MaxAttempts-1 {
+						m.isFailed = true
+					}
+					fmt.Println("Invalid login")
+					continue
+				}
+				userEntity.Login = strings.TrimSpace(loginVal)
+				break
 			}
-			userEntity.Login = strings.TrimSpace(userEntity.Login)
 
-			fmt.Print("Enter password: ")
-			_, err = fmt.Scanln(&userEntity.Password)
-			if err != nil {
-				return err
+			for i := range m.app.Cfg.MaxAttempts {
+				fmt.Print("Enter password: ")
+				passwordVal, err := m.app.ReadLine()
+				if err != nil {
+					if i == m.app.Cfg.MaxAttempts-1 {
+						m.isFailed = true
+					}
+					fmt.Println("Invalid password")
+					continue
+				}
+				userEntity.Password = strings.TrimSpace(passwordVal)
+				break
 			}
-			userEntity.Password = strings.TrimSpace(userEntity.Password)
 
-			err = cfg.app.UserService.Login(ctx, userEntity)
+			err := m.app.UserService.Login(ctx, userEntity)
 			if err != nil {
 				fmt.Println("Failed to login.")
 				return err
 			}
 
-			cfg.IsLoggedIn = true
-			cfg.NeedChoice = false
+			m.app.State.IsOnline = true
+			m.NeedInput = false
 
-			err = cfg.app.UploadData(ctx)
+			err = m.app.UploadData(ctx)
 			if err != nil {
 				return err
 			}
+			m.app.IsBeingUpdated = true
 			fmt.Println("Successfully logged in!")
+
+			m.app.EG.Go(func() error {
+				m.app.UserService.SeekUpdates(ctx)
+				return nil
+			})
+
+			m.app.EG.Go(func() error {
+				select {
+				case n, ok := <-m.app.NotificationChan:
+					if ok {
+						err = m.app.UpdateStorage(ctx, n)
+						if err != nil {
+							fmt.Println("Failed to update notification")
+						}
+					}
+				}
+				return nil
+			})
 			return nil
 		},
-		Handler: func(cfg *config, choice string) (int, error) {
-			if cfg.IsLoggedIn {
-				return authenticated, nil
+		HandleNextStep: func(choice string) (int, error) {
+			if m.app.State.IsOnline {
+				return main, nil
 			}
 			return login, nil
 		},
-		NextSteps: []int{authenticated, login, exit},
+		NextSteps: []int{main, login, exit},
 	}
 
-	m.routes[authenticated] = StepInfo{
-		Output: func(cfg *config) error {
-			fmt.Printf("Choose option: ")
+	m.routes[main] = StepInfo{
+		Logic: func(ctx context.Context) error {
 			fmt.Println("1. Cards")
 			fmt.Println("2. Logins")
 			fmt.Println("3. Texts")
 			fmt.Println("0. Logout & Exit")
 			fmt.Print("Choose option: ")
-			cfg.NeedChoice = true
+			m.NeedInput = true
 			return nil
 		},
-		Handler: func(cfg *config, choice string) (int, error) {
+		HandleNextStep: func(choice string) (int, error) {
 			switch choice {
 			case "1":
-				// Call your list function
-				//ctx.Reader.ReadString('\n')
 				return cardList, nil
 			case "2":
-				//fmt.Println("Listing Type B items...")
-				//ctx.Reader.ReadString('\n')
 				return listLogin, nil
 			case "3":
-				fmt.Println("Listing Type C items...")
-				//ctx.Reader.ReadString('\n')
-				return authenticated, nil
+
+				return main, nil
 			case "0":
-				cfg.IsLoggedIn = false
-				cfg.Token = ""
+				m.app.State.IsOnline = false
+				m.app.Cfg.Token = ""
 				fmt.Println("Logged out. Goodbye!")
 				return exit, nil
 			default:
 				fmt.Println("Invalid choice")
-				return authenticated, nil
+				return main, nil
 			}
 		},
-		NextSteps: []int{authenticated, exit},
+		NextSteps: []int{main, exit},
 	}
 
 }
 
+func (m *Menu) confirmAction() error {
+	fmt.Printf("Are you sure? (Y/n): ")
+	choice, err := m.app.ReadLine()
+	if err != nil {
+		return err
+	}
+
+	switch strings.ToLower(choice) {
+	case "y":
+		return nil
+	case "n":
+		m.isFailed = true
+		return fmt.Errorf("cancelled")
+	default:
+		m.isFailed = true
+		return fmt.Errorf("cancelled")
+	}
+}
+
 func (m *Menu) Run(ctx context.Context) {
-	m.initSteps(ctx)
+	m.initSteps()
 	currentStep := initial
 	failsCounter := 0
 
-	for currentStep != exit {
-		route := m.routes[currentStep]
-
-		err := route.Output(m.cfg)
-		if err != nil {
-			if currentStep == login || currentStep == register {
-				failsCounter++
-				if failsCounter == 3 {
-					if currentStep == login {
-						currentStep = initial
-						failsCounter = 0
-						fmt.Println()
-					} else {
-						fmt.Println("The client is being closed...")
-						os.Exit(0)
-					}
-				}
-			}
+	for {
+		if m.app.IsBeingUpdated {
 			continue
 		}
+		for currentStep != exit {
+			route := m.routes[currentStep]
 
-		var choice string
-		if m.cfg.NeedChoice {
-			_, err = fmt.Scanln(&choice)
+			err := route.Logic(ctx)
 			if err != nil {
-				os.Exit(0)
+				if currentStep == login || currentStep == register {
+					failsCounter++
+					if failsCounter == 3 {
+						if currentStep == login {
+							currentStep = initial
+							failsCounter = 0
+							fmt.Println()
+						} else {
+							fmt.Println("The client is being closed...")
+							os.Exit(0)
+						}
+					}
+				} else if m.isFailed {
+					m.isFailed = false
+				} else {
+					continue
+				}
+
 			}
-			choice = strings.TrimSpace(choice)
-		}
 
-		nextRoute, err := route.Handler(m.cfg, choice)
-		if err != nil {
-			fmt.Printf("Error: %v\n", err)
-			continue
-		}
+			var choice string
+			if m.NeedInput {
 
-		currentStep = nextRoute
+				choice, err = m.app.ReadLine()
+				if err != nil {
+					os.Exit(0)
+				}
+				choice = strings.TrimSpace(choice)
+
+			}
+
+			nextRoute, err := route.HandleNextStep(choice)
+			if err != nil {
+				fmt.Printf("Error: %v\n", err)
+				continue
+			}
+
+			currentStep = nextRoute
+		}
+		os.Exit(0)
 	}
-	os.Exit(0)
 
 }
