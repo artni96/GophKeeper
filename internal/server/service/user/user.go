@@ -2,6 +2,10 @@ package user
 
 import (
 	"context"
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
+	"crypto/sha256"
 	"errors"
 	"fmt"
 	"time"
@@ -13,14 +17,18 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
+	"golang.org/x/crypto/pbkdf2"
 )
 
-var ErrWrongUserOrPassword = errors.New("wrong user or password")
+var (
+	ErrWrongUserOrPassword = errors.New("wrong user or password")
+	ErrFailedToCreateUser  = errors.New("failed to create user")
+)
 
 // ServiceI implements User service interface.
 type ServiceI interface {
 	Create(ctx context.Context, entity usermodel.UserCreateRequest) error
-	Login(ctx context.Context, entity usermodel.LoginRequest) (string, error)
+	Login(ctx context.Context, entity usermodel.LoginRequest) (usermodel.LoginResponse, error)
 }
 
 // Service implements the User service business logic.
@@ -51,7 +59,54 @@ func (s *Service) Create(ctx context.Context, entity usermodel.UserCreateRequest
 		Username:       entity.Username,
 		HashedPassword: hashedPassword,
 	}
-	err = s.repo.Create(ctx, userToCreate)
+
+	salt, err := s.generateRandomBytes(aes.BlockSize)
+	if err != nil {
+		s.logger.Info(
+			"failed to generate salt for new user", zap.String("login", entity.Username), zap.Error(err))
+		return ErrFailedToCreateUser
+	}
+
+	derivedKey := pbkdf2.Key([]byte(entity.Password), salt, 10000, 32, sha256.New)
+
+	aeskey, err := s.generateRandomBytes(2 * aes.BlockSize)
+	if err != nil {
+		s.logger.Info(
+			"failed to generate key for new user", zap.String("login", entity.Username), zap.Error(err))
+		return ErrFailedToCreateUser
+	}
+
+	aesblock, err := aes.NewCipher(derivedKey)
+	if err != nil {
+		s.logger.Info(
+			"failed to new AES cipher for new user", zap.String("login", entity.Username), zap.Error(err))
+		return ErrFailedToCreateUser
+	}
+
+	aesgcm, err := cipher.NewGCM(aesblock)
+	if err != nil {
+		s.logger.Info("failed to new GCM", zap.String("login", entity.Username), zap.Error(err))
+		return ErrFailedToCreateUser
+	}
+
+	nonce, err := s.generateRandomBytes(aesgcm.NonceSize())
+	if err != nil {
+		s.logger.Info(
+			"failed to generate nonce for new user", zap.String("login", entity.Username), zap.Error(err))
+		return ErrFailedToCreateUser
+	}
+
+	ciphertext := aesgcm.Seal(nil, nonce, aeskey, nil)
+	encryptedKey := append(nonce, ciphertext...)
+
+	userKeyToCreate := usermodel.UserKeyCreate{
+		EncryptedKey: encryptedKey,
+		Salt:         salt,
+		IsActive:     true,
+		CreatedAt:    time.Now(),
+	}
+
+	err = s.repo.Create(ctx, userToCreate, userKeyToCreate)
 	if err != nil {
 		return err
 	}
@@ -59,28 +114,30 @@ func (s *Service) Create(ctx context.Context, entity usermodel.UserCreateRequest
 }
 
 // Login returns a jwt token for a user.
-func (s *Service) Login(ctx context.Context, entity usermodel.LoginRequest) (string, error) {
+func (s *Service) Login(ctx context.Context, entity usermodel.LoginRequest) (usermodel.LoginResponse, error) {
+	resp := usermodel.LoginResponse{}
 	dbEntity, err := s.repo.GetByUsername(ctx, entity.Username)
 	if err != nil {
-		return "", err
+		return resp, err
 	}
-	//hashedPassword, err := s.hashPassword(entity.Password)
-	//
-	//if err != nil {
-	//	s.logger.Info("failed to hash password", zap.Error(err))
-	//	return "", err
-	//}
+
 	err = bcrypt.CompareHashAndPassword([]byte(dbEntity.HashedPassword), []byte(entity.Password))
 	if err != nil {
 		s.logger.Info("wrong password", zap.Error(err))
-		return "", ErrWrongUserOrPassword
+		return resp, ErrWrongUserOrPassword
 	}
 	token, err := s.BuildJWTString(dbEntity.ID, s.cfg)
 	if err != nil {
 		s.logger.Info("failed to build JWT token", zap.Error(err))
-		return "", err
+		return resp, err
 	}
-	return token, nil
+	userKeys, err := s.repo.GetUserKeysList(ctx, dbEntity.ID)
+	if err != nil {
+		return resp, err
+	}
+	resp.Token = token
+	resp.Keys = userKeys
+	return resp, nil
 }
 
 // hashPassword hashes a plain password by bcrypt.
@@ -130,4 +187,13 @@ func GetUserIDFromJWT(tokenString string, cfg *config.Config) uuid.UUID {
 		return uuid.Nil
 	}
 	return claims.UserID
+}
+
+func (s *Service) generateRandomBytes(length int) ([]byte, error) {
+	bytes := make([]byte, length)
+	_, err := rand.Read(bytes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate random bytes: %w", err)
+	}
+	return bytes, err
 }

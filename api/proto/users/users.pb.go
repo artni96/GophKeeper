@@ -415,6 +415,7 @@ func (b0 LoginRequest_builder) Build() *LoginRequest {
 type LoginResponse struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Token       *string                `protobuf:"bytes,1,opt,name=token"`
+	xxx_hidden_UserKeys    *[]*UserKey            `protobuf:"bytes,2,rep,name=user_keys,json=userKeys"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -456,9 +457,22 @@ func (x *LoginResponse) GetToken() string {
 	return ""
 }
 
+func (x *LoginResponse) GetUserKeys() []*UserKey {
+	if x != nil {
+		if x.xxx_hidden_UserKeys != nil {
+			return *x.xxx_hidden_UserKeys
+		}
+	}
+	return nil
+}
+
 func (x *LoginResponse) SetToken(v string) {
 	x.xxx_hidden_Token = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 1)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 2)
+}
+
+func (x *LoginResponse) SetUserKeys(v []*UserKey) {
+	x.xxx_hidden_UserKeys = &v
 }
 
 func (x *LoginResponse) HasToken() bool {
@@ -476,7 +490,8 @@ func (x *LoginResponse) ClearToken() {
 type LoginResponse_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Token *string
+	Token    *string
+	UserKeys []*UserKey
 }
 
 func (b0 LoginResponse_builder) Build() *LoginResponse {
@@ -484,9 +499,10 @@ func (b0 LoginResponse_builder) Build() *LoginResponse {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Token != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 1)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 2)
 		x.xxx_hidden_Token = b.Token
 	}
+	x.xxx_hidden_UserKeys = &b.UserKeys
 	return m0
 }
 
@@ -732,6 +748,177 @@ func (b0 UpdateNotification_builder) Build() *UpdateNotification {
 	return m0
 }
 
+type UserKey struct {
+	state                   protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_EncryptedKey []byte                 `protobuf:"bytes,1,opt,name=encrypted_key,json=encryptedKey"`
+	xxx_hidden_KeyId        uint64                 `protobuf:"varint,2,opt,name=key_id,json=keyId"`
+	xxx_hidden_IsActive     bool                   `protobuf:"varint,3,opt,name=is_active,json=isActive"`
+	xxx_hidden_Salt         []byte                 `protobuf:"bytes,4,opt,name=salt"`
+	XXX_raceDetectHookData  protoimpl.RaceDetectHookData
+	XXX_presence            [1]uint32
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
+}
+
+func (x *UserKey) Reset() {
+	*x = UserKey{}
+	mi := &file_api_proto_users_users_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserKey) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserKey) ProtoMessage() {}
+
+func (x *UserKey) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_users_users_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *UserKey) GetEncryptedKey() []byte {
+	if x != nil {
+		return x.xxx_hidden_EncryptedKey
+	}
+	return nil
+}
+
+func (x *UserKey) GetKeyId() uint64 {
+	if x != nil {
+		return x.xxx_hidden_KeyId
+	}
+	return 0
+}
+
+func (x *UserKey) GetIsActive() bool {
+	if x != nil {
+		return x.xxx_hidden_IsActive
+	}
+	return false
+}
+
+func (x *UserKey) GetSalt() []byte {
+	if x != nil {
+		return x.xxx_hidden_Salt
+	}
+	return nil
+}
+
+func (x *UserKey) SetEncryptedKey(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_EncryptedKey = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 4)
+}
+
+func (x *UserKey) SetKeyId(v uint64) {
+	x.xxx_hidden_KeyId = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 4)
+}
+
+func (x *UserKey) SetIsActive(v bool) {
+	x.xxx_hidden_IsActive = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 4)
+}
+
+func (x *UserKey) SetSalt(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Salt = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 4)
+}
+
+func (x *UserKey) HasEncryptedKey() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+}
+
+func (x *UserKey) HasKeyId() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
+}
+
+func (x *UserKey) HasIsActive() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
+}
+
+func (x *UserKey) HasSalt() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
+}
+
+func (x *UserKey) ClearEncryptedKey() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_EncryptedKey = nil
+}
+
+func (x *UserKey) ClearKeyId() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	x.xxx_hidden_KeyId = 0
+}
+
+func (x *UserKey) ClearIsActive() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
+	x.xxx_hidden_IsActive = false
+}
+
+func (x *UserKey) ClearSalt() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
+	x.xxx_hidden_Salt = nil
+}
+
+type UserKey_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	EncryptedKey []byte
+	KeyId        *uint64
+	IsActive     *bool
+	Salt         []byte
+}
+
+func (b0 UserKey_builder) Build() *UserKey {
+	m0 := &UserKey{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.EncryptedKey != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 4)
+		x.xxx_hidden_EncryptedKey = b.EncryptedKey
+	}
+	if b.KeyId != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 4)
+		x.xxx_hidden_KeyId = *b.KeyId
+	}
+	if b.IsActive != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 4)
+		x.xxx_hidden_IsActive = *b.IsActive
+	}
+	if b.Salt != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 4)
+		x.xxx_hidden_Salt = b.Salt
+	}
+	return m0
+}
+
 var File_api_proto_users_users_proto protoreflect.FileDescriptor
 
 const file_api_proto_users_users_proto_rawDesc = "" +
@@ -744,9 +931,10 @@ const file_api_proto_users_users_proto_rawDesc = "" +
 	"\x06result\x18\x01 \x01(\tR\x06result\"F\n" +
 	"\fLoginRequest\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\"%\n" +
+	"\bpassword\x18\x02 \x01(\tR\bpassword\"R\n" +
 	"\rLoginResponse\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\"0\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\x12+\n" +
+	"\tuser_keys\x18\x02 \x03(\v2\x0e.users.UserKeyR\buserKeys\"0\n" +
 	"\x11SeekUpdateRequest\x12\x1b\n" +
 	"\tclient_id\x18\x01 \x01(\tR\bclientId\"\xcf\x01\n" +
 	"\x12UpdateNotification\x122\n" +
@@ -756,7 +944,12 @@ const file_api_proto_users_users_proto_rawDesc = "" +
 	"\vaction_type\x18\x03 \x01(\x0e2\x11.users.actionTypeR\n" +
 	"actionType\x129\n" +
 	"\n" +
-	"updated_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt*7\n" +
+	"updated_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"v\n" +
+	"\aUserKey\x12#\n" +
+	"\rencrypted_key\x18\x01 \x01(\fR\fencryptedKey\x12\x15\n" +
+	"\x06key_id\x18\x02 \x01(\x04R\x05keyId\x12\x1b\n" +
+	"\tis_active\x18\x03 \x01(\bR\bisActive\x12\x12\n" +
+	"\x04salt\x18\x04 \x01(\fR\x04salt*7\n" +
 	"\n" +
 	"entityType\x12\n" +
 	"\n" +
@@ -779,7 +972,7 @@ const file_api_proto_users_users_proto_rawDesc = "" +
 	"\vSeekUpdates\x12\x18.users.SeekUpdateRequest\x1a\x19.users.UpdateNotification0\x01B/Z-github.com/artni96/GophKeeper/api/proto/usersb\beditionsp\xe8\a"
 
 var file_api_proto_users_users_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_api_proto_users_users_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_api_proto_users_users_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_api_proto_users_users_proto_goTypes = []any{
 	(EntityType)(0),               // 0: users.entityType
 	(ActionType)(0),               // 1: users.actionType
@@ -789,23 +982,25 @@ var file_api_proto_users_users_proto_goTypes = []any{
 	(*LoginResponse)(nil),         // 5: users.LoginResponse
 	(*SeekUpdateRequest)(nil),     // 6: users.SeekUpdateRequest
 	(*UpdateNotification)(nil),    // 7: users.UpdateNotification
-	(*timestamppb.Timestamp)(nil), // 8: google.protobuf.Timestamp
+	(*UserKey)(nil),               // 8: users.UserKey
+	(*timestamppb.Timestamp)(nil), // 9: google.protobuf.Timestamp
 }
 var file_api_proto_users_users_proto_depIdxs = []int32{
-	0, // 0: users.UpdateNotification.entity_type:type_name -> users.entityType
-	1, // 1: users.UpdateNotification.action_type:type_name -> users.actionType
-	8, // 2: users.UpdateNotification.updated_at:type_name -> google.protobuf.Timestamp
-	2, // 3: users.UserService.CreateUser:input_type -> users.UserCreateRequest
-	4, // 4: users.UserService.Login:input_type -> users.LoginRequest
-	6, // 5: users.UserService.SeekUpdates:input_type -> users.SeekUpdateRequest
-	3, // 6: users.UserService.CreateUser:output_type -> users.UserCreateResponse
-	5, // 7: users.UserService.Login:output_type -> users.LoginResponse
-	7, // 8: users.UserService.SeekUpdates:output_type -> users.UpdateNotification
-	6, // [6:9] is the sub-list for method output_type
-	3, // [3:6] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	8, // 0: users.LoginResponse.user_keys:type_name -> users.UserKey
+	0, // 1: users.UpdateNotification.entity_type:type_name -> users.entityType
+	1, // 2: users.UpdateNotification.action_type:type_name -> users.actionType
+	9, // 3: users.UpdateNotification.updated_at:type_name -> google.protobuf.Timestamp
+	2, // 4: users.UserService.CreateUser:input_type -> users.UserCreateRequest
+	4, // 5: users.UserService.Login:input_type -> users.LoginRequest
+	6, // 6: users.UserService.SeekUpdates:input_type -> users.SeekUpdateRequest
+	3, // 7: users.UserService.CreateUser:output_type -> users.UserCreateResponse
+	5, // 8: users.UserService.Login:output_type -> users.LoginResponse
+	7, // 9: users.UserService.SeekUpdates:output_type -> users.UpdateNotification
+	7, // [7:10] is the sub-list for method output_type
+	4, // [4:7] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_api_proto_users_users_proto_init() }
@@ -819,7 +1014,7 @@ func file_api_proto_users_users_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_proto_users_users_proto_rawDesc), len(file_api_proto_users_users_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   6,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

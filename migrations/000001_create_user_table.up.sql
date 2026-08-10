@@ -4,6 +4,18 @@ CREATE TABLE IF NOT EXISTS users (
     hashed_password VARCHAR(60) NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS user_keys (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL,
+    encrypted_key BYTEA NOT NULL,
+    salt BYTEA NOT NULL,
+    key_id INTEGER GENERATED ALWAYS AS IDENTITY,
+    is_active BOOLEAN,
+    created_at TIMESTAMP NOT NULL,
+    CONSTRAINT user_keys_fk_user FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT user_keys_unique_constraint_user_key_id UNIQUE (user_id, key_id)
+);
+
 CREATE TABLE IF NOT EXISTS logins (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL,
@@ -17,7 +29,7 @@ CREATE TABLE IF NOT EXISTS logins (
     updated_at TIMESTAMP,
     CONSTRAINT logins_fk_user FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT logins_unique_constraint_user_title UNIQUE (user_id, title),
-    CONSTRAINT logins_unique_constraint_unqiue_user_number UNIQUE (user_id, number)
+    CONSTRAINT logins_unique_constraint_user_number UNIQUE (user_id, number)
 );
 
 CREATE TABLE IF NOT EXISTS user_record_number (

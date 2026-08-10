@@ -1,4 +1,4 @@
-CONFIG_PATH := internal/config/config.json
+CONFIG_PATH := internal/server/config/config.json
 DB_NAME := $(shell jq -r '.db_name' $(CONFIG_PATH))
 DB_HOST := $(shell jq -r '.db_host' $(CONFIG_PATH))
 DB_PORT := $(shell jq -r '.db_port' $(CONFIG_PATH))

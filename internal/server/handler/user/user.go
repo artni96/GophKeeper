@@ -69,14 +69,25 @@ func (h *Handler) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginRes
 		Username: req.GetUsername(),
 		Password: req.GetPassword(),
 	}
-	token, err := h.UserService.Login(ctx, loginData)
+	userCredentials, err := h.UserService.Login(ctx, loginData)
 	if err != nil {
 		if errors.Is(err, userrepo.ErrUserNotFound) || errors.Is(err, userserv.ErrWrongUserOrPassword) {
 			return nil, status.Error(codes.Unauthenticated, "login failed")
 		}
 		return nil, status.Errorf(codes.Internal, "internal grpc error")
 	}
-	resp.SetToken(token)
+	
+	resp.SetToken(userCredentials.Token)
+	var keyspb []*pb.UserKey
+	for _, key := range userCredentials.Keys {
+		i := &pb.UserKey{}
+		i.SetEncryptedKey(key.EncryptedKey)
+		i.SetKeyId(key.KeyID)
+		i.SetSalt(key.Salt)
+		i.SetIsActive(key.IsActive)
+		keyspb = append(keyspb, i)
+	}
+	resp.SetUserKeys(keyspb)
 	return resp, nil
 }
 

@@ -52,10 +52,10 @@ func ParseConfig() (*Config, error) {
 	confFile := ConfigFile{}
 
 	fs := flag.NewFlagSet("config", flag.ExitOnError)
-	
+
 	declaredFlags := make(map[string]bool)
 
-	fs.StringVar(&conf.ServerAddr, "a", "", "grpc address")
+	fs.StringVar(&conf.ServerAddr, "a", "", "server address")
 	fs.BoolVar(&conf.EnableTCP, "t", false, "enable tps")
 	fs.StringVar(&conf.CertFile, "cf", "", "cert file")
 	fs.StringVar(&conf.KeyFile, "kf", "", "key file")

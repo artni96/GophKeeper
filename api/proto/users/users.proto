@@ -41,6 +41,7 @@ message LoginRequest {
 
 message LoginResponse {
   string token = 1;
+  repeated UserKey user_keys = 2;
 }
 
 message SeekUpdateRequest {
@@ -52,4 +53,11 @@ message UpdateNotification {
   uint64 number = 2;
   actionType action_type = 3;
   google.protobuf.Timestamp updated_at = 4;
+}
+
+message UserKey {
+  bytes encrypted_key = 1;
+  uint64 key_id = 2;
+  bool is_active = 3;
+  bytes salt = 4;
 }
