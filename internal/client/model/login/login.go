@@ -7,6 +7,8 @@ import (
 type Login struct {
 	Login       string
 	Password    string
+	Nonce       []byte
+	KeyID       uint64
 	Title       string
 	Number      uint64
 	URL         string

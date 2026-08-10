@@ -2,6 +2,9 @@ package user
 
 import (
 	"context"
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/sha256"
 	"fmt"
 	"time"
 
@@ -9,6 +12,7 @@ import (
 	"github.com/artni96/GophKeeper/internal/client/config"
 	"github.com/artni96/GophKeeper/internal/client/model/common"
 	"github.com/artni96/GophKeeper/internal/client/model/user"
+	"golang.org/x/crypto/pbkdf2"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
@@ -45,12 +49,54 @@ func (s *Service) Login(ctx context.Context, userEntity user.LoginRequest) error
 	req.SetUsername(userEntity.Login)
 	req.SetPassword(userEntity.Password)
 
-	token, err := s.client.Login(ctx, req)
+	userCredentials, err := s.client.Login(ctx, req)
 	if err != nil {
 		return err
 	}
-	s.cfg.Token = token.GetToken()
+	s.state.Token = userCredentials.GetToken()
 	s.state.IsOnline = true
+	s.state.Password = userEntity.Password
+
+	userKeys := userCredentials.GetUserKeys()
+	for _, key := range userKeys {
+		err = s.handleKey(key)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// handleKey extracts aesKey from *userspb.UserKey and saves it to the State.Keys.
+func (s *Service) handleKey(key *userspb.UserKey) error {
+	keyID := key.GetKeyId()
+	encryptedKey := key.GetEncryptedKey()
+	salt := key.GetSalt()
+	derivedKey := pbkdf2.Key([]byte(s.state.Password), salt, 10000, 32, sha256.New)
+
+	block, err := aes.NewCipher(derivedKey)
+	if err != nil {
+		return err
+	}
+
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return err
+	}
+
+	nonce := encryptedKey[:gcm.NonceSize()]
+	ciphertext := encryptedKey[gcm.NonceSize():]
+
+	aesKey, err := gcm.Open(nil, nonce, ciphertext, nil)
+	if err != nil {
+		return err
+	}
+
+	s.state.Keys[keyID] = aesKey
+	if key.GetIsActive() {
+		s.state.ActiveKey = aesKey
+		s.state.ActiveKeyID = key.GetKeyId()
+	}
 	return nil
 }
 
@@ -70,7 +116,7 @@ func (s *Service) Register(ctx context.Context, userEntity user.RegistrationRequ
 // SeekUpdates seamlessly waits for user's data update notifications from the server.
 func (s *Service) SeekUpdates(ctx context.Context) {
 	lostConn := false
-	md := metadata.Pairs("authorization", s.cfg.Token)
+	md := metadata.Pairs("authorization", s.state.Token)
 Reconnection:
 	for {
 		timeout := 10 * time.Second

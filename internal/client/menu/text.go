@@ -167,7 +167,7 @@ func (m *Menu) initTextMenu() {
 
 			fmt.Println()
 
-			mdCtx := utils.PrepareMDContext(ctx, m.app.Cfg)
+			mdCtx := utils.PrepareMDContext(ctx, m.app.State.Token)
 
 			_, err := m.app.TextService.Client.CreateText(mdCtx, pbEntity)
 			if err != nil {
@@ -245,7 +245,7 @@ func (m *Menu) initTextMenu() {
 
 			fmt.Println()
 
-			mdCtx := utils.PrepareMDContext(ctx, m.app.Cfg)
+			mdCtx := utils.PrepareMDContext(ctx, m.app.State.Token)
 
 			_, err := m.app.TextService.Client.UpdateText(mdCtx, pbEntity)
 			if err != nil {
@@ -283,7 +283,7 @@ func (m *Menu) initTextMenu() {
 			req := &textspb.TextDeleteRequest{}
 			req.SetNumber(m.currentEntityNumber)
 
-			mdCtx := utils.PrepareMDContext(ctx, m.app.Cfg)
+			mdCtx := utils.PrepareMDContext(ctx, m.app.State.Token)
 			_, err = m.app.TextService.Client.DeleteText(mdCtx, req)
 			if err != nil {
 				m.isFailed = true

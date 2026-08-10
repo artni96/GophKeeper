@@ -118,7 +118,7 @@ func (m *Menu) initSteps() {
 				return textMenu, nil
 			case "0":
 				m.app.State.IsOnline = false
-				m.app.Cfg.Token = ""
+				m.app.State.Token = ""
 				fmt.Println("Logged out. Goodbye!")
 				return exit, nil
 			default:

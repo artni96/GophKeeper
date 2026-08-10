@@ -317,7 +317,7 @@ func (m *Menu) initCardMenu() {
 			}
 
 			fmt.Println()
-			mdCtx := utils.PrepareMDContext(ctx, m.app.Cfg)
+			mdCtx := utils.PrepareMDContext(ctx, m.app.State.Token)
 
 			_, err := m.app.CardService.Client.CreateCard(mdCtx, pbEntity)
 			if err != nil {
@@ -542,7 +542,7 @@ func (m *Menu) initCardMenu() {
 			}
 
 			fmt.Println()
-			mdCtx := utils.PrepareMDContext(ctx, m.app.Cfg)
+			mdCtx := utils.PrepareMDContext(ctx, m.app.State.Token)
 
 			_, err = m.app.CardService.Client.UpdateCard(mdCtx, pbEntity)
 			if err != nil {
@@ -580,7 +580,7 @@ func (m *Menu) initCardMenu() {
 			req := &cardspb.CardDeleteRequest{}
 			req.SetNumber(m.currentEntityNumber)
 
-			mdCtx := utils.PrepareMDContext(ctx, m.app.Cfg)
+			mdCtx := utils.PrepareMDContext(ctx, m.app.State.Token)
 			_, err = m.app.CardService.Client.DeleteCard(mdCtx, req)
 			if err != nil {
 				m.isFailed = true

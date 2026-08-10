@@ -18,8 +18,10 @@ message LoginCreateRequest {
   google.protobuf.StringValue title = 1;
   google.protobuf.StringValue url = 2;
   google.protobuf.StringValue description = 3;
-  google.protobuf.StringValue login = 4;
-  google.protobuf.StringValue password = 5;
+  google.protobuf.BytesValue login = 4;
+  google.protobuf.BytesValue password = 5;
+  google.protobuf.BytesValue nonce = 6;
+  google.protobuf.UInt64Value key_id = 7;
 }
 
 message LoginCreateResponse {
@@ -35,19 +37,23 @@ message LoginGetResponse {
   uint64 number = 2;
   string url = 3;
   string description = 4;
-  string login = 5;
-  string password = 6;
-  string created_at = 7;
-  string updated_at = 8;
+  bytes login = 5;
+  bytes password = 6;
+  bytes nonce = 7;
+  uint64 key_id = 8;
+  string created_at = 9;
+  string updated_at = 10;
 }
 
 message LoginUpdateRequest {
   google.protobuf.StringValue title = 1;
   google.protobuf.StringValue url = 2;
   google.protobuf.StringValue description = 3;
-  google.protobuf.StringValue login = 4;
-  google.protobuf.StringValue password = 5;
-  uint64 number = 6;
+  google.protobuf.BytesValue login = 4;
+  google.protobuf.BytesValue password = 5;
+  google.protobuf.BytesValue nonce = 6;
+  google.protobuf.UInt64Value key_id = 7;
+  uint64 number = 8;
 }
 
 message LoginUpdateResponse {

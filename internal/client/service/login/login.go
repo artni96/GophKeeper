@@ -7,6 +7,7 @@ import (
 	loginspb "github.com/artni96/GophKeeper/api/proto/logins"
 	"github.com/artni96/GophKeeper/internal/client/constants"
 	"github.com/artni96/GophKeeper/internal/client/model/common"
+	"github.com/artni96/GophKeeper/internal/client/utils"
 
 	"github.com/artni96/GophKeeper/internal/client/config"
 
@@ -21,18 +22,20 @@ type Service struct {
 	cfg    *config.Config
 	Client loginspb.LoginServiceClient
 	repo   loginrepo.RepositoryI
+	state  *config.State
 }
 
 // NewService initializes and returns the new Login service instance.
-func NewService(cfg *config.Config, conn *grpc.ClientConn, repo loginrepo.RepositoryI) *Service {
+func NewService(cfg *config.Config, conn *grpc.ClientConn, repo loginrepo.RepositoryI, state *config.State) *Service {
 	return &Service{
 		cfg:    cfg,
 		Client: loginspb.NewLoginServiceClient(conn),
 		repo:   repo,
+		state:  state,
 	}
 }
 
-// Add adds a new Login entity in the repository.
+// Add adds a new Login entity to the repository.
 func (s *Service) Add(ctx context.Context, entityNumber uint64) error {
 	loginGetReq := &loginspb.LoginGetRequest{}
 	loginGetReq.SetNumber(entityNumber)
@@ -52,10 +55,23 @@ func (s *Service) Add(ctx context.Context, entityNumber uint64) error {
 	if err != nil {
 		updatedAt = time.Time{}
 	}
+	nonce := pbEntity.GetNonce()
+	keyID := pbEntity.GetKeyId()
+	aesKey := s.state.Keys[keyID]
+
+	decryptedLogin, err := utils.DecryptField(pbEntity.GetLogin(), aesKey, nonce)
+	if err != nil {
+		return err
+	}
+
+	decryptedPassword, err := utils.DecryptField(pbEntity.GetPassword(), aesKey, nonce)
+	if err != nil {
+		return err
+	}
 
 	entity := login.Login{
-		Login:       pbEntity.GetLogin(),
-		Password:    pbEntity.GetPassword(),
+		Login:       string(decryptedLogin),
+		Password:    string(decryptedPassword),
 		Title:       pbEntity.GetTitle(),
 		Number:      pbEntity.GetNumber(),
 		URL:         pbEntity.GetUrl(),
@@ -67,7 +83,7 @@ func (s *Service) Add(ctx context.Context, entityNumber uint64) error {
 	return nil
 }
 
-// AddBatch adds a list of new Login entities in the repository.
+// AddBatch adds a list of new Login entities to the repository.
 func (s *Service) AddBatch(ctx context.Context) error {
 	loginListReq := &loginspb.LoginGetListRequest{}
 
@@ -80,6 +96,19 @@ func (s *Service) AddBatch(ctx context.Context) error {
 
 	var entities []login.Login
 	for _, pbEntity := range pbEntities {
+		nonce := pbEntity.GetNonce()
+		keyID := pbEntity.GetKeyId()
+		aesKey := s.state.Keys[keyID]
+
+		decryptedLogin, err := utils.DecryptField(pbEntity.GetLogin(), aesKey, nonce)
+		if err != nil {
+			return err
+		}
+
+		decryptedPassword, err := utils.DecryptField(pbEntity.GetPassword(), aesKey, nonce)
+		if err != nil {
+			return err
+		}
 		createdAt, err := time.Parse(time.RFC3339, pbEntity.GetCreatedAt())
 		if err != nil {
 			return err
@@ -92,8 +121,8 @@ func (s *Service) AddBatch(ctx context.Context) error {
 		}
 
 		entity := login.Login{
-			Login:       pbEntity.GetLogin(),
-			Password:    pbEntity.GetPassword(),
+			Login:       string(decryptedLogin),
+			Password:    string(decryptedPassword),
 			Title:       pbEntity.GetTitle(),
 			Number:      pbEntity.GetNumber(),
 			URL:         pbEntity.GetUrl(),
@@ -108,7 +137,7 @@ func (s *Service) AddBatch(ctx context.Context) error {
 	return nil
 }
 
-// Get returns the Login entity by its number in the repository.
+// Get returns the Login entity by its number from the repository.
 func (s *Service) Get(entityNumber uint64) (login.Login, error) {
 	entity, err := s.repo.Get(entityNumber)
 	if err != nil {
@@ -126,26 +155,40 @@ func (s *Service) GetList() []common.Entity {
 func (s *Service) Update(ctx context.Context, entityNumber uint64) error {
 	req := &loginspb.LoginGetRequest{}
 	req.SetNumber(entityNumber)
-	resp, err := s.Client.GetLogin(ctx, req)
+	pbEntity, err := s.Client.GetLogin(ctx, req)
 	if err != nil {
 		return constants.ErrEntityNotFound
 	}
 
-	createdAt, err := time.Parse(time.RFC3339, resp.GetCreatedAt())
+	nonce := pbEntity.GetNonce()
+	keyID := pbEntity.GetKeyId()
+	aesKey := s.state.Keys[keyID]
+
+	decryptedLogin, err := utils.DecryptField(pbEntity.GetLogin(), aesKey, nonce)
 	if err != nil {
 		return err
 	}
-	updatedAt, err := time.Parse(time.RFC3339, resp.GetUpdatedAt())
+
+	decryptedPassword, err := utils.DecryptField(pbEntity.GetPassword(), aesKey, nonce)
+	if err != nil {
+		return err
+	}
+
+	createdAt, err := time.Parse(time.RFC3339, pbEntity.GetCreatedAt())
+	if err != nil {
+		return err
+	}
+	updatedAt, err := time.Parse(time.RFC3339, pbEntity.GetUpdatedAt())
 	if err != nil {
 		return err
 	}
 	updatedEntity := login.Login{
-		Login:       resp.GetLogin(),
-		Password:    resp.GetPassword(),
-		Title:       resp.GetTitle(),
-		Number:      resp.GetNumber(),
-		URL:         resp.GetUrl(),
-		Description: resp.GetDescription(),
+		Login:       string(decryptedLogin),
+		Password:    string(decryptedPassword),
+		Title:       pbEntity.GetTitle(),
+		Number:      pbEntity.GetNumber(),
+		URL:         pbEntity.GetUrl(),
+		Description: pbEntity.GetDescription(),
 		CreatedAt:   createdAt,
 		UpdatedAt:   updatedAt,
 	}

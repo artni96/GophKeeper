@@ -8,7 +8,6 @@ import (
 )
 
 type Config struct {
-	Token         string
 	ServerAddress string `json:"server_addr"`
 	ClientID      uuid.UUID
 	MaxAttempts   uint64
@@ -40,12 +39,17 @@ func (c *Config) SetServerAddress() error {
 
 // State represent the client state metrics.
 type State struct {
+	Token          string
 	ActionAttempts uint64
 	IsOnline       bool
+	Password       string
+	Keys           map[uint64][]byte
+	ActiveKey      []byte
+	ActiveKeyID    uint64
 }
 
 func NewState() *State {
-	return &State{ActionAttempts: 0, IsOnline: false}
+	return &State{ActionAttempts: 0, IsOnline: false, Keys: make(map[uint64][]byte)}
 }
 
 func (s *State) HasAttempts() bool {

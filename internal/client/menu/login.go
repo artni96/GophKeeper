@@ -6,6 +6,7 @@ import (
 
 	loginspb "github.com/artni96/GophKeeper/api/proto/logins"
 	"github.com/artni96/GophKeeper/internal/client/utils"
+	commonutils "github.com/artni96/GophKeeper/internal/common/utils"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/wrapperspb"
@@ -117,6 +118,15 @@ func (m *Menu) initLoginMenu() {
 			m.needInput = false
 			pbEntity := &loginspb.LoginCreateRequest{}
 
+			nonce, err := commonutils.GenerateRandomBytes(12)
+			if err != nil {
+				return err
+			}
+			pbEntity.SetNonce(wrapperspb.Bytes(nonce))
+
+			activeKey := m.app.State.ActiveKeyID
+			pbEntity.SetKeyId(wrapperspb.UInt64(activeKey))
+
 			for i := range m.app.Cfg.MaxAttempts {
 				fmt.Printf("Enter title: ")
 				title, err := m.app.ReadLine()
@@ -163,7 +173,14 @@ func (m *Menu) initLoginMenu() {
 					fmt.Println("Invalid login")
 					continue
 				}
-				pbEntity.SetLogin(wrapperspb.String(loginVal))
+
+				encryptedValue, err := m.app.EncryptField(loginVal, nonce)
+
+				if err != nil {
+					continue
+				}
+
+				pbEntity.SetLogin(wrapperspb.Bytes(encryptedValue))
 				break
 			}
 
@@ -177,7 +194,14 @@ func (m *Menu) initLoginMenu() {
 					fmt.Println("Invalid password")
 					continue
 				}
-				pbEntity.SetPassword(wrapperspb.String(password))
+
+				encryptedValue, err := m.app.EncryptField(password, nonce)
+
+				if err != nil {
+					continue
+				}
+
+				pbEntity.SetPassword(wrapperspb.Bytes(encryptedValue))
 				break
 			}
 
@@ -197,9 +221,9 @@ func (m *Menu) initLoginMenu() {
 
 			fmt.Println()
 
-			mdCtx := utils.PrepareMDContext(ctx, m.app.Cfg)
+			mdCtx := utils.PrepareMDContext(ctx, m.app.State.Token)
 
-			_, err := m.app.LoginService.Client.CreateLogin(mdCtx, pbEntity)
+			_, err = m.app.LoginService.Client.CreateLogin(mdCtx, pbEntity)
 			if err != nil {
 				m.isFailed = true
 				st, ok := status.FromError(err)
@@ -227,6 +251,15 @@ func (m *Menu) initLoginMenu() {
 		Logic: func(ctx context.Context) error {
 			m.needInput = false
 			pbEntity := &loginspb.LoginUpdateRequest{}
+
+			nonce, err := commonutils.GenerateRandomBytes(12)
+			if err != nil {
+				return err
+			}
+			pbEntity.SetNonce(wrapperspb.Bytes(nonce))
+
+			activeKey := m.app.State.ActiveKeyID
+			pbEntity.SetKeyId(wrapperspb.UInt64(activeKey))
 
 			for i := range m.app.Cfg.MaxAttempts {
 				fmt.Printf("Enter title: ")
@@ -267,7 +300,14 @@ func (m *Menu) initLoginMenu() {
 					fmt.Println("Invalid login")
 					continue
 				}
-				pbEntity.SetLogin(wrapperspb.String(loginVal))
+
+				encryptedValue, err := m.app.EncryptField(loginVal, nonce)
+
+				if err != nil {
+					continue
+				}
+
+				pbEntity.SetLogin(wrapperspb.Bytes(encryptedValue))
 				break
 			}
 
@@ -281,7 +321,14 @@ func (m *Menu) initLoginMenu() {
 					fmt.Println("Invalid password")
 					continue
 				}
-				pbEntity.SetPassword(wrapperspb.String(password))
+
+				encryptedValue, err := m.app.EncryptField(password, nonce)
+
+				if err != nil {
+					continue
+				}
+
+				pbEntity.SetPassword(wrapperspb.Bytes(encryptedValue))
 				break
 			}
 
@@ -303,9 +350,9 @@ func (m *Menu) initLoginMenu() {
 
 			fmt.Println()
 
-			mdCtx := utils.PrepareMDContext(ctx, m.app.Cfg)
+			mdCtx := utils.PrepareMDContext(ctx, m.app.State.Token)
 
-			_, err := m.app.LoginService.Client.UpdateLogin(mdCtx, pbEntity)
+			_, err = m.app.LoginService.Client.UpdateLogin(mdCtx, pbEntity)
 			if err != nil {
 				m.isFailed = true
 				st, ok := status.FromError(err)
@@ -341,7 +388,7 @@ func (m *Menu) initLoginMenu() {
 			req := &loginspb.LoginDeleteRequest{}
 			req.SetNumber(m.currentEntityNumber)
 
-			mdCtx := utils.PrepareMDContext(ctx, m.app.Cfg)
+			mdCtx := utils.PrepareMDContext(ctx, m.app.State.Token)
 			_, err = m.app.LoginService.Client.DeleteLogin(mdCtx, req)
 			if err != nil {
 				m.isFailed = true

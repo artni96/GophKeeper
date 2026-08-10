@@ -3,6 +3,8 @@ package app
 import (
 	"bufio"
 	"context"
+	"crypto/aes"
+	"crypto/cipher"
 	"errors"
 	"fmt"
 	"os"
@@ -65,7 +67,7 @@ func (app *App) InitDependencies() {
 	app.CardService = cardserv.NewService(app.Cfg, app.conn, cardRepo)
 
 	loginRepo := loginrepo.NewRepository(app.NumberMap)
-	app.LoginService = loginserv.NewService(app.Cfg, app.conn, loginRepo)
+	app.LoginService = loginserv.NewService(app.Cfg, app.conn, loginRepo, app.State)
 
 	textRepo := textrepo.NewRepository(app.NumberMap)
 	app.TextService = textserv.NewService(app.Cfg, app.conn, textRepo)
@@ -165,7 +167,7 @@ func (app *App) uploadTexts(ctx context.Context) error {
 }
 
 func (app *App) PrepareMDContext(ctx context.Context) context.Context {
-	md := metadata.Pairs("authorization", app.Cfg.Token)
+	md := metadata.Pairs("authorization", app.State.Token)
 	ctx = metadata.NewOutgoingContext(ctx, md)
 	return ctx
 }
@@ -235,4 +237,20 @@ func (app *App) UpdateStorage(ctx context.Context, n common.Notification) error 
 	}
 	app.IsBeingUpdated = false
 	return nil
+}
+
+// EncryptField encrypts field data with active aes key and nonce.
+func (app *App) EncryptField(value string, nonce []byte) ([]byte, error) {
+	aesblock, err := aes.NewCipher(app.State.ActiveKey)
+	if err != nil {
+		return nil, err
+	}
+
+	gcm, err := cipher.NewGCM(aesblock)
+	if err != nil {
+		return nil, err
+	}
+
+	ciphertext := gcm.Seal(nil, nonce, []byte(value), nil)
+	return ciphertext, nil
 }

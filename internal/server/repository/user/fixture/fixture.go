@@ -3,6 +3,7 @@ package fixture
 import (
 	"context"
 	"fmt"
+	"time"
 
 	usermodel "github.com/artni96/GophKeeper/internal/server/model/user"
 	"github.com/artni96/GophKeeper/internal/server/repository/user"
@@ -18,7 +19,13 @@ func CreateFirstUser(ctx context.Context, db *sqlx.DB, repo *user.Repository) (u
 		Username:       "user 1",
 		HashedPassword: "user 1",
 	}
-	err := repo.Create(ctx, userData)
+	userKeys := usermodel.UserKeyCreate{
+		EncryptedKey: []byte("user 1"),
+		Salt:         []byte("user 1"),
+		IsActive:     true,
+		CreatedAt:    time.Now(),
+	}
+	err := repo.Create(ctx, userData, userKeys)
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("failed to create first user: %w", err)
 	}
@@ -39,7 +46,13 @@ func CreateSecondUser(ctx context.Context, db *sqlx.DB, repo *user.Repository) (
 		Username:       "user 2",
 		HashedPassword: "user 2",
 	}
-	err := repo.Create(ctx, userData)
+	userKeys := usermodel.UserKeyCreate{
+		EncryptedKey: []byte("user 2"),
+		Salt:         []byte("user 2"),
+		IsActive:     true,
+		CreatedAt:    time.Now(),
+	}
+	err := repo.Create(ctx, userData, userKeys)
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("failed to create second user: %w", err)
 	}

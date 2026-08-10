@@ -4,12 +4,12 @@ import (
 	"context"
 	"crypto/aes"
 	"crypto/cipher"
-	"crypto/rand"
 	"crypto/sha256"
 	"errors"
 	"fmt"
 	"time"
 
+	"github.com/artni96/GophKeeper/internal/common/utils"
 	"github.com/artni96/GophKeeper/internal/server/config"
 	usermodel "github.com/artni96/GophKeeper/internal/server/model/user"
 	"github.com/artni96/GophKeeper/internal/server/repository/user"
@@ -60,7 +60,7 @@ func (s *Service) Create(ctx context.Context, entity usermodel.UserCreateRequest
 		HashedPassword: hashedPassword,
 	}
 
-	salt, err := s.generateRandomBytes(aes.BlockSize)
+	salt, err := utils.GenerateRandomBytes(aes.BlockSize)
 	if err != nil {
 		s.logger.Info(
 			"failed to generate salt for new user", zap.String("login", entity.Username), zap.Error(err))
@@ -69,7 +69,7 @@ func (s *Service) Create(ctx context.Context, entity usermodel.UserCreateRequest
 
 	derivedKey := pbkdf2.Key([]byte(entity.Password), salt, 10000, 32, sha256.New)
 
-	aeskey, err := s.generateRandomBytes(2 * aes.BlockSize)
+	aeskey, err := utils.GenerateRandomBytes(2 * aes.BlockSize)
 	if err != nil {
 		s.logger.Info(
 			"failed to generate key for new user", zap.String("login", entity.Username), zap.Error(err))
@@ -89,7 +89,7 @@ func (s *Service) Create(ctx context.Context, entity usermodel.UserCreateRequest
 		return ErrFailedToCreateUser
 	}
 
-	nonce, err := s.generateRandomBytes(aesgcm.NonceSize())
+	nonce, err := utils.GenerateRandomBytes(aesgcm.NonceSize())
 	if err != nil {
 		s.logger.Info(
 			"failed to generate nonce for new user", zap.String("login", entity.Username), zap.Error(err))
@@ -187,13 +187,4 @@ func GetUserIDFromJWT(tokenString string, cfg *config.Config) uuid.UUID {
 		return uuid.Nil
 	}
 	return claims.UserID
-}
-
-func (s *Service) generateRandomBytes(length int) ([]byte, error) {
-	bytes := make([]byte, length)
-	_, err := rand.Read(bytes)
-	if err != nil {
-		return nil, fmt.Errorf("failed to generate random bytes: %w", err)
-	}
-	return bytes, err
 }

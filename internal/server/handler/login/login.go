@@ -47,6 +47,8 @@ func (h *Handler) CreateLogin(ctx context.Context, req *pb.LoginCreateRequest) (
 	entityToCreate := loginmodel.CreateLoginRequest{
 		Login:       req.GetLogin(),
 		Password:    req.GetPassword(),
+		Nonce:       req.GetNonce(),
+		KeyID:       req.GetKeyId(),
 		Title:       req.GetTitle(),
 		Description: req.GetDescription(),
 		URL:         req.GetUrl(),
@@ -108,6 +110,8 @@ func (h *Handler) GetLogin(ctx context.Context, req *pb.LoginGetRequest) (*pb.Lo
 	resp.SetNumber(dbEntity.Number)
 	resp.SetLogin(dbEntity.Login)
 	resp.SetPassword(dbEntity.Password)
+	resp.SetNonce(dbEntity.Nonce)
+	resp.SetKeyId(dbEntity.KeyID)
 	resp.SetCreatedAt(dbEntity.CreatedAt.Format(time.RFC3339))
 	if !dbEntity.UpdatedAt.IsZero() {
 		resp.SetUpdatedAt(dbEntity.UpdatedAt.Format(time.RFC3339))
@@ -127,6 +131,8 @@ func (h *Handler) UpdateLogin(ctx context.Context, req *pb.LoginUpdateRequest) (
 	dataToUpdate := loginmodel.UpdateLoginRequest{
 		Login:       req.GetLogin(),
 		Password:    req.GetPassword(),
+		Nonce:       req.GetNonce(),
+		KeyID:       req.GetKeyId(),
 		Title:       req.GetTitle(),
 		Description: req.GetDescription(),
 		URL:         req.GetUrl(),
@@ -226,6 +232,8 @@ func (h *Handler) GetListLogin(ctx context.Context, req *pb.LoginGetListRequest)
 		i.SetDescription(entity.Description)
 		i.SetLogin(entity.Login)
 		i.SetPassword(entity.Password)
+		i.SetNonce(entity.Nonce)
+		i.SetKeyId(entity.KeyID)
 		i.SetCreatedAt(entity.CreatedAt.Format(time.RFC3339))
 		if !entity.UpdatedAt.IsZero() {
 			i.SetUpdatedAt(entity.UpdatedAt.Format(time.RFC3339))

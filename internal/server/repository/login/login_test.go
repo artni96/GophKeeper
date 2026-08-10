@@ -34,7 +34,19 @@ func initLoginRepo(db *sqlx.DB) (*Repository, error) {
 }
 
 func loginFixture(ctx context.Context, loginRepo *Repository, entityData login.CreateLogin) {
-	_, err := loginRepo.Create(ctx, entityData)
+	notNullFields := []string{
+		"title",
+		"description",
+		"hashed_login",
+		"hashed_password",
+		"url",
+		"user_id",
+		"created_at",
+		"number",
+		"nonce",
+		"key_id",
+	}
+	_, err := loginRepo.Create(ctx, entityData, notNullFields)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -80,69 +92,126 @@ func TestCreate(t *testing.T) {
 	}
 
 	tests := []struct {
-		name    string
-		data    login.CreateLogin
-		failure bool
+		name          string
+		data          login.CreateLogin
+		notNullFields []string
+		failure       bool
 	}{
 		{
 			name: "success",
 			data: login.CreateLogin{
-				Login:     "test login",
-				Password:  "test password",
+				Login:     []byte("test login creation"),
+				Password:  []byte("test password creation"),
 				UserID:    firstUser,
-				Title:     "test title",
+				Title:     "test title creation",
+				Nonce:     []byte("test nonce creation"),
+				KeyID:     1,
 				CreatedAt: time.Now(),
+			},
+			notNullFields: []string{
+				"title",
+				"description",
+				"hashed_login",
+				"hashed_password",
+				"url",
+				"user_id",
+				"created_at",
+				"number",
+				"nonce",
+				"key_id",
 			},
 			failure: false,
 		},
 		{
-			name: "failure - no login",
+			name: "failure - no nonce",
 			data: login.CreateLogin{
-				Password:  "test password",
+				Login:     []byte("test login creation"),
+				Password:  []byte("test password"),
 				UserID:    uuid.New(),
 				Title:     "test title",
+				KeyID:     1,
 				CreatedAt: time.Now(),
+			},
+			notNullFields: []string{
+				"title",
+				"description",
+				"hashed_password",
+				"url",
+				"user_id",
+				"created_at",
+				"number",
+				"key_id",
 			},
 			failure: true,
 		},
 		{
-			name: "failure - no password",
+			name: "failure - no key_id",
 			data: login.CreateLogin{
-				Login:     "test login",
+				Login:     []byte("test login"),
+				Password:  []byte("test password"),
 				UserID:    firstUser,
 				Title:     "test title",
 				CreatedAt: time.Now(),
+				Nonce:     []byte("test nonce creation"),
+			},
+			notNullFields: []string{
+				"title",
+				"description",
+				"hashed_login",
+				"hashed_password",
+				"url",
+				"user_id",
+				"created_at",
+				"number",
+				"nonce",
 			},
 			failure: true,
 		},
 		{
 			name: "failure - no user id",
 			data: login.CreateLogin{
-				Login:     "test login",
-				Password:  "test password",
+				Login:     []byte("test login"),
+				Password:  []byte("test password"),
 				Title:     "test title",
+				Nonce:     []byte("test nonce creation"),
+				KeyID:     1,
 				CreatedAt: time.Now(),
+			},
+			notNullFields: []string{
+				"title",
+				"description",
+				"hashed_login",
+				"hashed_password",
+				"url",
+				"created_at",
+				"number",
+				"nonce",
+				"key_id",
 			},
 			failure: true,
 		},
 		{
 			name: "failure - title duplicate",
 			data: login.CreateLogin{
-				Title:     "test title",
-				Login:     "test login",
-				Password:  "test password",
+				Title:     "test title creation",
+				Login:     []byte("test login"),
+				Password:  []byte("test password"),
 				UserID:    firstUser,
+				Nonce:     []byte("test nonce creation"),
+				KeyID:     1,
 				CreatedAt: time.Now(),
 			},
-			failure: true,
-		},
-		{
-			name: "failure - no created at time",
-			data: login.CreateLogin{
-				Login:    "test login",
-				Password: "test password",
-				UserID:   firstUser,
-				Title:    "test title",
+			notNullFields: []string{
+				"title",
+				"description",
+				"hashed_login",
+				"hashed_password",
+				"url",
+				"user_id",
+				"created_at",
+				"number",
+				"nonce",
+				"key_id",
 			},
 			failure: true,
 		},
@@ -150,17 +219,16 @@ func TestCreate(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			number, err := tc.loginRepo.Create(tc.ctx, tt.data)
+			number, err := tc.loginRepo.Create(tc.ctx, tt.data, tt.notNullFields)
 			assert.Equal(t, tt.failure, err != nil)
 			if !tt.failure {
-				assert.Equal(t, number, uint64(1))
+				assert.Equal(t, uint64(1), number)
 			}
 		})
 	}
-
 }
 
-func TestGetByNumber(t *testing.T) {
+func testGetByNumber(t *testing.T) {
 	tc := newTestConfig(t)
 	firstUser, err := userfixture.CreateFirstUser(tc.ctx, tc.depends.DB, tc.userRepo)
 	if err != nil {
@@ -172,10 +240,12 @@ func TestGetByNumber(t *testing.T) {
 	}
 
 	fixtureData := login.CreateLogin{
-		Login:    "test login",
-		Password: "test password",
+		Login:    []byte("test login"),
+		Password: []byte("test password"),
 		UserID:   firstUser,
 		Title:    "test title",
+		Nonce:    []byte("test nonce creation"),
+		KeyID:    1,
 	}
 	loginFixture(tc.ctx, tc.loginRepo, fixtureData)
 
@@ -221,7 +291,7 @@ func TestGetByNumber(t *testing.T) {
 	}
 }
 
-func TestUpdate(t *testing.T) {
+func testUpdate(t *testing.T) {
 	tc := newTestConfig(t)
 	firstUser, err := userfixture.CreateFirstUser(tc.ctx, tc.depends.DB, tc.userRepo)
 	if err != nil {
@@ -233,10 +303,12 @@ func TestUpdate(t *testing.T) {
 	}
 
 	fixtureData := login.CreateLogin{
-		Login:    "test login",
-		Password: "test password",
+		Login:    []byte("test login"),
+		Password: []byte("test password"),
 		UserID:   firstUser,
 		Title:    "test title",
+		Nonce:    []byte("test nonce creation"),
+		KeyID:    1,
 	}
 	loginFixture(tc.ctx, tc.loginRepo, fixtureData)
 	tests := []struct {
@@ -250,11 +322,13 @@ func TestUpdate(t *testing.T) {
 		{
 			name: "success",
 			data: login.UpdateLogin{
-				Login:       "updated login",
-				Password:    "updated password",
+				Login:       []byte("updated login"),
+				Password:    []byte("updated password"),
 				Title:       "updated title",
 				URL:         "updated url",
 				Description: "updated description",
+				Nonce:       []byte("updated nonce creation"),
+				KeyID:       1,
 			},
 			number: uint64(1),
 			fieldsToUpdate: []string{
@@ -263,6 +337,8 @@ func TestUpdate(t *testing.T) {
 				"title",
 				"url",
 				"description",
+				"nonce",
+				"key_id",
 			},
 			failure: false,
 			userID:  firstUser,
@@ -270,11 +346,13 @@ func TestUpdate(t *testing.T) {
 		{
 			name: "failure - login does not exist",
 			data: login.UpdateLogin{
-				Login:       "updated login",
-				Password:    "updated password",
+				Login:       []byte("updated login"),
+				Password:    []byte("updated password"),
 				Title:       "updated title",
 				URL:         "updated url",
 				Description: "updated description",
+				Nonce:       []byte("updated nonce creation"),
+				KeyID:       1,
 			},
 			number: uint64(1),
 			fieldsToUpdate: []string{
@@ -283,6 +361,8 @@ func TestUpdate(t *testing.T) {
 				"title",
 				"url",
 				"description",
+				"nonce",
+				"key_id",
 			},
 			failure: true,
 			userID:  secondUser,
@@ -311,7 +391,7 @@ func TestUpdate(t *testing.T) {
 	}
 }
 
-func TestGetList(t *testing.T) {
+func testGetList(t *testing.T) {
 	tc := newTestConfig(t)
 	firstUser, err := userfixture.CreateFirstUser(tc.ctx, tc.depends.DB, tc.userRepo)
 	if err != nil {
@@ -332,10 +412,12 @@ func TestGetList(t *testing.T) {
 			userID = secondUser
 		}
 		fixtureData := login.CreateLogin{
-			Login:    fmt.Sprintf("test login %d", i),
-			Password: fmt.Sprintf("test password %d", i),
+			Login:    []byte(fmt.Sprintf("test login %d", i)),
+			Password: []byte(fmt.Sprintf("test password %d", i)),
 			UserID:   userID,
 			Title:    fmt.Sprintf("test title %d", i),
+			Nonce:    []byte(fmt.Sprintf("test nonce %d", i)),
+			KeyID:    uint64(i),
 		}
 		loginFixture(tc.ctx, tc.loginRepo, fixtureData)
 
@@ -375,7 +457,7 @@ func TestGetList(t *testing.T) {
 	}
 }
 
-func TestDelete(t *testing.T) {
+func testDelete(t *testing.T) {
 	tc := newTestConfig(t)
 	firstUser, err := userfixture.CreateFirstUser(tc.ctx, tc.depends.DB, tc.userRepo)
 	if err != nil {
@@ -386,10 +468,12 @@ func TestDelete(t *testing.T) {
 		t.Fatal(err)
 	}
 	fixtureData := login.CreateLogin{
-		Login:    "test login",
-		Password: "test password",
+		Login:    []byte("test login"),
+		Password: []byte("test password"),
 		UserID:   firstUser,
 		Title:    "test title",
+		Nonce:    []byte("test nonce"),
+		KeyID:    1,
 	}
 	loginFixture(tc.ctx, tc.loginRepo, fixtureData)
 

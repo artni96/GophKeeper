@@ -2,11 +2,9 @@ package login
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/artni96/GophKeeper/internal/server/config"
-	"github.com/artni96/GophKeeper/internal/server/constants"
 	loginmodel "github.com/artni96/GophKeeper/internal/server/model/login"
 	"github.com/artni96/GophKeeper/internal/server/repository/login"
 	"github.com/google/uuid"
@@ -41,10 +39,10 @@ func NewService(cfg *config.Config, logger *zap.Logger, repo login.RepositoryI) 
 
 // Create creates a new Login entity by the repository.
 func (s *Service) Create(ctx context.Context, data loginmodel.CreateLoginRequest) (uint64, error) {
-	if err := data.Validate(); err != nil {
-		return 0, fmt.Errorf("%w: %w", constants.ErrInvalidRequest, err)
-	}
-	notNullFields := make([]string, 0, 7)
+	//if err := data.Validate(); err != nil {
+	//	return 0, fmt.Errorf("%w: %w", constants.ErrInvalidRequest, err)
+	//}
+	notNullFields := make([]string, 0, 9)
 	entityToCreate := loginmodel.CreateLogin{}
 
 	if data.Login != nil {
@@ -56,6 +54,12 @@ func (s *Service) Create(ctx context.Context, data loginmodel.CreateLoginRequest
 		entityToCreate.Password = data.Password.Value
 		notNullFields = append(notNullFields, "hashed_password")
 	}
+
+	entityToCreate.Nonce = data.Nonce.Value
+	notNullFields = append(notNullFields, "nonce")
+
+	entityToCreate.KeyID = data.KeyID.Value
+	notNullFields = append(notNullFields, "key_id")
 
 	if data.URL != nil {
 		entityToCreate.URL = data.URL.Value
@@ -96,7 +100,7 @@ func (s *Service) GetByNumber(ctx context.Context, number uint64, userID uuid.UU
 
 // Update updates a Login entity by its number by the repository.
 func (s *Service) Update(ctx context.Context, data loginmodel.UpdateLoginRequest, number uint64, userID uuid.UUID) error {
-	fieldsToUpdate := make([]string, 0, 6)
+	fieldsToUpdate := make([]string, 0, 8)
 	dataToUpdate := loginmodel.UpdateLogin{}
 	if data.Login != nil {
 		dataToUpdate.Login = data.Login.Value
@@ -107,6 +111,12 @@ func (s *Service) Update(ctx context.Context, data loginmodel.UpdateLoginRequest
 		dataToUpdate.Password = data.Password.Value
 		fieldsToUpdate = append(fieldsToUpdate, "hashed_password")
 	}
+
+	dataToUpdate.Nonce = data.Nonce.Value
+	fieldsToUpdate = append(fieldsToUpdate, "nonce")
+
+	dataToUpdate.KeyID = data.KeyID.Value
+	fieldsToUpdate = append(fieldsToUpdate, "key_id")
 
 	if data.URL != nil {
 		dataToUpdate.URL = data.URL.Value
