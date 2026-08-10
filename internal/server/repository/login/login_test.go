@@ -228,7 +228,7 @@ func TestCreate(t *testing.T) {
 	}
 }
 
-func testGetByNumber(t *testing.T) {
+func TestGetByNumber(t *testing.T) {
 	tc := newTestConfig(t)
 	firstUser, err := userfixture.CreateFirstUser(tc.ctx, tc.depends.DB, tc.userRepo)
 	if err != nil {
@@ -291,7 +291,7 @@ func testGetByNumber(t *testing.T) {
 	}
 }
 
-func testUpdate(t *testing.T) {
+func TestUpdate(t *testing.T) {
 	tc := newTestConfig(t)
 	firstUser, err := userfixture.CreateFirstUser(tc.ctx, tc.depends.DB, tc.userRepo)
 	if err != nil {
@@ -391,7 +391,7 @@ func testUpdate(t *testing.T) {
 	}
 }
 
-func testGetList(t *testing.T) {
+func TestGetList(t *testing.T) {
 	tc := newTestConfig(t)
 	firstUser, err := userfixture.CreateFirstUser(tc.ctx, tc.depends.DB, tc.userRepo)
 	if err != nil {
@@ -457,7 +457,7 @@ func testGetList(t *testing.T) {
 	}
 }
 
-func testDelete(t *testing.T) {
+func TestDelete(t *testing.T) {
 	tc := newTestConfig(t)
 	firstUser, err := userfixture.CreateFirstUser(tc.ctx, tc.depends.DB, tc.userRepo)
 	if err != nil {
