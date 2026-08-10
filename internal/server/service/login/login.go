@@ -48,18 +48,24 @@ func (s *Service) Create(ctx context.Context, data loginmodel.CreateLoginRequest
 	if data.Login != nil {
 		entityToCreate.Login = data.Login.Value
 		notNullFields = append(notNullFields, "hashed_login")
+
+		entityToCreate.LoginNonce = data.LoginNonce.Value
+		notNullFields = append(notNullFields, "login_nonce")
+
+		entityToCreate.LoginKeyID = data.LoginKeyID.Value
+		notNullFields = append(notNullFields, "login_key_id")
 	}
 
 	if data.Password != nil {
 		entityToCreate.Password = data.Password.Value
 		notNullFields = append(notNullFields, "hashed_password")
+
+		entityToCreate.PasswordNonce = data.PasswordNonce.Value
+		notNullFields = append(notNullFields, "password_nonce")
+
+		entityToCreate.PasswordKeyID = data.PasswordKeyID.Value
+		notNullFields = append(notNullFields, "password_key_id")
 	}
-
-	entityToCreate.Nonce = data.Nonce.Value
-	notNullFields = append(notNullFields, "nonce")
-
-	entityToCreate.KeyID = data.KeyID.Value
-	notNullFields = append(notNullFields, "key_id")
 
 	if data.URL != nil {
 		entityToCreate.URL = data.URL.Value
@@ -100,43 +106,50 @@ func (s *Service) GetByNumber(ctx context.Context, number uint64, userID uuid.UU
 
 // Update updates a Login entity by its number by the repository.
 func (s *Service) Update(ctx context.Context, data loginmodel.UpdateLoginRequest, number uint64, userID uuid.UUID) error {
-	fieldsToUpdate := make([]string, 0, 8)
+	notNullFields := make([]string, 0, 8)
 	dataToUpdate := loginmodel.UpdateLogin{}
+
 	if data.Login != nil {
 		dataToUpdate.Login = data.Login.Value
-		fieldsToUpdate = append(fieldsToUpdate, "hashed_login")
+		notNullFields = append(notNullFields, "hashed_login")
+
+		dataToUpdate.LoginNonce = data.LoginNonce.Value
+		notNullFields = append(notNullFields, "login_nonce")
+
+		dataToUpdate.LoginKeyID = data.LoginKeyID.Value
+		notNullFields = append(notNullFields, "login_key_id")
 	}
 
 	if data.Password != nil {
 		dataToUpdate.Password = data.Password.Value
-		fieldsToUpdate = append(fieldsToUpdate, "hashed_password")
+		notNullFields = append(notNullFields, "hashed_password")
+
+		dataToUpdate.PasswordNonce = data.PasswordNonce.Value
+		notNullFields = append(notNullFields, "password_nonce")
+
+		dataToUpdate.PasswordKeyID = data.PasswordKeyID.Value
+		notNullFields = append(notNullFields, "password_key_id")
 	}
-
-	dataToUpdate.Nonce = data.Nonce.Value
-	fieldsToUpdate = append(fieldsToUpdate, "nonce")
-
-	dataToUpdate.KeyID = data.KeyID.Value
-	fieldsToUpdate = append(fieldsToUpdate, "key_id")
 
 	if data.URL != nil {
 		dataToUpdate.URL = data.URL.Value
-		fieldsToUpdate = append(fieldsToUpdate, "url")
+		notNullFields = append(notNullFields, "url")
 	}
 
 	if data.Description != nil {
 		dataToUpdate.Description = data.Description.Value
-		fieldsToUpdate = append(fieldsToUpdate, "description")
+		notNullFields = append(notNullFields, "description")
 	}
 
 	if data.Title != nil {
 		dataToUpdate.Title = data.Title.Value
-		fieldsToUpdate = append(fieldsToUpdate, "title")
+		notNullFields = append(notNullFields, "title")
 	}
 
 	dataToUpdate.UpdatedAt = time.Now()
-	fieldsToUpdate = append(fieldsToUpdate, "updated_at")
+	notNullFields = append(notNullFields, "updated_at")
 
-	err := s.repo.Update(ctx, dataToUpdate, number, userID, fieldsToUpdate)
+	err := s.repo.Update(ctx, dataToUpdate, number, userID, notNullFields)
 	if err != nil {
 		return err
 	}

@@ -16,6 +16,10 @@ func PrepareMDContext(ctx context.Context, token string) context.Context {
 
 // DecryptField decrypts field data with its aes key and nonce.
 func DecryptField(ciphertext, key, nonce []byte) ([]byte, error) {
+	if len(ciphertext) == 0 {
+		return []byte(""), nil
+	}
+	
 	aesblock, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err

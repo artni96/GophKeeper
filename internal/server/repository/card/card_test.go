@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"strconv"
 	"testing"
 	"time"
 
@@ -48,6 +47,8 @@ func cardFixture(ctx context.Context, cardRepo *Repository, entityData card.Crea
 		"description",
 		"created_at",
 		"number",
+		"nonce",
+		"key_id",
 	}
 	_, err := cardRepo.Create(ctx, entityData, notNullFields)
 	if err != nil {
@@ -104,17 +105,19 @@ func TestCreate(t *testing.T) {
 		{
 			name: "success",
 			data: card.CreateCard{
-				PAN:         1234567812345678,
-				Holder:      "Test Holder",
-				ExpiryDate:  "0535",
-				CVV:         "123",
-				PIN:         "1234",
+				PAN:         []byte("1234567812345678"),
+				Holder:      []byte("Test Holder"),
+				ExpiryDate:  []byte("0535"),
+				CVV:         []byte("123"),
+				PIN:         []byte("1234"),
 				Bank:        "test",
 				Brand:       "test",
 				UserID:      firstUser,
 				Title:       "Test Title",
 				Description: "Test Description",
 				CreatedAt:   time.Now(),
+				Nonce:       []byte("test nonce"),
+				KeyID:       1,
 			},
 			notNullFields: []string{
 				"hashed_pan",
@@ -129,23 +132,27 @@ func TestCreate(t *testing.T) {
 				"description",
 				"created_at",
 				"number",
+				"nonce",
+				"key_id",
 			},
 			failure: false,
 		},
 		{
 			name: "failure - pan duplicate",
 			data: card.CreateCard{
-				PAN:         1234567812345678,
-				Holder:      "Test Holder",
-				ExpiryDate:  "0535",
-				CVV:         "123",
-				PIN:         "1234",
+				PAN:         []byte("1234567812345678"),
+				Holder:      []byte("Test Holder"),
+				ExpiryDate:  []byte("0535"),
+				CVV:         []byte("123"),
+				PIN:         []byte("1234"),
 				Bank:        "test",
 				Brand:       "test",
 				UserID:      firstUser,
 				Title:       "Test Title 1",
 				Description: "Test Description",
 				CreatedAt:   time.Now(),
+				Nonce:       []byte("test nonce"),
+				KeyID:       1,
 			},
 			failure: true,
 			notNullFields: []string{
@@ -161,23 +168,27 @@ func TestCreate(t *testing.T) {
 				"description",
 				"created_at",
 				"number",
+				"nonce",
+				"key_id",
 			},
 			error: constants.ErrEntityAlreadyExists,
 		},
 		{
 			name: "failure - title duplicate",
 			data: card.CreateCard{
-				PAN:         1234567812345677,
-				Holder:      "Test Holder",
-				ExpiryDate:  "0535",
-				CVV:         "123",
-				PIN:         "1234",
+				PAN:         []byte("1234567812345678"),
+				Holder:      []byte("Test Holder"),
+				ExpiryDate:  []byte("0535"),
+				CVV:         []byte("123"),
+				PIN:         []byte("1234"),
 				Bank:        "test",
 				Brand:       "test",
 				UserID:      firstUser,
 				Title:       "Test Title",
 				Description: "Test Description",
 				CreatedAt:   time.Now(),
+				Nonce:       []byte("test nonce"),
+				KeyID:       1,
 			},
 			failure: true,
 			notNullFields: []string{
@@ -193,22 +204,26 @@ func TestCreate(t *testing.T) {
 				"description",
 				"created_at",
 				"number",
+				"nonce",
+				"key_id",
 			},
 			error: constants.ErrEntityAlreadyExists,
 		},
 		{
 			name: "failure - no title",
 			data: card.CreateCard{
-				PAN:         1234567812345677,
-				Holder:      "Test Holder",
-				ExpiryDate:  "0535",
-				CVV:         "123",
-				PIN:         "1234",
+				PAN:         []byte("1234567812345678"),
+				Holder:      []byte("Test Holder"),
+				ExpiryDate:  []byte("0535"),
+				CVV:         []byte("123"),
+				PIN:         []byte("1234"),
 				Bank:        "test",
 				Brand:       "test",
 				UserID:      firstUser,
 				Description: "Test Description",
 				CreatedAt:   time.Now(),
+				Nonce:       []byte("test nonce"),
+				KeyID:       1,
 			},
 			failure: true,
 			notNullFields: []string{
@@ -223,6 +238,8 @@ func TestCreate(t *testing.T) {
 				"description",
 				"created_at",
 				"number",
+				"nonce",
+				"key_id",
 			},
 			error: constants.ErrRequiredField,
 		},
@@ -253,17 +270,19 @@ func TestGetByNumber(t *testing.T) {
 	}
 
 	fixtureData := card.CreateCard{
-		PAN:         1234567812345677,
-		Holder:      "Test Holder",
-		ExpiryDate:  "0535",
-		CVV:         "123",
-		PIN:         "1234",
+		PAN:         []byte("1234567812345678"),
+		Holder:      []byte("Test Holder"),
+		ExpiryDate:  []byte("0535"),
+		CVV:         []byte("123"),
+		PIN:         []byte("1234"),
 		Bank:        "test",
 		Brand:       "test",
 		UserID:      firstUser,
 		Title:       "Test Title",
 		Description: "Test Description",
 		CreatedAt:   time.Now(),
+		Nonce:       []byte("test nonce"),
+		KeyID:       1,
 	}
 	cardFixture(tc.ctx, tc.cardRepo, fixtureData)
 
@@ -327,17 +346,19 @@ func TestUpdate(t *testing.T) {
 	}
 
 	fixtureData := card.CreateCard{
-		PAN:         1234567812345677,
-		Holder:      "Test Holder",
-		ExpiryDate:  "0535",
-		CVV:         "123",
-		PIN:         "1234",
+		PAN:         []byte("1234567812345677"),
+		Holder:      []byte("Test Holder"),
+		ExpiryDate:  []byte("0535"),
+		CVV:         []byte("123"),
+		PIN:         []byte("1234"),
 		Bank:        "test",
 		Brand:       "test",
 		UserID:      firstUser,
 		Title:       "Test Title",
 		Description: "Test Description",
 		CreatedAt:   time.Now(),
+		Nonce:       []byte("test nonce"),
+		KeyID:       1,
 	}
 	cardFixture(tc.ctx, tc.cardRepo, fixtureData)
 
@@ -353,16 +374,18 @@ func TestUpdate(t *testing.T) {
 			name:   "success",
 			userID: firstUser,
 			data: card.UpdateCard{
-				PAN:         1234567812345678,
-				Holder:      "Test Holder",
-				ExpiryDate:  "0535",
-				CVV:         "123",
-				PIN:         "1234",
+				PAN:         []byte("1234567812345678"),
+				Holder:      []byte("Test Holder"),
+				ExpiryDate:  []byte("0535"),
+				CVV:         []byte("123"),
+				PIN:         []byte("1234"),
 				Bank:        "test",
 				Brand:       "test",
 				Title:       "Test Title",
 				Description: "Test Description",
 				UpdatedAt:   time.Now(),
+				Nonce:       []byte("test nonce"),
+				KeyID:       1,
 			},
 			number: 1,
 			notNullFields: []string{
@@ -376,6 +399,8 @@ func TestUpdate(t *testing.T) {
 				"title",
 				"description",
 				"updated_at",
+				"nonce",
+				"key_id",
 			},
 			failure: false,
 		},
@@ -383,16 +408,18 @@ func TestUpdate(t *testing.T) {
 			name:   "failure - the first user does not have a card with number 2",
 			userID: firstUser,
 			data: card.UpdateCard{
-				PAN:         1234567812345678,
-				Holder:      "Test Holder",
-				ExpiryDate:  "0535",
-				CVV:         "123",
-				PIN:         "1234",
+				PAN:         []byte("1234567812345678"),
+				Holder:      []byte("Test Holder"),
+				ExpiryDate:  []byte("0535"),
+				CVV:         []byte("123"),
+				PIN:         []byte("1234"),
 				Bank:        "test",
 				Brand:       "test",
 				Title:       "Test Title",
 				Description: "Test Description",
 				UpdatedAt:   time.Now(),
+				Nonce:       []byte("test nonce"),
+				KeyID:       1,
 			},
 			number: 2,
 			notNullFields: []string{
@@ -406,6 +433,8 @@ func TestUpdate(t *testing.T) {
 				"title",
 				"description",
 				"updated_at",
+				"nonce",
+				"key_id",
 			},
 			failure: true,
 		},
@@ -413,16 +442,18 @@ func TestUpdate(t *testing.T) {
 			name:   "failure - the second user does not have a card with number 1",
 			userID: secondUser,
 			data: card.UpdateCard{
-				PAN:         1234567812345678,
-				Holder:      "Test Holder",
-				ExpiryDate:  "0535",
-				CVV:         "123",
-				PIN:         "1234",
+				PAN:         []byte("1234567812345678"),
+				Holder:      []byte("Test Holder"),
+				ExpiryDate:  []byte("0535"),
+				CVV:         []byte("123"),
+				PIN:         []byte("1234"),
 				Bank:        "test",
 				Brand:       "test",
 				Title:       "Test Title",
 				Description: "Test Description",
 				UpdatedAt:   time.Now(),
+				Nonce:       []byte("test nonce"),
+				KeyID:       1,
 			},
 			number: 1,
 			notNullFields: []string{
@@ -436,6 +467,8 @@ func TestUpdate(t *testing.T) {
 				"title",
 				"description",
 				"updated_at",
+				"nonce",
+				"key_id",
 			},
 			failure: true,
 		},
@@ -487,10 +520,10 @@ func TestGetList(t *testing.T) {
 			userID = secondUser
 		}
 		strPan := fmt.Sprintf("123456781234567%d", i)
-		testPan, err := strconv.Atoi(strPan)
-		if err != nil {
-			t.Fatal(err)
-		}
+		//testPan, err := strconv.Atoi(strPan)
+		//if err != nil {
+		//	t.Fatal(err)
+		//}
 
 		var testUserID uuid.UUID
 		if i%2 == 0 {
@@ -500,17 +533,19 @@ func TestGetList(t *testing.T) {
 		}
 
 		fixtureData := card.CreateCard{
-			PAN:         uint64(testPan),
-			Holder:      fmt.Sprintf("Test Holder %d", i),
-			ExpiryDate:  fmt.Sprintf("053%d", i),
-			CVV:         fmt.Sprintf("12%d", i),
-			PIN:         fmt.Sprintf("123%d", i),
+			PAN:         []byte(strPan),
+			Holder:      []byte(fmt.Sprintf("Test Holder %d", i)),
+			ExpiryDate:  []byte(fmt.Sprintf("053%d", i)),
+			CVV:         []byte(fmt.Sprintf("12%d", i)),
+			PIN:         []byte(fmt.Sprintf("123%d", i)),
 			Bank:        fmt.Sprintf("Test Bank %d", i),
 			Brand:       fmt.Sprintf("Test Brand %d", i),
 			UserID:      testUserID,
 			Title:       fmt.Sprintf("Test Title %d", i),
 			Description: fmt.Sprintf("Test Description %d", i),
 			CreatedAt:   time.Now(),
+			Nonce:       []byte("test nonce"),
+			KeyID:       1,
 		}
 		cardFixture(tc.ctx, tc.cardRepo, fixtureData)
 
@@ -564,17 +599,19 @@ func TestDelete(t *testing.T) {
 	}
 
 	fixtureData := card.CreateCard{
-		PAN:         1234567812345677,
-		Holder:      "Test Holder",
-		ExpiryDate:  "0535",
-		CVV:         "123",
-		PIN:         "1234",
+		PAN:         []byte("1234567812345677"),
+		Holder:      []byte("Test Holder"),
+		ExpiryDate:  []byte("0535"),
+		CVV:         []byte("123"),
+		PIN:         []byte("1234"),
 		Bank:        "test",
 		Brand:       "test",
 		UserID:      firstUser,
 		Title:       "Test Title",
 		Description: "Test Description",
 		CreatedAt:   time.Now(),
+		Nonce:       []byte("test nonce"),
+		KeyID:       1,
 	}
 	cardFixture(tc.ctx, tc.cardRepo, fixtureData)
 

@@ -5,7 +5,7 @@ import (
 )
 
 type Card struct {
-	PAN         uint64
+	PAN         string
 	Holder      string
 	ExpiryDate  string
 	CVV         string

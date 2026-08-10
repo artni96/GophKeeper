@@ -55,16 +55,21 @@ func (s *Service) Add(ctx context.Context, entityNumber uint64) error {
 	if err != nil {
 		updatedAt = time.Time{}
 	}
-	nonce := pbEntity.GetNonce()
-	keyID := pbEntity.GetKeyId()
-	aesKey := s.state.Keys[keyID]
 
-	decryptedLogin, err := utils.DecryptField(pbEntity.GetLogin(), aesKey, nonce)
+	loginNonce := pbEntity.GetLoginNonce()
+	loginKeyID := pbEntity.GetLoginKeyId()
+	loginAesKey := s.state.Keys[loginKeyID]
+
+	decryptedLogin, err := utils.DecryptField(pbEntity.GetLogin(), loginAesKey, loginNonce)
 	if err != nil {
 		return err
 	}
 
-	decryptedPassword, err := utils.DecryptField(pbEntity.GetPassword(), aesKey, nonce)
+	passwordNonce := pbEntity.GetPasswordNonce()
+	passwordKeyID := pbEntity.GetPasswordKeyId()
+	passwordAesKey := s.state.Keys[passwordKeyID]
+
+	decryptedPassword, err := utils.DecryptField(pbEntity.GetPassword(), passwordAesKey, passwordNonce)
 	if err != nil {
 		return err
 	}
@@ -96,19 +101,24 @@ func (s *Service) AddBatch(ctx context.Context) error {
 
 	var entities []login.Login
 	for _, pbEntity := range pbEntities {
-		nonce := pbEntity.GetNonce()
-		keyID := pbEntity.GetKeyId()
-		aesKey := s.state.Keys[keyID]
+		loginNonce := pbEntity.GetLoginNonce()
+		loginKeyID := pbEntity.GetLoginKeyId()
+		loginAesKey := s.state.Keys[loginKeyID]
 
-		decryptedLogin, err := utils.DecryptField(pbEntity.GetLogin(), aesKey, nonce)
+		decryptedLogin, err := utils.DecryptField(pbEntity.GetLogin(), loginAesKey, loginNonce)
 		if err != nil {
 			return err
 		}
 
-		decryptedPassword, err := utils.DecryptField(pbEntity.GetPassword(), aesKey, nonce)
+		passwordNonce := pbEntity.GetPasswordNonce()
+		passwordKeyID := pbEntity.GetPasswordKeyId()
+		passwordAesKey := s.state.Keys[passwordKeyID]
+
+		decryptedPassword, err := utils.DecryptField(pbEntity.GetPassword(), passwordAesKey, passwordNonce)
 		if err != nil {
 			return err
 		}
+
 		createdAt, err := time.Parse(time.RFC3339, pbEntity.GetCreatedAt())
 		if err != nil {
 			return err
@@ -160,16 +170,20 @@ func (s *Service) Update(ctx context.Context, entityNumber uint64) error {
 		return constants.ErrEntityNotFound
 	}
 
-	nonce := pbEntity.GetNonce()
-	keyID := pbEntity.GetKeyId()
-	aesKey := s.state.Keys[keyID]
+	loginNonce := pbEntity.GetLoginNonce()
+	loginKeyID := pbEntity.GetLoginKeyId()
+	loginAesKey := s.state.Keys[loginKeyID]
 
-	decryptedLogin, err := utils.DecryptField(pbEntity.GetLogin(), aesKey, nonce)
+	decryptedLogin, err := utils.DecryptField(pbEntity.GetLogin(), loginAesKey, loginNonce)
 	if err != nil {
 		return err
 	}
 
-	decryptedPassword, err := utils.DecryptField(pbEntity.GetPassword(), aesKey, nonce)
+	passwordNonce := pbEntity.GetPasswordNonce()
+	passwordKeyID := pbEntity.GetPasswordKeyId()
+	passwordAesKey := s.state.Keys[passwordKeyID]
+
+	decryptedPassword, err := utils.DecryptField(pbEntity.GetPassword(), passwordAesKey, passwordNonce)
 	if err != nil {
 		return err
 	}

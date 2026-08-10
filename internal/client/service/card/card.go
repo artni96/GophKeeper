@@ -10,6 +10,7 @@ import (
 	"github.com/artni96/GophKeeper/internal/client/model/card"
 	"github.com/artni96/GophKeeper/internal/client/model/common"
 	cardrepo "github.com/artni96/GophKeeper/internal/client/repository/card"
+	"github.com/artni96/GophKeeper/internal/client/utils"
 	"google.golang.org/grpc"
 )
 
@@ -18,14 +19,16 @@ type Service struct {
 	cfg    *config.Config
 	Client cardspb.CardServiceClient
 	repo   cardrepo.RepositoryI
+	state  *config.State
 }
 
 // NewService initializes and returns the new Card service instance.
-func NewService(cfg *config.Config, conn *grpc.ClientConn, repo cardrepo.RepositoryI) *Service {
+func NewService(cfg *config.Config, conn *grpc.ClientConn, repo cardrepo.RepositoryI, state *config.State) *Service {
 	return &Service{
 		cfg:    cfg,
 		Client: cardspb.NewCardServiceClient(conn),
 		repo:   repo,
+		state:  state,
 	}
 }
 
@@ -50,12 +53,57 @@ func (s *Service) Add(ctx context.Context, entityNumber uint64) error {
 		updatedAt = time.Time{}
 	}
 
+	panNonce := pbEntity.GetPanNonce()
+	panKeyID := pbEntity.GetPanKeyId()
+	panAesKey := s.state.Keys[panKeyID]
+
+	decryptedPAN, err := utils.DecryptField(pbEntity.GetPan(), panAesKey, panNonce)
+	if err != nil {
+		return err
+	}
+
+	holderNonce := pbEntity.GetHolderNonce()
+	holderKeyID := pbEntity.GetHolderKeyId()
+	holderAesKey := s.state.Keys[holderKeyID]
+
+	decryptedHolder, err := utils.DecryptField(pbEntity.GetHolder(), holderAesKey, holderNonce)
+	if err != nil {
+		return err
+	}
+
+	expiryDateNonce := pbEntity.GetExpiryDateNonce()
+	expiryDateKeyID := pbEntity.GetExpiryDateKeyId()
+	expiryDateAesKey := s.state.Keys[expiryDateKeyID]
+
+	decryptedExpiryDate, err := utils.DecryptField(pbEntity.GetExpiryDate(), expiryDateAesKey, expiryDateNonce)
+	if err != nil {
+		return err
+	}
+
+	cvvNonce := pbEntity.GetCvvNonce()
+	cvvKeyID := pbEntity.GetCvvKeyId()
+	cvvAesKey := s.state.Keys[cvvKeyID]
+
+	decryptedCVV, err := utils.DecryptField(pbEntity.GetCvv(), cvvAesKey, cvvNonce)
+	if err != nil {
+		return err
+	}
+
+	pinNonce := pbEntity.GetPinNonce()
+	pinKeyID := pbEntity.GetPinKeyId()
+	pinAesKey := s.state.Keys[pinKeyID]
+
+	decryptedPIN, err := utils.DecryptField(pbEntity.GetPin(), pinAesKey, pinNonce)
+	if err != nil {
+		return err
+	}
+
 	entity := card.Card{
-		PAN:         pbEntity.GetPan(),
-		Holder:      pbEntity.GetHolder(),
-		ExpiryDate:  pbEntity.GetExpiryDate(),
-		CVV:         pbEntity.GetCvv(),
-		PIN:         pbEntity.GetPin(),
+		PAN:         string(decryptedPAN),
+		Holder:      string(decryptedHolder),
+		ExpiryDate:  string(decryptedExpiryDate),
+		CVV:         string(decryptedCVV),
+		PIN:         string(decryptedPIN),
 		Bank:        pbEntity.GetBank(),
 		Brand:       pbEntity.GetBrand(),
 		Title:       pbEntity.GetTitle(),
@@ -92,12 +140,57 @@ func (s *Service) AddBatch(ctx context.Context) error {
 			updatedAt = time.Time{}
 		}
 
+		panNonce := pbEntity.GetPanNonce()
+		panKeyID := pbEntity.GetPanKeyId()
+		panAesKey := s.state.Keys[panKeyID]
+
+		decryptedPAN, err := utils.DecryptField(pbEntity.GetPan(), panAesKey, panNonce)
+		if err != nil {
+			return err
+		}
+
+		holderNonce := pbEntity.GetHolderNonce()
+		holderKeyID := pbEntity.GetHolderKeyId()
+		holderAesKey := s.state.Keys[holderKeyID]
+
+		decryptedHolder, err := utils.DecryptField(pbEntity.GetHolder(), holderAesKey, holderNonce)
+		if err != nil {
+			return err
+		}
+
+		expiryDateNonce := pbEntity.GetExpiryDateNonce()
+		expiryDateKeyID := pbEntity.GetExpiryDateKeyId()
+		expiryDateAesKey := s.state.Keys[expiryDateKeyID]
+
+		decryptedExpiryDate, err := utils.DecryptField(pbEntity.GetExpiryDate(), expiryDateAesKey, expiryDateNonce)
+		if err != nil {
+			return err
+		}
+
+		cvvNonce := pbEntity.GetCvvNonce()
+		cvvKeyID := pbEntity.GetCvvKeyId()
+		cvvAesKey := s.state.Keys[cvvKeyID]
+
+		decryptedCVV, err := utils.DecryptField(pbEntity.GetCvv(), cvvAesKey, cvvNonce)
+		if err != nil {
+			return err
+		}
+
+		pinNonce := pbEntity.GetPinNonce()
+		pinKeyID := pbEntity.GetPinKeyId()
+		pinAesKey := s.state.Keys[pinKeyID]
+
+		decryptedPIN, err := utils.DecryptField(pbEntity.GetPin(), pinAesKey, pinNonce)
+		if err != nil {
+			return err
+		}
+
 		entity := card.Card{
-			PAN:         pbEntity.GetPan(),
-			Holder:      pbEntity.GetHolder(),
-			ExpiryDate:  pbEntity.GetExpiryDate(),
-			CVV:         pbEntity.GetCvv(),
-			PIN:         pbEntity.GetPin(),
+			PAN:         string(decryptedPAN),
+			Holder:      string(decryptedHolder),
+			ExpiryDate:  string(decryptedExpiryDate),
+			CVV:         string(decryptedCVV),
+			PIN:         string(decryptedPIN),
 			Bank:        pbEntity.GetBank(),
 			Brand:       pbEntity.GetBrand(),
 			Title:       pbEntity.GetTitle(),
@@ -144,18 +237,65 @@ func (s *Service) Update(ctx context.Context, entityNumber uint64) error {
 	if err != nil {
 		return err
 	}
+
+	panNonce := pbEntity.GetPanNonce()
+	panKeyID := pbEntity.GetPanKeyId()
+	panAesKey := s.state.Keys[panKeyID]
+
+	decryptedPAN, err := utils.DecryptField(pbEntity.GetPan(), panAesKey, panNonce)
+	if err != nil {
+		return err
+	}
+
+	holderNonce := pbEntity.GetHolderNonce()
+	holderKeyID := pbEntity.GetHolderKeyId()
+	holderAesKey := s.state.Keys[holderKeyID]
+
+	decryptedHolder, err := utils.DecryptField(pbEntity.GetHolder(), holderAesKey, holderNonce)
+	if err != nil {
+		return err
+	}
+
+	expiryDateNonce := pbEntity.GetExpiryDateNonce()
+	expiryDateKeyID := pbEntity.GetExpiryDateKeyId()
+	expiryDateAesKey := s.state.Keys[expiryDateKeyID]
+
+	decryptedExpiryDate, err := utils.DecryptField(pbEntity.GetExpiryDate(), expiryDateAesKey, expiryDateNonce)
+	if err != nil {
+		return err
+	}
+
+	cvvNonce := pbEntity.GetCvvNonce()
+	cvvKeyID := pbEntity.GetCvvKeyId()
+	cvvAesKey := s.state.Keys[cvvKeyID]
+
+	decryptedCVV, err := utils.DecryptField(pbEntity.GetCvv(), cvvAesKey, cvvNonce)
+	if err != nil {
+		return err
+	}
+
+	pinNonce := pbEntity.GetPinNonce()
+	pinKeyID := pbEntity.GetPinKeyId()
+	pinAesKey := s.state.Keys[pinKeyID]
+
+	decryptedPIN, err := utils.DecryptField(pbEntity.GetPin(), pinAesKey, pinNonce)
+	if err != nil {
+		return err
+	}
+
 	entity := card.Card{
-		PAN:         pbEntity.GetPan(),
-		Holder:      pbEntity.GetHolder(),
-		ExpiryDate:  pbEntity.GetExpiryDate(),
-		CVV:         pbEntity.GetCvv(),
-		PIN:         pbEntity.GetPin(),
+		PAN:         string(decryptedPAN),
+		Holder:      string(decryptedHolder),
+		ExpiryDate:  string(decryptedExpiryDate),
+		CVV:         string(decryptedCVV),
+		PIN:         string(decryptedPIN),
 		Bank:        pbEntity.GetBank(),
 		Brand:       pbEntity.GetBrand(),
 		Title:       pbEntity.GetTitle(),
 		Description: pbEntity.GetDescription(),
 		CreatedAt:   createdAt,
 		UpdatedAt:   updatedAt,
+		Number:      entityNumber,
 	}
 	err = s.repo.Update(entity)
 	if err != nil {

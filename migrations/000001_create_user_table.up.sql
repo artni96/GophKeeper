@@ -46,11 +46,26 @@ CREATE TABLE IF NOT EXISTS cards (
     title VARCHAR(255) NOT NULL,
     description TEXT,
     number INTEGER NOT NULL,
-    hashed_pan BIGINT,
-    hashed_holder VARCHAR(255),
-    hashed_expiry_date VARCHAR(4),
-    hashed_cvv VARCHAR(4),
-    hashed_pin VARCHAR(4),
+    hashed_pan BYTEA,
+    pan_nonce BYTEA,
+    pan_key_id INTEGER,
+
+    hashed_holder BYTEA,
+    holder_nonce BYTEA,
+    holder_key_id INTEGER,
+
+    hashed_expiry_date BYTEA,
+    expiry_date_nonce BYTEA,
+    expiry_date_key_id INTEGER,
+
+    hashed_cvv BYTEA,
+    cvv_nonce BYTEA,
+    cvv_key_id INTEGER,
+
+    hashed_pin BYTEA,
+    pin_nonce BYTEA,
+    pin_key_id INTEGER,
+
     bank VARCHAR(255),
     brand VARCHAR(255),
     created_at TIMESTAMP NOT NULL,

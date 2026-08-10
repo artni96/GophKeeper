@@ -22,16 +22,18 @@ const (
 )
 
 type LoginCreateRequest struct {
-	state                  protoimpl.MessageState  `protogen:"opaque.v1"`
-	xxx_hidden_Title       *wrapperspb.StringValue `protobuf:"bytes,1,opt,name=title"`
-	xxx_hidden_Url         *wrapperspb.StringValue `protobuf:"bytes,2,opt,name=url"`
-	xxx_hidden_Description *wrapperspb.StringValue `protobuf:"bytes,3,opt,name=description"`
-	xxx_hidden_Login       *wrapperspb.BytesValue  `protobuf:"bytes,4,opt,name=login"`
-	xxx_hidden_Password    *wrapperspb.BytesValue  `protobuf:"bytes,5,opt,name=password"`
-	xxx_hidden_Nonce       *wrapperspb.BytesValue  `protobuf:"bytes,6,opt,name=nonce"`
-	xxx_hidden_KeyId       *wrapperspb.UInt64Value `protobuf:"bytes,7,opt,name=key_id,json=keyId"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	state                    protoimpl.MessageState  `protogen:"opaque.v1"`
+	xxx_hidden_Title         *wrapperspb.StringValue `protobuf:"bytes,1,opt,name=title"`
+	xxx_hidden_Url           *wrapperspb.StringValue `protobuf:"bytes,2,opt,name=url"`
+	xxx_hidden_Description   *wrapperspb.StringValue `protobuf:"bytes,3,opt,name=description"`
+	xxx_hidden_Login         *wrapperspb.BytesValue  `protobuf:"bytes,4,opt,name=login"`
+	xxx_hidden_LoginNonce    *wrapperspb.BytesValue  `protobuf:"bytes,5,opt,name=login_nonce,json=loginNonce"`
+	xxx_hidden_LoginKeyId    *wrapperspb.UInt64Value `protobuf:"bytes,6,opt,name=login_key_id,json=loginKeyId"`
+	xxx_hidden_Password      *wrapperspb.BytesValue  `protobuf:"bytes,7,opt,name=password"`
+	xxx_hidden_PasswordNonce *wrapperspb.BytesValue  `protobuf:"bytes,8,opt,name=password_nonce,json=passwordNonce"`
+	xxx_hidden_PasswordKeyId *wrapperspb.UInt64Value `protobuf:"bytes,9,opt,name=password_key_id,json=passwordKeyId"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *LoginCreateRequest) Reset() {
@@ -87,6 +89,20 @@ func (x *LoginCreateRequest) GetLogin() *wrapperspb.BytesValue {
 	return nil
 }
 
+func (x *LoginCreateRequest) GetLoginNonce() *wrapperspb.BytesValue {
+	if x != nil {
+		return x.xxx_hidden_LoginNonce
+	}
+	return nil
+}
+
+func (x *LoginCreateRequest) GetLoginKeyId() *wrapperspb.UInt64Value {
+	if x != nil {
+		return x.xxx_hidden_LoginKeyId
+	}
+	return nil
+}
+
 func (x *LoginCreateRequest) GetPassword() *wrapperspb.BytesValue {
 	if x != nil {
 		return x.xxx_hidden_Password
@@ -94,16 +110,16 @@ func (x *LoginCreateRequest) GetPassword() *wrapperspb.BytesValue {
 	return nil
 }
 
-func (x *LoginCreateRequest) GetNonce() *wrapperspb.BytesValue {
+func (x *LoginCreateRequest) GetPasswordNonce() *wrapperspb.BytesValue {
 	if x != nil {
-		return x.xxx_hidden_Nonce
+		return x.xxx_hidden_PasswordNonce
 	}
 	return nil
 }
 
-func (x *LoginCreateRequest) GetKeyId() *wrapperspb.UInt64Value {
+func (x *LoginCreateRequest) GetPasswordKeyId() *wrapperspb.UInt64Value {
 	if x != nil {
-		return x.xxx_hidden_KeyId
+		return x.xxx_hidden_PasswordKeyId
 	}
 	return nil
 }
@@ -124,16 +140,24 @@ func (x *LoginCreateRequest) SetLogin(v *wrapperspb.BytesValue) {
 	x.xxx_hidden_Login = v
 }
 
+func (x *LoginCreateRequest) SetLoginNonce(v *wrapperspb.BytesValue) {
+	x.xxx_hidden_LoginNonce = v
+}
+
+func (x *LoginCreateRequest) SetLoginKeyId(v *wrapperspb.UInt64Value) {
+	x.xxx_hidden_LoginKeyId = v
+}
+
 func (x *LoginCreateRequest) SetPassword(v *wrapperspb.BytesValue) {
 	x.xxx_hidden_Password = v
 }
 
-func (x *LoginCreateRequest) SetNonce(v *wrapperspb.BytesValue) {
-	x.xxx_hidden_Nonce = v
+func (x *LoginCreateRequest) SetPasswordNonce(v *wrapperspb.BytesValue) {
+	x.xxx_hidden_PasswordNonce = v
 }
 
-func (x *LoginCreateRequest) SetKeyId(v *wrapperspb.UInt64Value) {
-	x.xxx_hidden_KeyId = v
+func (x *LoginCreateRequest) SetPasswordKeyId(v *wrapperspb.UInt64Value) {
+	x.xxx_hidden_PasswordKeyId = v
 }
 
 func (x *LoginCreateRequest) HasTitle() bool {
@@ -164,6 +188,20 @@ func (x *LoginCreateRequest) HasLogin() bool {
 	return x.xxx_hidden_Login != nil
 }
 
+func (x *LoginCreateRequest) HasLoginNonce() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_LoginNonce != nil
+}
+
+func (x *LoginCreateRequest) HasLoginKeyId() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_LoginKeyId != nil
+}
+
 func (x *LoginCreateRequest) HasPassword() bool {
 	if x == nil {
 		return false
@@ -171,18 +209,18 @@ func (x *LoginCreateRequest) HasPassword() bool {
 	return x.xxx_hidden_Password != nil
 }
 
-func (x *LoginCreateRequest) HasNonce() bool {
+func (x *LoginCreateRequest) HasPasswordNonce() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Nonce != nil
+	return x.xxx_hidden_PasswordNonce != nil
 }
 
-func (x *LoginCreateRequest) HasKeyId() bool {
+func (x *LoginCreateRequest) HasPasswordKeyId() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_KeyId != nil
+	return x.xxx_hidden_PasswordKeyId != nil
 }
 
 func (x *LoginCreateRequest) ClearTitle() {
@@ -201,28 +239,38 @@ func (x *LoginCreateRequest) ClearLogin() {
 	x.xxx_hidden_Login = nil
 }
 
+func (x *LoginCreateRequest) ClearLoginNonce() {
+	x.xxx_hidden_LoginNonce = nil
+}
+
+func (x *LoginCreateRequest) ClearLoginKeyId() {
+	x.xxx_hidden_LoginKeyId = nil
+}
+
 func (x *LoginCreateRequest) ClearPassword() {
 	x.xxx_hidden_Password = nil
 }
 
-func (x *LoginCreateRequest) ClearNonce() {
-	x.xxx_hidden_Nonce = nil
+func (x *LoginCreateRequest) ClearPasswordNonce() {
+	x.xxx_hidden_PasswordNonce = nil
 }
 
-func (x *LoginCreateRequest) ClearKeyId() {
-	x.xxx_hidden_KeyId = nil
+func (x *LoginCreateRequest) ClearPasswordKeyId() {
+	x.xxx_hidden_PasswordKeyId = nil
 }
 
 type LoginCreateRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Title       *wrapperspb.StringValue
-	Url         *wrapperspb.StringValue
-	Description *wrapperspb.StringValue
-	Login       *wrapperspb.BytesValue
-	Password    *wrapperspb.BytesValue
-	Nonce       *wrapperspb.BytesValue
-	KeyId       *wrapperspb.UInt64Value
+	Title         *wrapperspb.StringValue
+	Url           *wrapperspb.StringValue
+	Description   *wrapperspb.StringValue
+	Login         *wrapperspb.BytesValue
+	LoginNonce    *wrapperspb.BytesValue
+	LoginKeyId    *wrapperspb.UInt64Value
+	Password      *wrapperspb.BytesValue
+	PasswordNonce *wrapperspb.BytesValue
+	PasswordKeyId *wrapperspb.UInt64Value
 }
 
 func (b0 LoginCreateRequest_builder) Build() *LoginCreateRequest {
@@ -233,9 +281,11 @@ func (b0 LoginCreateRequest_builder) Build() *LoginCreateRequest {
 	x.xxx_hidden_Url = b.Url
 	x.xxx_hidden_Description = b.Description
 	x.xxx_hidden_Login = b.Login
+	x.xxx_hidden_LoginNonce = b.LoginNonce
+	x.xxx_hidden_LoginKeyId = b.LoginKeyId
 	x.xxx_hidden_Password = b.Password
-	x.xxx_hidden_Nonce = b.Nonce
-	x.xxx_hidden_KeyId = b.KeyId
+	x.xxx_hidden_PasswordNonce = b.PasswordNonce
+	x.xxx_hidden_PasswordKeyId = b.PasswordKeyId
 	return m0
 }
 
@@ -390,21 +440,23 @@ func (b0 LoginGetRequest_builder) Build() *LoginGetRequest {
 }
 
 type LoginGetResponse struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Title       *string                `protobuf:"bytes,1,opt,name=title"`
-	xxx_hidden_Number      uint64                 `protobuf:"varint,2,opt,name=number"`
-	xxx_hidden_Url         *string                `protobuf:"bytes,3,opt,name=url"`
-	xxx_hidden_Description *string                `protobuf:"bytes,4,opt,name=description"`
-	xxx_hidden_Login       []byte                 `protobuf:"bytes,5,opt,name=login"`
-	xxx_hidden_Password    []byte                 `protobuf:"bytes,6,opt,name=password"`
-	xxx_hidden_Nonce       []byte                 `protobuf:"bytes,7,opt,name=nonce"`
-	xxx_hidden_KeyId       uint64                 `protobuf:"varint,8,opt,name=key_id,json=keyId"`
-	xxx_hidden_CreatedAt   *string                `protobuf:"bytes,9,opt,name=created_at,json=createdAt"`
-	xxx_hidden_UpdatedAt   *string                `protobuf:"bytes,10,opt,name=updated_at,json=updatedAt"`
-	XXX_raceDetectHookData protoimpl.RaceDetectHookData
-	XXX_presence           [1]uint32
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	state                    protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Title         *string                `protobuf:"bytes,1,opt,name=title"`
+	xxx_hidden_Number        uint64                 `protobuf:"varint,2,opt,name=number"`
+	xxx_hidden_Url           *string                `protobuf:"bytes,3,opt,name=url"`
+	xxx_hidden_Description   *string                `protobuf:"bytes,4,opt,name=description"`
+	xxx_hidden_Login         []byte                 `protobuf:"bytes,5,opt,name=login"`
+	xxx_hidden_LoginNonce    []byte                 `protobuf:"bytes,6,opt,name=login_nonce,json=loginNonce"`
+	xxx_hidden_LoginKeyId    uint64                 `protobuf:"varint,7,opt,name=login_key_id,json=loginKeyId"`
+	xxx_hidden_Password      []byte                 `protobuf:"bytes,8,opt,name=password"`
+	xxx_hidden_PasswordNonce []byte                 `protobuf:"bytes,9,opt,name=password_nonce,json=passwordNonce"`
+	xxx_hidden_PasswordKeyId uint64                 `protobuf:"varint,10,opt,name=password_key_id,json=passwordKeyId"`
+	xxx_hidden_CreatedAt     *string                `protobuf:"bytes,11,opt,name=created_at,json=createdAt"`
+	xxx_hidden_UpdatedAt     *string                `protobuf:"bytes,12,opt,name=updated_at,json=updatedAt"`
+	XXX_raceDetectHookData   protoimpl.RaceDetectHookData
+	XXX_presence             [1]uint32
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *LoginGetResponse) Reset() {
@@ -476,6 +528,20 @@ func (x *LoginGetResponse) GetLogin() []byte {
 	return nil
 }
 
+func (x *LoginGetResponse) GetLoginNonce() []byte {
+	if x != nil {
+		return x.xxx_hidden_LoginNonce
+	}
+	return nil
+}
+
+func (x *LoginGetResponse) GetLoginKeyId() uint64 {
+	if x != nil {
+		return x.xxx_hidden_LoginKeyId
+	}
+	return 0
+}
+
 func (x *LoginGetResponse) GetPassword() []byte {
 	if x != nil {
 		return x.xxx_hidden_Password
@@ -483,16 +549,16 @@ func (x *LoginGetResponse) GetPassword() []byte {
 	return nil
 }
 
-func (x *LoginGetResponse) GetNonce() []byte {
+func (x *LoginGetResponse) GetPasswordNonce() []byte {
 	if x != nil {
-		return x.xxx_hidden_Nonce
+		return x.xxx_hidden_PasswordNonce
 	}
 	return nil
 }
 
-func (x *LoginGetResponse) GetKeyId() uint64 {
+func (x *LoginGetResponse) GetPasswordKeyId() uint64 {
 	if x != nil {
-		return x.xxx_hidden_KeyId
+		return x.xxx_hidden_PasswordKeyId
 	}
 	return 0
 }
@@ -519,22 +585,22 @@ func (x *LoginGetResponse) GetUpdatedAt() string {
 
 func (x *LoginGetResponse) SetTitle(v string) {
 	x.xxx_hidden_Title = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 12)
 }
 
 func (x *LoginGetResponse) SetNumber(v uint64) {
 	x.xxx_hidden_Number = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 12)
 }
 
 func (x *LoginGetResponse) SetUrl(v string) {
 	x.xxx_hidden_Url = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 12)
 }
 
 func (x *LoginGetResponse) SetDescription(v string) {
 	x.xxx_hidden_Description = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 12)
 }
 
 func (x *LoginGetResponse) SetLogin(v []byte) {
@@ -542,7 +608,20 @@ func (x *LoginGetResponse) SetLogin(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_Login = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 12)
+}
+
+func (x *LoginGetResponse) SetLoginNonce(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_LoginNonce = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 12)
+}
+
+func (x *LoginGetResponse) SetLoginKeyId(v uint64) {
+	x.xxx_hidden_LoginKeyId = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 12)
 }
 
 func (x *LoginGetResponse) SetPassword(v []byte) {
@@ -550,30 +629,30 @@ func (x *LoginGetResponse) SetPassword(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_Password = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 12)
 }
 
-func (x *LoginGetResponse) SetNonce(v []byte) {
+func (x *LoginGetResponse) SetPasswordNonce(v []byte) {
 	if v == nil {
 		v = []byte{}
 	}
-	x.xxx_hidden_Nonce = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 10)
+	x.xxx_hidden_PasswordNonce = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 12)
 }
 
-func (x *LoginGetResponse) SetKeyId(v uint64) {
-	x.xxx_hidden_KeyId = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 10)
+func (x *LoginGetResponse) SetPasswordKeyId(v uint64) {
+	x.xxx_hidden_PasswordKeyId = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 12)
 }
 
 func (x *LoginGetResponse) SetCreatedAt(v string) {
 	x.xxx_hidden_CreatedAt = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 12)
 }
 
 func (x *LoginGetResponse) SetUpdatedAt(v string) {
 	x.xxx_hidden_UpdatedAt = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 12)
 }
 
 func (x *LoginGetResponse) HasTitle() bool {
@@ -611,39 +690,53 @@ func (x *LoginGetResponse) HasLogin() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
 }
 
-func (x *LoginGetResponse) HasPassword() bool {
+func (x *LoginGetResponse) HasLoginNonce() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
 }
 
-func (x *LoginGetResponse) HasNonce() bool {
+func (x *LoginGetResponse) HasLoginKeyId() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
 }
 
-func (x *LoginGetResponse) HasKeyId() bool {
+func (x *LoginGetResponse) HasPassword() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
 }
 
-func (x *LoginGetResponse) HasCreatedAt() bool {
+func (x *LoginGetResponse) HasPasswordNonce() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 8)
 }
 
-func (x *LoginGetResponse) HasUpdatedAt() bool {
+func (x *LoginGetResponse) HasPasswordKeyId() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 9)
+}
+
+func (x *LoginGetResponse) HasCreatedAt() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 10)
+}
+
+func (x *LoginGetResponse) HasUpdatedAt() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 11)
 }
 
 func (x *LoginGetResponse) ClearTitle() {
@@ -671,44 +764,56 @@ func (x *LoginGetResponse) ClearLogin() {
 	x.xxx_hidden_Login = nil
 }
 
-func (x *LoginGetResponse) ClearPassword() {
+func (x *LoginGetResponse) ClearLoginNonce() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
+	x.xxx_hidden_LoginNonce = nil
+}
+
+func (x *LoginGetResponse) ClearLoginKeyId() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
+	x.xxx_hidden_LoginKeyId = 0
+}
+
+func (x *LoginGetResponse) ClearPassword() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
 	x.xxx_hidden_Password = nil
 }
 
-func (x *LoginGetResponse) ClearNonce() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
-	x.xxx_hidden_Nonce = nil
+func (x *LoginGetResponse) ClearPasswordNonce() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 8)
+	x.xxx_hidden_PasswordNonce = nil
 }
 
-func (x *LoginGetResponse) ClearKeyId() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
-	x.xxx_hidden_KeyId = 0
+func (x *LoginGetResponse) ClearPasswordKeyId() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 9)
+	x.xxx_hidden_PasswordKeyId = 0
 }
 
 func (x *LoginGetResponse) ClearCreatedAt() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 8)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 10)
 	x.xxx_hidden_CreatedAt = nil
 }
 
 func (x *LoginGetResponse) ClearUpdatedAt() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 9)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 11)
 	x.xxx_hidden_UpdatedAt = nil
 }
 
 type LoginGetResponse_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Title       *string
-	Number      *uint64
-	Url         *string
-	Description *string
-	Login       []byte
-	Password    []byte
-	Nonce       []byte
-	KeyId       *uint64
-	CreatedAt   *string
-	UpdatedAt   *string
+	Title         *string
+	Number        *uint64
+	Url           *string
+	Description   *string
+	Login         []byte
+	LoginNonce    []byte
+	LoginKeyId    *uint64
+	Password      []byte
+	PasswordNonce []byte
+	PasswordKeyId *uint64
+	CreatedAt     *string
+	UpdatedAt     *string
 }
 
 func (b0 LoginGetResponse_builder) Build() *LoginGetResponse {
@@ -716,62 +821,72 @@ func (b0 LoginGetResponse_builder) Build() *LoginGetResponse {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Title != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 12)
 		x.xxx_hidden_Title = b.Title
 	}
 	if b.Number != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 12)
 		x.xxx_hidden_Number = *b.Number
 	}
 	if b.Url != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 12)
 		x.xxx_hidden_Url = b.Url
 	}
 	if b.Description != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 12)
 		x.xxx_hidden_Description = b.Description
 	}
 	if b.Login != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 12)
 		x.xxx_hidden_Login = b.Login
 	}
+	if b.LoginNonce != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 12)
+		x.xxx_hidden_LoginNonce = b.LoginNonce
+	}
+	if b.LoginKeyId != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 12)
+		x.xxx_hidden_LoginKeyId = *b.LoginKeyId
+	}
 	if b.Password != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 12)
 		x.xxx_hidden_Password = b.Password
 	}
-	if b.Nonce != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 10)
-		x.xxx_hidden_Nonce = b.Nonce
+	if b.PasswordNonce != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 12)
+		x.xxx_hidden_PasswordNonce = b.PasswordNonce
 	}
-	if b.KeyId != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 10)
-		x.xxx_hidden_KeyId = *b.KeyId
+	if b.PasswordKeyId != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 12)
+		x.xxx_hidden_PasswordKeyId = *b.PasswordKeyId
 	}
 	if b.CreatedAt != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 12)
 		x.xxx_hidden_CreatedAt = b.CreatedAt
 	}
 	if b.UpdatedAt != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 12)
 		x.xxx_hidden_UpdatedAt = b.UpdatedAt
 	}
 	return m0
 }
 
 type LoginUpdateRequest struct {
-	state                  protoimpl.MessageState  `protogen:"opaque.v1"`
-	xxx_hidden_Title       *wrapperspb.StringValue `protobuf:"bytes,1,opt,name=title"`
-	xxx_hidden_Url         *wrapperspb.StringValue `protobuf:"bytes,2,opt,name=url"`
-	xxx_hidden_Description *wrapperspb.StringValue `protobuf:"bytes,3,opt,name=description"`
-	xxx_hidden_Login       *wrapperspb.BytesValue  `protobuf:"bytes,4,opt,name=login"`
-	xxx_hidden_Password    *wrapperspb.BytesValue  `protobuf:"bytes,5,opt,name=password"`
-	xxx_hidden_Nonce       *wrapperspb.BytesValue  `protobuf:"bytes,6,opt,name=nonce"`
-	xxx_hidden_KeyId       *wrapperspb.UInt64Value `protobuf:"bytes,7,opt,name=key_id,json=keyId"`
-	xxx_hidden_Number      uint64                  `protobuf:"varint,8,opt,name=number"`
-	XXX_raceDetectHookData protoimpl.RaceDetectHookData
-	XXX_presence           [1]uint32
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	state                    protoimpl.MessageState  `protogen:"opaque.v1"`
+	xxx_hidden_Title         *wrapperspb.StringValue `protobuf:"bytes,1,opt,name=title"`
+	xxx_hidden_Url           *wrapperspb.StringValue `protobuf:"bytes,2,opt,name=url"`
+	xxx_hidden_Description   *wrapperspb.StringValue `protobuf:"bytes,3,opt,name=description"`
+	xxx_hidden_Login         *wrapperspb.BytesValue  `protobuf:"bytes,4,opt,name=login"`
+	xxx_hidden_LoginNonce    *wrapperspb.BytesValue  `protobuf:"bytes,5,opt,name=login_nonce,json=loginNonce"`
+	xxx_hidden_LoginKeyId    *wrapperspb.UInt64Value `protobuf:"bytes,6,opt,name=login_key_id,json=loginKeyId"`
+	xxx_hidden_Password      *wrapperspb.BytesValue  `protobuf:"bytes,7,opt,name=password"`
+	xxx_hidden_PasswordNonce *wrapperspb.BytesValue  `protobuf:"bytes,8,opt,name=password_nonce,json=passwordNonce"`
+	xxx_hidden_PasswordKeyId *wrapperspb.UInt64Value `protobuf:"bytes,9,opt,name=password_key_id,json=passwordKeyId"`
+	xxx_hidden_Number        uint64                  `protobuf:"varint,10,opt,name=number"`
+	XXX_raceDetectHookData   protoimpl.RaceDetectHookData
+	XXX_presence             [1]uint32
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *LoginUpdateRequest) Reset() {
@@ -827,6 +942,20 @@ func (x *LoginUpdateRequest) GetLogin() *wrapperspb.BytesValue {
 	return nil
 }
 
+func (x *LoginUpdateRequest) GetLoginNonce() *wrapperspb.BytesValue {
+	if x != nil {
+		return x.xxx_hidden_LoginNonce
+	}
+	return nil
+}
+
+func (x *LoginUpdateRequest) GetLoginKeyId() *wrapperspb.UInt64Value {
+	if x != nil {
+		return x.xxx_hidden_LoginKeyId
+	}
+	return nil
+}
+
 func (x *LoginUpdateRequest) GetPassword() *wrapperspb.BytesValue {
 	if x != nil {
 		return x.xxx_hidden_Password
@@ -834,16 +963,16 @@ func (x *LoginUpdateRequest) GetPassword() *wrapperspb.BytesValue {
 	return nil
 }
 
-func (x *LoginUpdateRequest) GetNonce() *wrapperspb.BytesValue {
+func (x *LoginUpdateRequest) GetPasswordNonce() *wrapperspb.BytesValue {
 	if x != nil {
-		return x.xxx_hidden_Nonce
+		return x.xxx_hidden_PasswordNonce
 	}
 	return nil
 }
 
-func (x *LoginUpdateRequest) GetKeyId() *wrapperspb.UInt64Value {
+func (x *LoginUpdateRequest) GetPasswordKeyId() *wrapperspb.UInt64Value {
 	if x != nil {
-		return x.xxx_hidden_KeyId
+		return x.xxx_hidden_PasswordKeyId
 	}
 	return nil
 }
@@ -871,21 +1000,29 @@ func (x *LoginUpdateRequest) SetLogin(v *wrapperspb.BytesValue) {
 	x.xxx_hidden_Login = v
 }
 
+func (x *LoginUpdateRequest) SetLoginNonce(v *wrapperspb.BytesValue) {
+	x.xxx_hidden_LoginNonce = v
+}
+
+func (x *LoginUpdateRequest) SetLoginKeyId(v *wrapperspb.UInt64Value) {
+	x.xxx_hidden_LoginKeyId = v
+}
+
 func (x *LoginUpdateRequest) SetPassword(v *wrapperspb.BytesValue) {
 	x.xxx_hidden_Password = v
 }
 
-func (x *LoginUpdateRequest) SetNonce(v *wrapperspb.BytesValue) {
-	x.xxx_hidden_Nonce = v
+func (x *LoginUpdateRequest) SetPasswordNonce(v *wrapperspb.BytesValue) {
+	x.xxx_hidden_PasswordNonce = v
 }
 
-func (x *LoginUpdateRequest) SetKeyId(v *wrapperspb.UInt64Value) {
-	x.xxx_hidden_KeyId = v
+func (x *LoginUpdateRequest) SetPasswordKeyId(v *wrapperspb.UInt64Value) {
+	x.xxx_hidden_PasswordKeyId = v
 }
 
 func (x *LoginUpdateRequest) SetNumber(v uint64) {
 	x.xxx_hidden_Number = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 8)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 10)
 }
 
 func (x *LoginUpdateRequest) HasTitle() bool {
@@ -916,6 +1053,20 @@ func (x *LoginUpdateRequest) HasLogin() bool {
 	return x.xxx_hidden_Login != nil
 }
 
+func (x *LoginUpdateRequest) HasLoginNonce() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_LoginNonce != nil
+}
+
+func (x *LoginUpdateRequest) HasLoginKeyId() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_LoginKeyId != nil
+}
+
 func (x *LoginUpdateRequest) HasPassword() bool {
 	if x == nil {
 		return false
@@ -923,25 +1074,25 @@ func (x *LoginUpdateRequest) HasPassword() bool {
 	return x.xxx_hidden_Password != nil
 }
 
-func (x *LoginUpdateRequest) HasNonce() bool {
+func (x *LoginUpdateRequest) HasPasswordNonce() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Nonce != nil
+	return x.xxx_hidden_PasswordNonce != nil
 }
 
-func (x *LoginUpdateRequest) HasKeyId() bool {
+func (x *LoginUpdateRequest) HasPasswordKeyId() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_KeyId != nil
+	return x.xxx_hidden_PasswordKeyId != nil
 }
 
 func (x *LoginUpdateRequest) HasNumber() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 9)
 }
 
 func (x *LoginUpdateRequest) ClearTitle() {
@@ -960,34 +1111,44 @@ func (x *LoginUpdateRequest) ClearLogin() {
 	x.xxx_hidden_Login = nil
 }
 
+func (x *LoginUpdateRequest) ClearLoginNonce() {
+	x.xxx_hidden_LoginNonce = nil
+}
+
+func (x *LoginUpdateRequest) ClearLoginKeyId() {
+	x.xxx_hidden_LoginKeyId = nil
+}
+
 func (x *LoginUpdateRequest) ClearPassword() {
 	x.xxx_hidden_Password = nil
 }
 
-func (x *LoginUpdateRequest) ClearNonce() {
-	x.xxx_hidden_Nonce = nil
+func (x *LoginUpdateRequest) ClearPasswordNonce() {
+	x.xxx_hidden_PasswordNonce = nil
 }
 
-func (x *LoginUpdateRequest) ClearKeyId() {
-	x.xxx_hidden_KeyId = nil
+func (x *LoginUpdateRequest) ClearPasswordKeyId() {
+	x.xxx_hidden_PasswordKeyId = nil
 }
 
 func (x *LoginUpdateRequest) ClearNumber() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 9)
 	x.xxx_hidden_Number = 0
 }
 
 type LoginUpdateRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Title       *wrapperspb.StringValue
-	Url         *wrapperspb.StringValue
-	Description *wrapperspb.StringValue
-	Login       *wrapperspb.BytesValue
-	Password    *wrapperspb.BytesValue
-	Nonce       *wrapperspb.BytesValue
-	KeyId       *wrapperspb.UInt64Value
-	Number      *uint64
+	Title         *wrapperspb.StringValue
+	Url           *wrapperspb.StringValue
+	Description   *wrapperspb.StringValue
+	Login         *wrapperspb.BytesValue
+	LoginNonce    *wrapperspb.BytesValue
+	LoginKeyId    *wrapperspb.UInt64Value
+	Password      *wrapperspb.BytesValue
+	PasswordNonce *wrapperspb.BytesValue
+	PasswordKeyId *wrapperspb.UInt64Value
+	Number        *uint64
 }
 
 func (b0 LoginUpdateRequest_builder) Build() *LoginUpdateRequest {
@@ -998,11 +1159,13 @@ func (b0 LoginUpdateRequest_builder) Build() *LoginUpdateRequest {
 	x.xxx_hidden_Url = b.Url
 	x.xxx_hidden_Description = b.Description
 	x.xxx_hidden_Login = b.Login
+	x.xxx_hidden_LoginNonce = b.LoginNonce
+	x.xxx_hidden_LoginKeyId = b.LoginKeyId
 	x.xxx_hidden_Password = b.Password
-	x.xxx_hidden_Nonce = b.Nonce
-	x.xxx_hidden_KeyId = b.KeyId
+	x.xxx_hidden_PasswordNonce = b.PasswordNonce
+	x.xxx_hidden_PasswordKeyId = b.PasswordKeyId
 	if b.Number != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 8)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 10)
 		x.xxx_hidden_Number = *b.Number
 	}
 	return m0
@@ -1275,42 +1438,55 @@ var File_api_proto_logins_logins_proto protoreflect.FileDescriptor
 
 const file_api_proto_logins_logins_proto_rawDesc = "" +
 	"\n" +
-	"\x1dapi/proto/logins/logins.proto\x12\x06logins\x1a\x1egoogle/protobuf/wrappers.proto\"\x8c\x03\n" +
+	"\x1dapi/proto/logins/logins.proto\x12\x06logins\x1a\x1egoogle/protobuf/wrappers.proto\"\xac\x04\n" +
 	"\x12LoginCreateRequest\x122\n" +
 	"\x05title\x18\x01 \x01(\v2\x1c.google.protobuf.StringValueR\x05title\x12.\n" +
 	"\x03url\x18\x02 \x01(\v2\x1c.google.protobuf.StringValueR\x03url\x12>\n" +
 	"\vdescription\x18\x03 \x01(\v2\x1c.google.protobuf.StringValueR\vdescription\x121\n" +
-	"\x05login\x18\x04 \x01(\v2\x1b.google.protobuf.BytesValueR\x05login\x127\n" +
-	"\bpassword\x18\x05 \x01(\v2\x1b.google.protobuf.BytesValueR\bpassword\x121\n" +
-	"\x05nonce\x18\x06 \x01(\v2\x1b.google.protobuf.BytesValueR\x05nonce\x123\n" +
-	"\x06key_id\x18\a \x01(\v2\x1c.google.protobuf.UInt64ValueR\x05keyId\"-\n" +
+	"\x05login\x18\x04 \x01(\v2\x1b.google.protobuf.BytesValueR\x05login\x12<\n" +
+	"\vlogin_nonce\x18\x05 \x01(\v2\x1b.google.protobuf.BytesValueR\n" +
+	"loginNonce\x12>\n" +
+	"\flogin_key_id\x18\x06 \x01(\v2\x1c.google.protobuf.UInt64ValueR\n" +
+	"loginKeyId\x127\n" +
+	"\bpassword\x18\a \x01(\v2\x1b.google.protobuf.BytesValueR\bpassword\x12B\n" +
+	"\x0epassword_nonce\x18\b \x01(\v2\x1b.google.protobuf.BytesValueR\rpasswordNonce\x12D\n" +
+	"\x0fpassword_key_id\x18\t \x01(\v2\x1c.google.protobuf.UInt64ValueR\rpasswordKeyId\"-\n" +
 	"\x13LoginCreateResponse\x12\x16\n" +
 	"\x06number\x18\x01 \x01(\x04R\x06number\")\n" +
 	"\x0fLoginGetRequest\x12\x16\n" +
-	"\x06number\x18\x01 \x01(\x04R\x06number\"\x91\x02\n" +
+	"\x06number\x18\x01 \x01(\x04R\x06number\"\xf6\x02\n" +
 	"\x10LoginGetResponse\x12\x14\n" +
 	"\x05title\x18\x01 \x01(\tR\x05title\x12\x16\n" +
 	"\x06number\x18\x02 \x01(\x04R\x06number\x12\x10\n" +
 	"\x03url\x18\x03 \x01(\tR\x03url\x12 \n" +
 	"\vdescription\x18\x04 \x01(\tR\vdescription\x12\x14\n" +
-	"\x05login\x18\x05 \x01(\fR\x05login\x12\x1a\n" +
-	"\bpassword\x18\x06 \x01(\fR\bpassword\x12\x14\n" +
-	"\x05nonce\x18\a \x01(\fR\x05nonce\x12\x15\n" +
-	"\x06key_id\x18\b \x01(\x04R\x05keyId\x12\x1d\n" +
+	"\x05login\x18\x05 \x01(\fR\x05login\x12\x1f\n" +
+	"\vlogin_nonce\x18\x06 \x01(\fR\n" +
+	"loginNonce\x12 \n" +
+	"\flogin_key_id\x18\a \x01(\x04R\n" +
+	"loginKeyId\x12\x1a\n" +
+	"\bpassword\x18\b \x01(\fR\bpassword\x12%\n" +
+	"\x0epassword_nonce\x18\t \x01(\fR\rpasswordNonce\x12&\n" +
+	"\x0fpassword_key_id\x18\n" +
+	" \x01(\x04R\rpasswordKeyId\x12\x1d\n" +
 	"\n" +
-	"created_at\x18\t \x01(\tR\tcreatedAt\x12\x1d\n" +
+	"created_at\x18\v \x01(\tR\tcreatedAt\x12\x1d\n" +
 	"\n" +
-	"updated_at\x18\n" +
-	" \x01(\tR\tupdatedAt\"\xa4\x03\n" +
+	"updated_at\x18\f \x01(\tR\tupdatedAt\"\xc4\x04\n" +
 	"\x12LoginUpdateRequest\x122\n" +
 	"\x05title\x18\x01 \x01(\v2\x1c.google.protobuf.StringValueR\x05title\x12.\n" +
 	"\x03url\x18\x02 \x01(\v2\x1c.google.protobuf.StringValueR\x03url\x12>\n" +
 	"\vdescription\x18\x03 \x01(\v2\x1c.google.protobuf.StringValueR\vdescription\x121\n" +
-	"\x05login\x18\x04 \x01(\v2\x1b.google.protobuf.BytesValueR\x05login\x127\n" +
-	"\bpassword\x18\x05 \x01(\v2\x1b.google.protobuf.BytesValueR\bpassword\x121\n" +
-	"\x05nonce\x18\x06 \x01(\v2\x1b.google.protobuf.BytesValueR\x05nonce\x123\n" +
-	"\x06key_id\x18\a \x01(\v2\x1c.google.protobuf.UInt64ValueR\x05keyId\x12\x16\n" +
-	"\x06number\x18\b \x01(\x04R\x06number\"\x15\n" +
+	"\x05login\x18\x04 \x01(\v2\x1b.google.protobuf.BytesValueR\x05login\x12<\n" +
+	"\vlogin_nonce\x18\x05 \x01(\v2\x1b.google.protobuf.BytesValueR\n" +
+	"loginNonce\x12>\n" +
+	"\flogin_key_id\x18\x06 \x01(\v2\x1c.google.protobuf.UInt64ValueR\n" +
+	"loginKeyId\x127\n" +
+	"\bpassword\x18\a \x01(\v2\x1b.google.protobuf.BytesValueR\bpassword\x12B\n" +
+	"\x0epassword_nonce\x18\b \x01(\v2\x1b.google.protobuf.BytesValueR\rpasswordNonce\x12D\n" +
+	"\x0fpassword_key_id\x18\t \x01(\v2\x1c.google.protobuf.UInt64ValueR\rpasswordKeyId\x12\x16\n" +
+	"\x06number\x18\n" +
+	" \x01(\x04R\x06number\"\x15\n" +
 	"\x13LoginUpdateResponse\",\n" +
 	"\x12LoginDeleteRequest\x12\x16\n" +
 	"\x06number\x18\x01 \x01(\x04R\x06number\"\x15\n" +
@@ -1346,32 +1522,36 @@ var file_api_proto_logins_logins_proto_depIdxs = []int32{
 	10, // 1: logins.LoginCreateRequest.url:type_name -> google.protobuf.StringValue
 	10, // 2: logins.LoginCreateRequest.description:type_name -> google.protobuf.StringValue
 	11, // 3: logins.LoginCreateRequest.login:type_name -> google.protobuf.BytesValue
-	11, // 4: logins.LoginCreateRequest.password:type_name -> google.protobuf.BytesValue
-	11, // 5: logins.LoginCreateRequest.nonce:type_name -> google.protobuf.BytesValue
-	12, // 6: logins.LoginCreateRequest.key_id:type_name -> google.protobuf.UInt64Value
-	10, // 7: logins.LoginUpdateRequest.title:type_name -> google.protobuf.StringValue
-	10, // 8: logins.LoginUpdateRequest.url:type_name -> google.protobuf.StringValue
-	10, // 9: logins.LoginUpdateRequest.description:type_name -> google.protobuf.StringValue
-	11, // 10: logins.LoginUpdateRequest.login:type_name -> google.protobuf.BytesValue
-	11, // 11: logins.LoginUpdateRequest.password:type_name -> google.protobuf.BytesValue
-	11, // 12: logins.LoginUpdateRequest.nonce:type_name -> google.protobuf.BytesValue
-	12, // 13: logins.LoginUpdateRequest.key_id:type_name -> google.protobuf.UInt64Value
-	3,  // 14: logins.LoginGetListResponse.logins:type_name -> logins.LoginGetResponse
-	0,  // 15: logins.LoginService.CreateLogin:input_type -> logins.LoginCreateRequest
-	2,  // 16: logins.LoginService.GetLogin:input_type -> logins.LoginGetRequest
-	4,  // 17: logins.LoginService.UpdateLogin:input_type -> logins.LoginUpdateRequest
-	6,  // 18: logins.LoginService.DeleteLogin:input_type -> logins.LoginDeleteRequest
-	8,  // 19: logins.LoginService.GetListLogin:input_type -> logins.LoginGetListRequest
-	1,  // 20: logins.LoginService.CreateLogin:output_type -> logins.LoginCreateResponse
-	3,  // 21: logins.LoginService.GetLogin:output_type -> logins.LoginGetResponse
-	5,  // 22: logins.LoginService.UpdateLogin:output_type -> logins.LoginUpdateResponse
-	7,  // 23: logins.LoginService.DeleteLogin:output_type -> logins.LoginDeleteResponse
-	9,  // 24: logins.LoginService.GetListLogin:output_type -> logins.LoginGetListResponse
-	20, // [20:25] is the sub-list for method output_type
-	15, // [15:20] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	11, // 4: logins.LoginCreateRequest.login_nonce:type_name -> google.protobuf.BytesValue
+	12, // 5: logins.LoginCreateRequest.login_key_id:type_name -> google.protobuf.UInt64Value
+	11, // 6: logins.LoginCreateRequest.password:type_name -> google.protobuf.BytesValue
+	11, // 7: logins.LoginCreateRequest.password_nonce:type_name -> google.protobuf.BytesValue
+	12, // 8: logins.LoginCreateRequest.password_key_id:type_name -> google.protobuf.UInt64Value
+	10, // 9: logins.LoginUpdateRequest.title:type_name -> google.protobuf.StringValue
+	10, // 10: logins.LoginUpdateRequest.url:type_name -> google.protobuf.StringValue
+	10, // 11: logins.LoginUpdateRequest.description:type_name -> google.protobuf.StringValue
+	11, // 12: logins.LoginUpdateRequest.login:type_name -> google.protobuf.BytesValue
+	11, // 13: logins.LoginUpdateRequest.login_nonce:type_name -> google.protobuf.BytesValue
+	12, // 14: logins.LoginUpdateRequest.login_key_id:type_name -> google.protobuf.UInt64Value
+	11, // 15: logins.LoginUpdateRequest.password:type_name -> google.protobuf.BytesValue
+	11, // 16: logins.LoginUpdateRequest.password_nonce:type_name -> google.protobuf.BytesValue
+	12, // 17: logins.LoginUpdateRequest.password_key_id:type_name -> google.protobuf.UInt64Value
+	3,  // 18: logins.LoginGetListResponse.logins:type_name -> logins.LoginGetResponse
+	0,  // 19: logins.LoginService.CreateLogin:input_type -> logins.LoginCreateRequest
+	2,  // 20: logins.LoginService.GetLogin:input_type -> logins.LoginGetRequest
+	4,  // 21: logins.LoginService.UpdateLogin:input_type -> logins.LoginUpdateRequest
+	6,  // 22: logins.LoginService.DeleteLogin:input_type -> logins.LoginDeleteRequest
+	8,  // 23: logins.LoginService.GetListLogin:input_type -> logins.LoginGetListRequest
+	1,  // 24: logins.LoginService.CreateLogin:output_type -> logins.LoginCreateResponse
+	3,  // 25: logins.LoginService.GetLogin:output_type -> logins.LoginGetResponse
+	5,  // 26: logins.LoginService.UpdateLogin:output_type -> logins.LoginUpdateResponse
+	7,  // 27: logins.LoginService.DeleteLogin:output_type -> logins.LoginDeleteResponse
+	9,  // 28: logins.LoginService.GetListLogin:output_type -> logins.LoginGetListResponse
+	24, // [24:29] is the sub-list for method output_type
+	19, // [19:24] is the sub-list for method input_type
+	19, // [19:19] is the sub-list for extension type_name
+	19, // [19:19] is the sub-list for extension extendee
+	0,  // [0:19] is the sub-list for field type_name
 }
 
 func init() { file_api_proto_logins_logins_proto_init() }

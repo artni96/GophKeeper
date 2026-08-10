@@ -8,6 +8,7 @@ import (
 	cardspb "github.com/artni96/GophKeeper/api/proto/cards"
 	"github.com/artni96/GophKeeper/internal/client/utils"
 	"github.com/artni96/GophKeeper/internal/client/validators"
+	"github.com/artni96/GophKeeper/internal/server/constants"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/wrapperspb"
@@ -82,7 +83,7 @@ func (m *Menu) initCardMenu() {
 			fmt.Printf("Number: %d\n", entity.Number)
 			fmt.Printf("Title: %s\n", entity.Title)
 			fmt.Printf("Description: %s\n", entity.Description)
-			fmt.Printf("PAN: %d\n", entity.PAN)
+			fmt.Printf("PAN: %s\n", entity.PAN)
 			fmt.Printf("Holder: %s\n", entity.Holder)
 			fmt.Printf("Expiry Date: %s\n", entity.ExpiryDate)
 			fmt.Printf("CVV: %s\n", entity.CVV)
@@ -124,19 +125,24 @@ func (m *Menu) initCardMenu() {
 			m.needInput = false
 			pbEntity := &cardspb.CardCreateRequest{}
 
+			activeKey := m.app.State.ActiveKeyID
+
 			for i := range m.app.Cfg.MaxAttempts {
 				fmt.Printf("Enter title: ")
 				title, err := m.app.ReadLine()
 				if err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid title")
+					fmt.Println()
 					continue
 				}
-				if title == "" {
+				if title == "" || title == " " {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid title: field is required")
 					continue
@@ -152,6 +158,7 @@ func (m *Menu) initCardMenu() {
 				if err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid description")
 					continue
@@ -166,6 +173,7 @@ func (m *Menu) initCardMenu() {
 				if err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid PAN")
 					continue
@@ -179,6 +187,7 @@ func (m *Menu) initCardMenu() {
 				if err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid PAN")
 					continue
@@ -187,11 +196,21 @@ func (m *Menu) initCardMenu() {
 				if err = validators.PANValidator(uint64PAN); err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid PAN")
 					continue
 				}
-				pbEntity.SetPan(wrapperspb.UInt64(uint64PAN))
+
+				encryptedValue, nonce, err := m.app.EncryptField(strPAN)
+
+				if err != nil {
+					continue
+				}
+
+				pbEntity.SetPan(wrapperspb.Bytes(encryptedValue))
+				pbEntity.SetPanNonce(wrapperspb.Bytes(nonce))
+				pbEntity.SetPanKeyId(wrapperspb.UInt64(activeKey))
 				break
 			}
 
@@ -201,11 +220,24 @@ func (m *Menu) initCardMenu() {
 				if err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid card holder name")
 					continue
 				}
-				pbEntity.SetHolder(wrapperspb.String(holder))
+
+				if holder == "" {
+					break
+				}
+
+				encryptedValue, nonce, err := m.app.EncryptField(holder)
+
+				if err != nil {
+					continue
+				}
+				pbEntity.SetHolder(wrapperspb.Bytes(encryptedValue))
+				pbEntity.SetHolderNonce(wrapperspb.Bytes(nonce))
+				pbEntity.SetHolderKeyId(wrapperspb.UInt64(activeKey))
 				break
 			}
 
@@ -216,6 +248,7 @@ func (m *Menu) initCardMenu() {
 				if err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid Expiry Date")
 					continue
@@ -228,11 +261,20 @@ func (m *Menu) initCardMenu() {
 				if err = validators.ExpiryDateValidator(expiryDate); err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid Expiry Date")
 					continue
 				}
-				pbEntity.SetExpiryDate(wrapperspb.String(expiryDate))
+
+				encryptedValue, nonce, err := m.app.EncryptField(expiryDate)
+
+				if err != nil {
+					continue
+				}
+				pbEntity.SetExpiryDate(wrapperspb.Bytes(encryptedValue))
+				pbEntity.SetExpiryDate(wrapperspb.Bytes(nonce))
+				pbEntity.SetExpiryDateKeyId(wrapperspb.UInt64(activeKey))
 				break
 			}
 
@@ -242,6 +284,7 @@ func (m *Menu) initCardMenu() {
 				if err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid CVV")
 					continue
@@ -254,11 +297,20 @@ func (m *Menu) initCardMenu() {
 				if err = validators.CVVValidator(cvv); err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid CVV")
 					continue
 				}
-				pbEntity.SetCvv(wrapperspb.String(cvv))
+
+				encryptedValue, nonce, err := m.app.EncryptField(cvv)
+
+				if err != nil {
+					continue
+				}
+				pbEntity.SetCvv(wrapperspb.Bytes(encryptedValue))
+				pbEntity.SetCvvNonce(wrapperspb.Bytes(nonce))
+				pbEntity.SetCvvKeyId(wrapperspb.UInt64(activeKey))
 				break
 			}
 
@@ -268,6 +320,7 @@ func (m *Menu) initCardMenu() {
 				if err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid PIN")
 					continue
@@ -280,12 +333,20 @@ func (m *Menu) initCardMenu() {
 				if err = validators.PINValidator(pin); err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid PIN")
 					continue
 
 				}
-				pbEntity.SetPin(wrapperspb.String(pin))
+				encryptedValue, nonce, err := m.app.EncryptField(pin)
+
+				if err != nil {
+					continue
+				}
+				pbEntity.SetPin(wrapperspb.Bytes(encryptedValue))
+				pbEntity.SetPinNonce(wrapperspb.Bytes(nonce))
+				pbEntity.SetPinKeyId(wrapperspb.UInt64(activeKey))
 				break
 			}
 
@@ -295,9 +356,15 @@ func (m *Menu) initCardMenu() {
 				if err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid BANK")
 				}
+
+				if bank == "" {
+					break
+				}
+
 				pbEntity.SetBank(wrapperspb.String(bank))
 				break
 			}
@@ -308,10 +375,16 @@ func (m *Menu) initCardMenu() {
 				if err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid BANK")
 					continue
 				}
+
+				if brand == "" {
+					break
+				}
+
 				pbEntity.SetBrand(wrapperspb.String(brand))
 				break
 			}
@@ -349,6 +422,8 @@ func (m *Menu) initCardMenu() {
 			m.needInput = false
 			pbEntity := &cardspb.CardUpdateRequest{}
 
+			activeKey := m.app.State.ActiveKeyID
+
 			pbEntity.SetNumber(m.currentEntityNumber)
 
 			for i := range m.app.Cfg.MaxAttempts {
@@ -357,8 +432,14 @@ func (m *Menu) initCardMenu() {
 				if err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid title")
+					continue
+				}
+
+				if title == "" || title == " " {
+					fmt.Println("Title is required")
 					continue
 				}
 
@@ -376,6 +457,11 @@ func (m *Menu) initCardMenu() {
 					fmt.Println("Invalid description")
 					continue
 				}
+
+				if description == "" {
+					break
+				}
+
 				pbEntity.SetDescription(wrapperspb.String(description))
 				break
 			}
@@ -386,6 +472,7 @@ func (m *Menu) initCardMenu() {
 				if err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid PAN")
 					continue
@@ -395,10 +482,18 @@ func (m *Menu) initCardMenu() {
 					break
 				}
 
+				if strPAN == " " {
+					pbEntity.SetPan(wrapperspb.Bytes(nil))
+					pbEntity.SetPanNonce(wrapperspb.Bytes(nil))
+					pbEntity.SetPanKeyId(wrapperspb.UInt64(0))
+					break
+				}
+
 				uint64PAN, err := strconv.ParseUint(strPAN, 10, 64)
 				if err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid PAN")
 					continue
@@ -407,11 +502,20 @@ func (m *Menu) initCardMenu() {
 				if err = validators.PANValidator(uint64PAN); err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid PAN")
 					continue
 				}
-				pbEntity.SetPan(wrapperspb.UInt64(uint64PAN))
+
+				encryptedValue, nonce, err := m.app.EncryptField(strPAN)
+
+				if err != nil {
+					continue
+				}
+				pbEntity.SetPan(wrapperspb.Bytes(encryptedValue))
+				pbEntity.SetPanNonce(wrapperspb.Bytes(nonce))
+				pbEntity.SetPanKeyId(wrapperspb.UInt64(activeKey))
 				break
 			}
 
@@ -421,11 +525,31 @@ func (m *Menu) initCardMenu() {
 				if err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid card holder name")
 					continue
 				}
-				pbEntity.SetHolder(wrapperspb.String(holder))
+
+				if holder == "" {
+					break
+				}
+
+				if holder == " " {
+					pbEntity.SetHolder(wrapperspb.Bytes(nil))
+					pbEntity.SetHolderNonce(wrapperspb.Bytes(nil))
+					pbEntity.SetHolderKeyId(wrapperspb.UInt64(0))
+					break
+				}
+
+				encryptedValue, nonce, err := m.app.EncryptField(holder)
+
+				if err != nil {
+					continue
+				}
+				pbEntity.SetHolder(wrapperspb.Bytes(encryptedValue))
+				pbEntity.SetHolderNonce(wrapperspb.Bytes(nonce))
+				pbEntity.SetHolderKeyId(wrapperspb.UInt64(activeKey))
 				break
 			}
 
@@ -436,6 +560,7 @@ func (m *Menu) initCardMenu() {
 				if err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid Expiry Date")
 					continue
@@ -445,14 +570,30 @@ func (m *Menu) initCardMenu() {
 					break
 				}
 
+				if expiryDate == " " {
+					pbEntity.SetExpiryDate(wrapperspb.Bytes(nil))
+					pbEntity.SetExpiryDateNonce(wrapperspb.Bytes(nil))
+					pbEntity.SetExpiryDateKeyId(wrapperspb.UInt64(activeKey))
+					break
+				}
+
 				if err = validators.ExpiryDateValidator(expiryDate); err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid Expiry Date")
 					continue
 				}
-				pbEntity.SetExpiryDate(wrapperspb.String(expiryDate))
+
+				encryptedValue, nonce, err := m.app.EncryptField(expiryDate)
+
+				if err != nil {
+					continue
+				}
+				pbEntity.SetExpiryDate(wrapperspb.Bytes(encryptedValue))
+				pbEntity.SetExpiryDateNonce(wrapperspb.Bytes(nonce))
+				pbEntity.SetExpiryDateKeyId(wrapperspb.UInt64(activeKey))
 				break
 			}
 
@@ -462,6 +603,7 @@ func (m *Menu) initCardMenu() {
 				if err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid CVV")
 					continue
@@ -471,14 +613,29 @@ func (m *Menu) initCardMenu() {
 					break
 				}
 
+				if cvv == " " {
+					pbEntity.SetCvv(wrapperspb.Bytes(nil))
+					pbEntity.SetCvvNonce(wrapperspb.Bytes(nil))
+					pbEntity.SetCvvKeyId(wrapperspb.UInt64(activeKey))
+				}
+
 				if err = validators.CVVValidator(cvv); err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid CVV")
 					continue
 				}
-				pbEntity.SetCvv(wrapperspb.String(cvv))
+
+				encryptedValue, nonce, err := m.app.EncryptField(cvv)
+
+				if err != nil {
+					continue
+				}
+				pbEntity.SetCvv(wrapperspb.Bytes(encryptedValue))
+				pbEntity.SetCvvNonce(wrapperspb.Bytes(nonce))
+				pbEntity.SetCvvKeyId(wrapperspb.UInt64(activeKey))
 				break
 			}
 
@@ -488,6 +645,7 @@ func (m *Menu) initCardMenu() {
 				if err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid PIN")
 					continue
@@ -497,15 +655,30 @@ func (m *Menu) initCardMenu() {
 					break
 				}
 
+				if pin == " " {
+					pbEntity.SetPin(wrapperspb.Bytes(nil))
+					pbEntity.SetPinNonce(wrapperspb.Bytes(nil))
+					pbEntity.SetPinKeyId(wrapperspb.UInt64(0))
+				}
+
 				if err = validators.PINValidator(pin); err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid PIN")
 					continue
 
 				}
-				pbEntity.SetPin(wrapperspb.String(pin))
+
+				encryptedValue, nonce, err := m.app.EncryptField(pin)
+
+				if err != nil {
+					continue
+				}
+				pbEntity.SetPin(wrapperspb.Bytes(encryptedValue))
+				pbEntity.SetPinNonce(wrapperspb.Bytes(nonce))
+				pbEntity.SetPinKeyId(wrapperspb.UInt64(activeKey))
 				break
 			}
 
@@ -515,9 +688,15 @@ func (m *Menu) initCardMenu() {
 				if err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid BANK")
 				}
+
+				if bank == "" {
+					break
+				}
+
 				pbEntity.SetBank(wrapperspb.String(bank))
 				break
 			}
@@ -528,10 +707,16 @@ func (m *Menu) initCardMenu() {
 				if err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid BANK")
 					continue
 				}
+
+				if brand == "" {
+					break
+				}
+
 				pbEntity.SetBrand(wrapperspb.String(brand))
 				break
 			}

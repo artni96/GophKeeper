@@ -23,6 +23,7 @@ import (
 	loginserv "github.com/artni96/GophKeeper/internal/client/service/login"
 	textserv "github.com/artni96/GophKeeper/internal/client/service/text"
 	userserv "github.com/artni96/GophKeeper/internal/client/service/user"
+	commonutils "github.com/artni96/GophKeeper/internal/common/utils"
 	"github.com/google/uuid"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
@@ -64,7 +65,7 @@ func NewApp(eg *errgroup.Group) *App {
 
 func (app *App) InitDependencies() {
 	cardRepo := cardrepo.NewRepository(app.NumberMap)
-	app.CardService = cardserv.NewService(app.Cfg, app.conn, cardRepo)
+	app.CardService = cardserv.NewService(app.Cfg, app.conn, cardRepo, app.State)
 
 	loginRepo := loginrepo.NewRepository(app.NumberMap)
 	app.LoginService = loginserv.NewService(app.Cfg, app.conn, loginRepo, app.State)
@@ -177,6 +178,9 @@ func (app *App) ReadLine() (string, error) {
 	if err != nil {
 		return "", err
 	}
+	if line == " \n" {
+		return " ", nil
+	}
 	return strings.TrimSpace(line), nil
 }
 
@@ -240,17 +244,22 @@ func (app *App) UpdateStorage(ctx context.Context, n common.Notification) error 
 }
 
 // EncryptField encrypts field data with active aes key and nonce.
-func (app *App) EncryptField(value string, nonce []byte) ([]byte, error) {
+func (app *App) EncryptField(value string) ([]byte, []byte, error) {
+	nonce, err := commonutils.GenerateRandomBytes(12)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	aesblock, err := aes.NewCipher(app.State.ActiveKey)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	gcm, err := cipher.NewGCM(aesblock)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	ciphertext := gcm.Seal(nil, nonce, []byte(value), nil)
-	return ciphertext, nil
+	return ciphertext, nonce, nil
 }

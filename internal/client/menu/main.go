@@ -177,6 +177,8 @@ func (m *Menu) Run(ctx context.Context) {
 					}
 				} else if m.isFailed {
 					m.isFailed = false
+					currentStep = main
+					continue
 				} else {
 					continue
 				}

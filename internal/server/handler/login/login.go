@@ -45,10 +45,14 @@ func (h *Handler) CreateLogin(ctx context.Context, req *pb.LoginCreateRequest) (
 		return resp, status.Errorf(codes.Unauthenticated, "not authenticated")
 	}
 	entityToCreate := loginmodel.CreateLoginRequest{
-		Login:       req.GetLogin(),
-		Password:    req.GetPassword(),
-		Nonce:       req.GetNonce(),
-		KeyID:       req.GetKeyId(),
+		Login:      req.GetLogin(),
+		LoginNonce: req.GetLoginNonce(),
+		LoginKeyID: req.GetLoginKeyId(),
+
+		Password:      req.GetPassword(),
+		PasswordNonce: req.GetPasswordNonce(),
+		PasswordKeyID: req.GetPasswordKeyId(),
+
 		Title:       req.GetTitle(),
 		Description: req.GetDescription(),
 		URL:         req.GetUrl(),
@@ -108,10 +112,15 @@ func (h *Handler) GetLogin(ctx context.Context, req *pb.LoginGetRequest) (*pb.Lo
 	resp.SetTitle(dbEntity.Title)
 	resp.SetDescription(dbEntity.Description)
 	resp.SetNumber(dbEntity.Number)
+
 	resp.SetLogin(dbEntity.Login)
+	resp.SetLoginNonce(dbEntity.LoginNonce)
+	resp.SetLoginKeyId(dbEntity.LoginKeyID)
+
 	resp.SetPassword(dbEntity.Password)
-	resp.SetNonce(dbEntity.Nonce)
-	resp.SetKeyId(dbEntity.KeyID)
+	resp.SetPassword(dbEntity.PasswordNonce)
+	resp.SetPasswordKeyId(dbEntity.PasswordKeyID)
+
 	resp.SetCreatedAt(dbEntity.CreatedAt.Format(time.RFC3339))
 	if !dbEntity.UpdatedAt.IsZero() {
 		resp.SetUpdatedAt(dbEntity.UpdatedAt.Format(time.RFC3339))
@@ -129,10 +138,14 @@ func (h *Handler) UpdateLogin(ctx context.Context, req *pb.LoginUpdateRequest) (
 	entityNumber := req.GetNumber()
 
 	dataToUpdate := loginmodel.UpdateLoginRequest{
-		Login:       req.GetLogin(),
-		Password:    req.GetPassword(),
-		Nonce:       req.GetNonce(),
-		KeyID:       req.GetKeyId(),
+		Login:      req.GetLogin(),
+		LoginNonce: req.GetLoginNonce(),
+		LoginKeyID: req.GetLoginKeyId(),
+
+		Password:      req.GetPassword(),
+		PasswordNonce: req.GetPasswordNonce(),
+		PasswordKeyID: req.GetPasswordKeyId(),
+
 		Title:       req.GetTitle(),
 		Description: req.GetDescription(),
 		URL:         req.GetUrl(),
@@ -230,10 +243,15 @@ func (h *Handler) GetListLogin(ctx context.Context, req *pb.LoginGetListRequest)
 		i.SetNumber(entity.Number)
 		i.SetUrl(entity.URL)
 		i.SetDescription(entity.Description)
+		
 		i.SetLogin(entity.Login)
+		i.SetLoginNonce(entity.LoginNonce)
+		i.SetLoginKeyId(entity.LoginKeyID)
+
 		i.SetPassword(entity.Password)
-		i.SetNonce(entity.Nonce)
-		i.SetKeyId(entity.KeyID)
+		i.SetPasswordNonce(entity.PasswordNonce)
+		i.SetPasswordKeyId(entity.PasswordKeyID)
+
 		i.SetCreatedAt(entity.CreatedAt.Format(time.RFC3339))
 		if !entity.UpdatedAt.IsZero() {
 			i.SetUpdatedAt(entity.UpdatedAt.Format(time.RFC3339))

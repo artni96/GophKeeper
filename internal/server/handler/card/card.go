@@ -45,20 +45,33 @@ func (h *Handler) CreateCard(ctx context.Context, req *pb.CardCreateRequest) (*p
 		return resp, status.Errorf(codes.Unauthenticated, "not authenticated")
 	}
 	entityToCreate := cardmodel.CreateCardRequest{
-		PAN:         req.GetPan(),
+		PAN:      req.GetPan(),
+		PANNonce: req.GetPanNonce(),
+		PANKeyID: req.GetPanKeyId(),
+
 		Holder:      req.GetHolder(),
-		ExpiryDate:  req.GetExpiryDate(),
-		CVV:         req.GetCvv(),
-		PIN:         req.GetPin(),
+		HolderNonce: req.GetHolderNonce(),
+		HolderKeyID: req.GetHolderKeyId(),
+
+		ExpiryDate:      req.GetExpiryDate(),
+		ExpiryDateNonce: req.GetExpiryDateNonce(),
+		ExpiryDateKeyID: req.GetExpiryDateKeyId(),
+
+		CVV:      req.GetCvv(),
+		CVVNonce: req.GetCvvNonce(),
+		CVVKeyID: req.GetCvvKeyId(),
+
+		PIN:      req.GetPin(),
+		PINNonce: req.GetPinNonce(),
+		PINKeyID: req.GetPinKeyId(),
+
 		Bank:        req.GetBank(),
 		Brand:       req.GetBrand(),
 		UserID:      userID,
 		Title:       req.GetTitle(),
 		Description: req.GetDescription(),
 	}
-	if err := entityToCreate.Validate(); err != nil {
-		return resp, status.Error(codes.InvalidArgument, err.Error())
-	}
+
 	entityNumber, err := h.Service.Create(ctx, entityToCreate)
 	if err != nil {
 		if errors.Is(err, constants.ErrEntityAlreadyExists) {
@@ -106,10 +119,25 @@ func (h *Handler) GetCard(ctx context.Context, req *pb.CardGetRequest) (*pb.Card
 	}
 
 	resp.SetPan(dbEntity.PAN)
+	resp.SetPanNonce(dbEntity.PanNonce)
+	resp.SetPanKeyId(dbEntity.PanKeyID)
+
 	resp.SetHolder(dbEntity.Holder)
+	resp.SetHolderNonce(dbEntity.HolderNonce)
+	resp.SetHolderKeyId(dbEntity.HolderKeyID)
+
 	resp.SetExpiryDate(dbEntity.ExpiryDate)
+	resp.SetExpiryDateNonce(dbEntity.ExpiryDateNonce)
+	resp.SetExpiryDateKeyId(dbEntity.ExpiryDateKeyID)
+
 	resp.SetCvv(dbEntity.CVV)
+	resp.SetCvvNonce(dbEntity.CVVNonce)
+	resp.SetCvvKeyId(dbEntity.CVVKeyID)
+
 	resp.SetPin(dbEntity.PIN)
+	resp.SetPinNonce(dbEntity.PINNonce)
+	resp.SetPinKeyId(dbEntity.PINKeyID)
+
 	resp.SetBank(dbEntity.Bank)
 	resp.SetBrand(dbEntity.Brand)
 	resp.SetTitle(dbEntity.Title)
@@ -135,18 +163,29 @@ func (h *Handler) UpdateCard(ctx context.Context, req *pb.CardUpdateRequest) (*p
 	}
 
 	dataToUpdate := cardmodel.UpdateCardRequest{
-		PAN:         req.GetPan(),
+		PAN:      req.GetPan(),
+		PANNonce: req.GetPanNonce(),
+		PANKeyID: req.GetPanKeyId(),
+
 		Holder:      req.GetHolder(),
-		ExpiryDate:  req.GetExpiryDate(),
-		CVV:         req.GetCvv(),
+		HolderNonce: req.GetHolderNonce(),
+		HolderKeyID: req.GetHolderKeyId(),
+
+		ExpiryDate:      req.GetExpiryDate(),
+		ExpiryDateNonce: req.GetExpiryDateNonce(),
+		ExpiryDateKeyID: req.GetExpiryDateKeyId(),
+
+		CVV:      req.GetCvv(),
+		CVVNonce: req.GetCvvNonce(),
+		CVVKeyID: req.GetCvvKeyId(),
+
 		PIN:         req.GetPin(),
+		PINNonce:    req.GetPinNonce(),
+		PINKeyID:    req.GetPinKeyId(),
 		Bank:        req.GetBank(),
 		Brand:       req.GetBrand(),
 		Title:       req.GetTitle(),
 		Description: req.GetDescription(),
-	}
-	if err := dataToUpdate.Validate(); err != nil {
-		return resp, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	err := h.Service.Update(ctx, dataToUpdate, entityNumber, userID)
@@ -234,10 +273,25 @@ func (h *Handler) GetListCard(ctx context.Context, req *pb.CardGetListRequest) (
 	for _, entity := range dbEntities {
 		i := &pb.CardGetResponse{}
 		i.SetPan(entity.PAN)
+		i.SetPanNonce(entity.PanNonce)
+		i.SetPanKeyId(entity.PanKeyID)
+
 		i.SetHolder(entity.Holder)
+		i.SetHolderNonce(entity.HolderNonce)
+		i.SetHolderKeyId(entity.HolderKeyID)
+
 		i.SetExpiryDate(entity.ExpiryDate)
+		i.SetExpiryDateNonce(entity.ExpiryDateNonce)
+		i.SetExpiryDateKeyId(entity.ExpiryDateKeyID)
+
 		i.SetCvv(entity.CVV)
+		i.SetCvvNonce(entity.CVVNonce)
+		i.SetCvvKeyId(entity.CVVKeyID)
+
 		i.SetPin(entity.PIN)
+		i.SetPinNonce(entity.PINNonce)
+		i.SetPinKeyId(entity.PINKeyID)
+
 		i.SetBank(entity.Bank)
 		i.SetBrand(entity.Brand)
 		i.SetTitle(entity.Title)
