@@ -10,6 +10,7 @@ import (
 	"github.com/artni96/GophKeeper/internal/client/model/common"
 	"github.com/artni96/GophKeeper/internal/client/model/text"
 	textrepo "github.com/artni96/GophKeeper/internal/client/repository/text"
+	"github.com/artni96/GophKeeper/internal/client/utils"
 	"google.golang.org/grpc"
 )
 
@@ -18,14 +19,16 @@ type Service struct {
 	cfg    *config.Config
 	Client textspb.TextServiceClient
 	repo   textrepo.RepositoryI
+	state  *config.State
 }
 
 // NewService initializes and returns the new Text service instance.
-func NewService(cfg *config.Config, conn *grpc.ClientConn, repo textrepo.RepositoryI) *Service {
+func NewService(cfg *config.Config, conn *grpc.ClientConn, repo textrepo.RepositoryI, state *config.State) *Service {
 	return &Service{
 		cfg:    cfg,
 		Client: textspb.NewTextServiceClient(conn),
 		repo:   repo,
+		state:  state,
 	}
 }
 
@@ -50,13 +53,22 @@ func (s *Service) Add(ctx context.Context, entityNumber uint64) error {
 		updatedAt = time.Time{}
 	}
 
+	nonce := pbEntity.GetNonce()
+	keyID := pbEntity.GetKeyId()
+	aesKey := s.state.Keys[keyID]
+
+	decryptedText, err := utils.DecryptField(pbEntity.GetText(), aesKey, nonce)
+	if err != nil {
+		return err
+	}
+
 	entity := text.Text{
 		Title:       pbEntity.GetTitle(),
 		Number:      pbEntity.GetNumber(),
 		Description: pbEntity.GetDescription(),
 		CreatedAt:   createdAt,
 		UpdatedAt:   updatedAt,
-		Text:        pbEntity.GetText(),
+		Text:        string(decryptedText),
 	}
 	s.repo.Add(entity)
 	return nil
@@ -86,13 +98,22 @@ func (s *Service) AddBatch(ctx context.Context) error {
 			updatedAt = time.Time{}
 		}
 
+		nonce := pbEntity.GetNonce()
+		keyID := pbEntity.GetKeyId()
+		aesKey := s.state.Keys[keyID]
+
+		decryptedText, err := utils.DecryptField(pbEntity.GetText(), aesKey, nonce)
+		if err != nil {
+			return err
+		}
+
 		entity := text.Text{
 			Title:       pbEntity.GetTitle(),
 			Number:      pbEntity.GetNumber(),
 			Description: pbEntity.GetDescription(),
 			CreatedAt:   createdAt,
 			UpdatedAt:   updatedAt,
-			Text:        pbEntity.GetText(),
+			Text:        string(decryptedText),
 		}
 		entities = append(entities, entity)
 
@@ -132,13 +153,23 @@ func (s *Service) Update(ctx context.Context, entityNumber uint64) error {
 	if err != nil {
 		return err
 	}
+
+	nonce := pbEntity.GetNonce()
+	keyID := pbEntity.GetKeyId()
+	aesKey := s.state.Keys[keyID]
+
+	decryptedText, err := utils.DecryptField(pbEntity.GetText(), aesKey, nonce)
+	if err != nil {
+		return err
+	}
+
 	entity := text.Text{
 		Title:       pbEntity.GetTitle(),
 		Number:      pbEntity.GetNumber(),
 		Description: pbEntity.GetDescription(),
 		CreatedAt:   createdAt,
 		UpdatedAt:   updatedAt,
-		Text:        pbEntity.GetText(),
+		Text:        string(decryptedText),
 	}
 	err = s.repo.Update(entity)
 	if err != nil {

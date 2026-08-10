@@ -44,6 +44,12 @@ func (s *Service) Create(ctx context.Context, data textmodel.CreateTextRequest) 
 	if data.Text != nil {
 		entityToCreate.Text = data.Text.Value
 		notNullFields = append(notNullFields, "hashed_text")
+
+		entityToCreate.Nonce = data.Nonce.Value
+		notNullFields = append(notNullFields, "nonce")
+
+		entityToCreate.KeyID = data.KeyID.Value
+		notNullFields = append(notNullFields, "key_id")
 	}
 
 	if data.Title != nil {
@@ -88,6 +94,12 @@ func (s *Service) Update(ctx context.Context, data textmodel.UpdateTextRequest, 
 	if data.Text != nil {
 		dataToUpdate.Text = data.Text.Value
 		notNullFields = append(notNullFields, "hashed_text")
+
+		dataToUpdate.Nonce = data.Nonce.Value
+		notNullFields = append(notNullFields, "nonce")
+
+		dataToUpdate.KeyID = data.KeyID.Value
+		notNullFields = append(notNullFields, "key_id")
 	}
 
 	if data.Title != nil {

@@ -25,7 +25,9 @@ type TextCreateRequest struct {
 	state                  protoimpl.MessageState  `protogen:"opaque.v1"`
 	xxx_hidden_Title       *wrapperspb.StringValue `protobuf:"bytes,1,opt,name=title"`
 	xxx_hidden_Description *wrapperspb.StringValue `protobuf:"bytes,2,opt,name=description"`
-	xxx_hidden_Text        *wrapperspb.StringValue `protobuf:"bytes,3,opt,name=text"`
+	xxx_hidden_Text        *wrapperspb.BytesValue  `protobuf:"bytes,3,opt,name=text"`
+	xxx_hidden_Nonce       *wrapperspb.BytesValue  `protobuf:"bytes,4,opt,name=nonce"`
+	xxx_hidden_KeyId       *wrapperspb.UInt64Value `protobuf:"bytes,5,opt,name=key_id,json=keyId"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
 }
@@ -69,9 +71,23 @@ func (x *TextCreateRequest) GetDescription() *wrapperspb.StringValue {
 	return nil
 }
 
-func (x *TextCreateRequest) GetText() *wrapperspb.StringValue {
+func (x *TextCreateRequest) GetText() *wrapperspb.BytesValue {
 	if x != nil {
 		return x.xxx_hidden_Text
+	}
+	return nil
+}
+
+func (x *TextCreateRequest) GetNonce() *wrapperspb.BytesValue {
+	if x != nil {
+		return x.xxx_hidden_Nonce
+	}
+	return nil
+}
+
+func (x *TextCreateRequest) GetKeyId() *wrapperspb.UInt64Value {
+	if x != nil {
+		return x.xxx_hidden_KeyId
 	}
 	return nil
 }
@@ -84,8 +100,16 @@ func (x *TextCreateRequest) SetDescription(v *wrapperspb.StringValue) {
 	x.xxx_hidden_Description = v
 }
 
-func (x *TextCreateRequest) SetText(v *wrapperspb.StringValue) {
+func (x *TextCreateRequest) SetText(v *wrapperspb.BytesValue) {
 	x.xxx_hidden_Text = v
+}
+
+func (x *TextCreateRequest) SetNonce(v *wrapperspb.BytesValue) {
+	x.xxx_hidden_Nonce = v
+}
+
+func (x *TextCreateRequest) SetKeyId(v *wrapperspb.UInt64Value) {
+	x.xxx_hidden_KeyId = v
 }
 
 func (x *TextCreateRequest) HasTitle() bool {
@@ -109,6 +133,20 @@ func (x *TextCreateRequest) HasText() bool {
 	return x.xxx_hidden_Text != nil
 }
 
+func (x *TextCreateRequest) HasNonce() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Nonce != nil
+}
+
+func (x *TextCreateRequest) HasKeyId() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_KeyId != nil
+}
+
 func (x *TextCreateRequest) ClearTitle() {
 	x.xxx_hidden_Title = nil
 }
@@ -121,12 +159,22 @@ func (x *TextCreateRequest) ClearText() {
 	x.xxx_hidden_Text = nil
 }
 
+func (x *TextCreateRequest) ClearNonce() {
+	x.xxx_hidden_Nonce = nil
+}
+
+func (x *TextCreateRequest) ClearKeyId() {
+	x.xxx_hidden_KeyId = nil
+}
+
 type TextCreateRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	Title       *wrapperspb.StringValue
 	Description *wrapperspb.StringValue
-	Text        *wrapperspb.StringValue
+	Text        *wrapperspb.BytesValue
+	Nonce       *wrapperspb.BytesValue
+	KeyId       *wrapperspb.UInt64Value
 }
 
 func (b0 TextCreateRequest_builder) Build() *TextCreateRequest {
@@ -136,6 +184,8 @@ func (b0 TextCreateRequest_builder) Build() *TextCreateRequest {
 	x.xxx_hidden_Title = b.Title
 	x.xxx_hidden_Description = b.Description
 	x.xxx_hidden_Text = b.Text
+	x.xxx_hidden_Nonce = b.Nonce
+	x.xxx_hidden_KeyId = b.KeyId
 	return m0
 }
 
@@ -293,10 +343,12 @@ type TextGetResponse struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Title       *string                `protobuf:"bytes,1,opt,name=title"`
 	xxx_hidden_Description *string                `protobuf:"bytes,2,opt,name=description"`
-	xxx_hidden_Text        *string                `protobuf:"bytes,3,opt,name=text"`
-	xxx_hidden_Number      uint64                 `protobuf:"varint,4,opt,name=number"`
-	xxx_hidden_CreatedAt   *string                `protobuf:"bytes,5,opt,name=created_at,json=createdAt"`
-	xxx_hidden_UpdatedAt   *string                `protobuf:"bytes,6,opt,name=updated_at,json=updatedAt"`
+	xxx_hidden_Text        []byte                 `protobuf:"bytes,3,opt,name=text"`
+	xxx_hidden_Nonce       []byte                 `protobuf:"bytes,4,opt,name=nonce"`
+	xxx_hidden_KeyId       uint64                 `protobuf:"varint,5,opt,name=key_id,json=keyId"`
+	xxx_hidden_Number      uint64                 `protobuf:"varint,6,opt,name=number"`
+	xxx_hidden_CreatedAt   *string                `protobuf:"bytes,7,opt,name=created_at,json=createdAt"`
+	xxx_hidden_UpdatedAt   *string                `protobuf:"bytes,8,opt,name=updated_at,json=updatedAt"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -348,14 +400,25 @@ func (x *TextGetResponse) GetDescription() string {
 	return ""
 }
 
-func (x *TextGetResponse) GetText() string {
+func (x *TextGetResponse) GetText() []byte {
 	if x != nil {
-		if x.xxx_hidden_Text != nil {
-			return *x.xxx_hidden_Text
-		}
-		return ""
+		return x.xxx_hidden_Text
 	}
-	return ""
+	return nil
+}
+
+func (x *TextGetResponse) GetNonce() []byte {
+	if x != nil {
+		return x.xxx_hidden_Nonce
+	}
+	return nil
+}
+
+func (x *TextGetResponse) GetKeyId() uint64 {
+	if x != nil {
+		return x.xxx_hidden_KeyId
+	}
+	return 0
 }
 
 func (x *TextGetResponse) GetNumber() uint64 {
@@ -387,32 +450,48 @@ func (x *TextGetResponse) GetUpdatedAt() string {
 
 func (x *TextGetResponse) SetTitle(v string) {
 	x.xxx_hidden_Title = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 6)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 8)
 }
 
 func (x *TextGetResponse) SetDescription(v string) {
 	x.xxx_hidden_Description = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 6)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 8)
 }
 
-func (x *TextGetResponse) SetText(v string) {
-	x.xxx_hidden_Text = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 6)
+func (x *TextGetResponse) SetText(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Text = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 8)
+}
+
+func (x *TextGetResponse) SetNonce(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Nonce = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 8)
+}
+
+func (x *TextGetResponse) SetKeyId(v uint64) {
+	x.xxx_hidden_KeyId = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 8)
 }
 
 func (x *TextGetResponse) SetNumber(v uint64) {
 	x.xxx_hidden_Number = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 6)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 8)
 }
 
 func (x *TextGetResponse) SetCreatedAt(v string) {
 	x.xxx_hidden_CreatedAt = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 6)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 8)
 }
 
 func (x *TextGetResponse) SetUpdatedAt(v string) {
 	x.xxx_hidden_UpdatedAt = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 6)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 8)
 }
 
 func (x *TextGetResponse) HasTitle() bool {
@@ -436,25 +515,39 @@ func (x *TextGetResponse) HasText() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
 }
 
-func (x *TextGetResponse) HasNumber() bool {
+func (x *TextGetResponse) HasNonce() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
 }
 
-func (x *TextGetResponse) HasCreatedAt() bool {
+func (x *TextGetResponse) HasKeyId() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
 }
 
-func (x *TextGetResponse) HasUpdatedAt() bool {
+func (x *TextGetResponse) HasNumber() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
+}
+
+func (x *TextGetResponse) HasCreatedAt() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
+}
+
+func (x *TextGetResponse) HasUpdatedAt() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
 }
 
 func (x *TextGetResponse) ClearTitle() {
@@ -472,18 +565,28 @@ func (x *TextGetResponse) ClearText() {
 	x.xxx_hidden_Text = nil
 }
 
-func (x *TextGetResponse) ClearNumber() {
+func (x *TextGetResponse) ClearNonce() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
+	x.xxx_hidden_Nonce = nil
+}
+
+func (x *TextGetResponse) ClearKeyId() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
+	x.xxx_hidden_KeyId = 0
+}
+
+func (x *TextGetResponse) ClearNumber() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
 	x.xxx_hidden_Number = 0
 }
 
 func (x *TextGetResponse) ClearCreatedAt() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
 	x.xxx_hidden_CreatedAt = nil
 }
 
 func (x *TextGetResponse) ClearUpdatedAt() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
 	x.xxx_hidden_UpdatedAt = nil
 }
 
@@ -492,7 +595,9 @@ type TextGetResponse_builder struct {
 
 	Title       *string
 	Description *string
-	Text        *string
+	Text        []byte
+	Nonce       []byte
+	KeyId       *uint64
 	Number      *uint64
 	CreatedAt   *string
 	UpdatedAt   *string
@@ -503,27 +608,35 @@ func (b0 TextGetResponse_builder) Build() *TextGetResponse {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Title != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 6)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 8)
 		x.xxx_hidden_Title = b.Title
 	}
 	if b.Description != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 6)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 8)
 		x.xxx_hidden_Description = b.Description
 	}
 	if b.Text != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 6)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 8)
 		x.xxx_hidden_Text = b.Text
 	}
+	if b.Nonce != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 8)
+		x.xxx_hidden_Nonce = b.Nonce
+	}
+	if b.KeyId != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 8)
+		x.xxx_hidden_KeyId = *b.KeyId
+	}
 	if b.Number != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 6)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 8)
 		x.xxx_hidden_Number = *b.Number
 	}
 	if b.CreatedAt != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 6)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 8)
 		x.xxx_hidden_CreatedAt = b.CreatedAt
 	}
 	if b.UpdatedAt != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 6)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 8)
 		x.xxx_hidden_UpdatedAt = b.UpdatedAt
 	}
 	return m0
@@ -533,8 +646,10 @@ type TextUpdateRequest struct {
 	state                  protoimpl.MessageState  `protogen:"opaque.v1"`
 	xxx_hidden_Title       *wrapperspb.StringValue `protobuf:"bytes,1,opt,name=title"`
 	xxx_hidden_Description *wrapperspb.StringValue `protobuf:"bytes,2,opt,name=description"`
-	xxx_hidden_Text        *wrapperspb.StringValue `protobuf:"bytes,3,opt,name=text"`
-	xxx_hidden_Number      uint64                  `protobuf:"varint,4,opt,name=number"`
+	xxx_hidden_Text        *wrapperspb.BytesValue  `protobuf:"bytes,3,opt,name=text"`
+	xxx_hidden_Nonce       *wrapperspb.BytesValue  `protobuf:"bytes,4,opt,name=nonce"`
+	xxx_hidden_KeyId       *wrapperspb.UInt64Value `protobuf:"bytes,5,opt,name=key_id,json=keyId"`
+	xxx_hidden_Number      uint64                  `protobuf:"varint,6,opt,name=number"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -580,9 +695,23 @@ func (x *TextUpdateRequest) GetDescription() *wrapperspb.StringValue {
 	return nil
 }
 
-func (x *TextUpdateRequest) GetText() *wrapperspb.StringValue {
+func (x *TextUpdateRequest) GetText() *wrapperspb.BytesValue {
 	if x != nil {
 		return x.xxx_hidden_Text
+	}
+	return nil
+}
+
+func (x *TextUpdateRequest) GetNonce() *wrapperspb.BytesValue {
+	if x != nil {
+		return x.xxx_hidden_Nonce
+	}
+	return nil
+}
+
+func (x *TextUpdateRequest) GetKeyId() *wrapperspb.UInt64Value {
+	if x != nil {
+		return x.xxx_hidden_KeyId
 	}
 	return nil
 }
@@ -602,13 +731,21 @@ func (x *TextUpdateRequest) SetDescription(v *wrapperspb.StringValue) {
 	x.xxx_hidden_Description = v
 }
 
-func (x *TextUpdateRequest) SetText(v *wrapperspb.StringValue) {
+func (x *TextUpdateRequest) SetText(v *wrapperspb.BytesValue) {
 	x.xxx_hidden_Text = v
+}
+
+func (x *TextUpdateRequest) SetNonce(v *wrapperspb.BytesValue) {
+	x.xxx_hidden_Nonce = v
+}
+
+func (x *TextUpdateRequest) SetKeyId(v *wrapperspb.UInt64Value) {
+	x.xxx_hidden_KeyId = v
 }
 
 func (x *TextUpdateRequest) SetNumber(v uint64) {
 	x.xxx_hidden_Number = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 4)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 6)
 }
 
 func (x *TextUpdateRequest) HasTitle() bool {
@@ -632,11 +769,25 @@ func (x *TextUpdateRequest) HasText() bool {
 	return x.xxx_hidden_Text != nil
 }
 
+func (x *TextUpdateRequest) HasNonce() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Nonce != nil
+}
+
+func (x *TextUpdateRequest) HasKeyId() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_KeyId != nil
+}
+
 func (x *TextUpdateRequest) HasNumber() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
 }
 
 func (x *TextUpdateRequest) ClearTitle() {
@@ -651,8 +802,16 @@ func (x *TextUpdateRequest) ClearText() {
 	x.xxx_hidden_Text = nil
 }
 
+func (x *TextUpdateRequest) ClearNonce() {
+	x.xxx_hidden_Nonce = nil
+}
+
+func (x *TextUpdateRequest) ClearKeyId() {
+	x.xxx_hidden_KeyId = nil
+}
+
 func (x *TextUpdateRequest) ClearNumber() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
 	x.xxx_hidden_Number = 0
 }
 
@@ -661,7 +820,9 @@ type TextUpdateRequest_builder struct {
 
 	Title       *wrapperspb.StringValue
 	Description *wrapperspb.StringValue
-	Text        *wrapperspb.StringValue
+	Text        *wrapperspb.BytesValue
+	Nonce       *wrapperspb.BytesValue
+	KeyId       *wrapperspb.UInt64Value
 	Number      *uint64
 }
 
@@ -672,8 +833,10 @@ func (b0 TextUpdateRequest_builder) Build() *TextUpdateRequest {
 	x.xxx_hidden_Title = b.Title
 	x.xxx_hidden_Description = b.Description
 	x.xxx_hidden_Text = b.Text
+	x.xxx_hidden_Nonce = b.Nonce
+	x.xxx_hidden_KeyId = b.KeyId
 	if b.Number != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 4)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 6)
 		x.xxx_hidden_Number = *b.Number
 	}
 	return m0
@@ -946,29 +1109,35 @@ var File_api_proto_texts_texts_proto protoreflect.FileDescriptor
 
 const file_api_proto_texts_texts_proto_rawDesc = "" +
 	"\n" +
-	"\x1bapi/proto/texts/texts.proto\x12\x05texts\x1a\x1egoogle/protobuf/wrappers.proto\"\xb9\x01\n" +
+	"\x1bapi/proto/texts/texts.proto\x12\x05texts\x1a\x1egoogle/protobuf/wrappers.proto\"\xa0\x02\n" +
 	"\x11TextCreateRequest\x122\n" +
 	"\x05title\x18\x01 \x01(\v2\x1c.google.protobuf.StringValueR\x05title\x12>\n" +
-	"\vdescription\x18\x02 \x01(\v2\x1c.google.protobuf.StringValueR\vdescription\x120\n" +
-	"\x04text\x18\x03 \x01(\v2\x1c.google.protobuf.StringValueR\x04text\",\n" +
+	"\vdescription\x18\x02 \x01(\v2\x1c.google.protobuf.StringValueR\vdescription\x12/\n" +
+	"\x04text\x18\x03 \x01(\v2\x1b.google.protobuf.BytesValueR\x04text\x121\n" +
+	"\x05nonce\x18\x04 \x01(\v2\x1b.google.protobuf.BytesValueR\x05nonce\x123\n" +
+	"\x06key_id\x18\x05 \x01(\v2\x1c.google.protobuf.UInt64ValueR\x05keyId\",\n" +
 	"\x12TextCreateResponse\x12\x16\n" +
 	"\x06number\x18\x01 \x01(\x04R\x06number\"(\n" +
 	"\x0eTextGetRequest\x12\x16\n" +
-	"\x06number\x18\x01 \x01(\x04R\x06number\"\xb3\x01\n" +
+	"\x06number\x18\x01 \x01(\x04R\x06number\"\xe0\x01\n" +
 	"\x0fTextGetResponse\x12\x14\n" +
 	"\x05title\x18\x01 \x01(\tR\x05title\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\x12\x12\n" +
-	"\x04text\x18\x03 \x01(\tR\x04text\x12\x16\n" +
-	"\x06number\x18\x04 \x01(\x04R\x06number\x12\x1d\n" +
+	"\x04text\x18\x03 \x01(\fR\x04text\x12\x14\n" +
+	"\x05nonce\x18\x04 \x01(\fR\x05nonce\x12\x15\n" +
+	"\x06key_id\x18\x05 \x01(\x04R\x05keyId\x12\x16\n" +
+	"\x06number\x18\x06 \x01(\x04R\x06number\x12\x1d\n" +
 	"\n" +
-	"created_at\x18\x05 \x01(\tR\tcreatedAt\x12\x1d\n" +
+	"created_at\x18\a \x01(\tR\tcreatedAt\x12\x1d\n" +
 	"\n" +
-	"updated_at\x18\x06 \x01(\tR\tupdatedAt\"\xd1\x01\n" +
+	"updated_at\x18\b \x01(\tR\tupdatedAt\"\xb8\x02\n" +
 	"\x11TextUpdateRequest\x122\n" +
 	"\x05title\x18\x01 \x01(\v2\x1c.google.protobuf.StringValueR\x05title\x12>\n" +
-	"\vdescription\x18\x02 \x01(\v2\x1c.google.protobuf.StringValueR\vdescription\x120\n" +
-	"\x04text\x18\x03 \x01(\v2\x1c.google.protobuf.StringValueR\x04text\x12\x16\n" +
-	"\x06number\x18\x04 \x01(\x04R\x06number\"\x14\n" +
+	"\vdescription\x18\x02 \x01(\v2\x1c.google.protobuf.StringValueR\vdescription\x12/\n" +
+	"\x04text\x18\x03 \x01(\v2\x1b.google.protobuf.BytesValueR\x04text\x121\n" +
+	"\x05nonce\x18\x04 \x01(\v2\x1b.google.protobuf.BytesValueR\x05nonce\x123\n" +
+	"\x06key_id\x18\x05 \x01(\v2\x1c.google.protobuf.UInt64ValueR\x05keyId\x12\x16\n" +
+	"\x06number\x18\x06 \x01(\x04R\x06number\"\x14\n" +
 	"\x12TextUpdateResponse\"+\n" +
 	"\x11TextDeleteRequest\x12\x16\n" +
 	"\x06number\x18\x01 \x01(\x04R\x06number\"\x14\n" +
@@ -999,30 +1168,36 @@ var file_api_proto_texts_texts_proto_goTypes = []any{
 	(*TextGetListRequest)(nil),     // 8: texts.TextGetListRequest
 	(*TextGetListResponse)(nil),    // 9: texts.TextGetListResponse
 	(*wrapperspb.StringValue)(nil), // 10: google.protobuf.StringValue
+	(*wrapperspb.BytesValue)(nil),  // 11: google.protobuf.BytesValue
+	(*wrapperspb.UInt64Value)(nil), // 12: google.protobuf.UInt64Value
 }
 var file_api_proto_texts_texts_proto_depIdxs = []int32{
 	10, // 0: texts.TextCreateRequest.title:type_name -> google.protobuf.StringValue
 	10, // 1: texts.TextCreateRequest.description:type_name -> google.protobuf.StringValue
-	10, // 2: texts.TextCreateRequest.text:type_name -> google.protobuf.StringValue
-	10, // 3: texts.TextUpdateRequest.title:type_name -> google.protobuf.StringValue
-	10, // 4: texts.TextUpdateRequest.description:type_name -> google.protobuf.StringValue
-	10, // 5: texts.TextUpdateRequest.text:type_name -> google.protobuf.StringValue
-	3,  // 6: texts.TextGetListResponse.texts:type_name -> texts.TextGetResponse
-	0,  // 7: texts.TextService.CreateText:input_type -> texts.TextCreateRequest
-	2,  // 8: texts.TextService.GetText:input_type -> texts.TextGetRequest
-	4,  // 9: texts.TextService.UpdateText:input_type -> texts.TextUpdateRequest
-	6,  // 10: texts.TextService.DeleteText:input_type -> texts.TextDeleteRequest
-	8,  // 11: texts.TextService.GetListText:input_type -> texts.TextGetListRequest
-	1,  // 12: texts.TextService.CreateText:output_type -> texts.TextCreateResponse
-	3,  // 13: texts.TextService.GetText:output_type -> texts.TextGetResponse
-	5,  // 14: texts.TextService.UpdateText:output_type -> texts.TextUpdateResponse
-	7,  // 15: texts.TextService.DeleteText:output_type -> texts.TextDeleteResponse
-	9,  // 16: texts.TextService.GetListText:output_type -> texts.TextGetListResponse
-	12, // [12:17] is the sub-list for method output_type
-	7,  // [7:12] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	11, // 2: texts.TextCreateRequest.text:type_name -> google.protobuf.BytesValue
+	11, // 3: texts.TextCreateRequest.nonce:type_name -> google.protobuf.BytesValue
+	12, // 4: texts.TextCreateRequest.key_id:type_name -> google.protobuf.UInt64Value
+	10, // 5: texts.TextUpdateRequest.title:type_name -> google.protobuf.StringValue
+	10, // 6: texts.TextUpdateRequest.description:type_name -> google.protobuf.StringValue
+	11, // 7: texts.TextUpdateRequest.text:type_name -> google.protobuf.BytesValue
+	11, // 8: texts.TextUpdateRequest.nonce:type_name -> google.protobuf.BytesValue
+	12, // 9: texts.TextUpdateRequest.key_id:type_name -> google.protobuf.UInt64Value
+	3,  // 10: texts.TextGetListResponse.texts:type_name -> texts.TextGetResponse
+	0,  // 11: texts.TextService.CreateText:input_type -> texts.TextCreateRequest
+	2,  // 12: texts.TextService.GetText:input_type -> texts.TextGetRequest
+	4,  // 13: texts.TextService.UpdateText:input_type -> texts.TextUpdateRequest
+	6,  // 14: texts.TextService.DeleteText:input_type -> texts.TextDeleteRequest
+	8,  // 15: texts.TextService.GetListText:input_type -> texts.TextGetListRequest
+	1,  // 16: texts.TextService.CreateText:output_type -> texts.TextCreateResponse
+	3,  // 17: texts.TextService.GetText:output_type -> texts.TextGetResponse
+	5,  // 18: texts.TextService.UpdateText:output_type -> texts.TextUpdateResponse
+	7,  // 19: texts.TextService.DeleteText:output_type -> texts.TextDeleteResponse
+	9,  // 20: texts.TextService.GetListText:output_type -> texts.TextGetListResponse
+	16, // [16:21] is the sub-list for method output_type
+	11, // [11:16] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_api_proto_texts_texts_proto_init() }

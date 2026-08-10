@@ -142,6 +142,7 @@ func (m *Menu) initCardMenu() {
 				if title == "" || title == " " {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						fmt.Println("Title cannot be empty")
 						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid title: field is required")
@@ -438,8 +439,12 @@ func (m *Menu) initCardMenu() {
 					continue
 				}
 
-				if title == "" || title == " " {
-					fmt.Println("Title is required")
+				if title == "" {
+					break
+				}
+
+				if title == " " {
+					fmt.Println("Title cannot be empty")
 					continue
 				}
 

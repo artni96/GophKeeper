@@ -45,7 +45,10 @@ func (h *Handler) CreateText(ctx context.Context, req *pb.TextCreateRequest) (*p
 		return resp, status.Errorf(codes.Unauthenticated, "not authenticated")
 	}
 	entityToCreate := textmodel.CreateTextRequest{
-		Title:       req.GetTitle(),
+		Title: req.GetTitle(),
+		Nonce: req.GetNonce(),
+		KeyID: req.GetKeyId(),
+
 		Description: req.GetDescription(),
 		Text:        req.GetText(),
 		UserID:      userID,
@@ -100,7 +103,11 @@ func (h *Handler) GetText(ctx context.Context, req *pb.TextGetRequest) (*pb.Text
 
 	resp.SetTitle(dbEntity.Title)
 	resp.SetDescription(dbEntity.Description)
+
 	resp.SetText(dbEntity.Text)
+	resp.SetNonce(dbEntity.Nonce)
+	resp.SetKeyId(dbEntity.KeyID)
+
 	resp.SetCreatedAt(dbEntity.CreatedAt.Format(time.RFC3339))
 	if !dbEntity.UpdatedAt.IsZero() {
 		resp.SetUpdatedAt(dbEntity.UpdatedAt.Format(time.RFC3339))
@@ -124,7 +131,10 @@ func (h *Handler) UpdateText(ctx context.Context, req *pb.TextUpdateRequest) (*p
 	dataToUpdate := textmodel.UpdateTextRequest{
 		Title:       req.GetTitle(),
 		Description: req.GetDescription(),
-		Text:        req.GetText(),
+
+		Text:  req.GetText(),
+		Nonce: req.GetNonce(),
+		KeyID: req.GetKeyId(),
 	}
 
 	err := h.Service.Update(ctx, dataToUpdate, entityNumber, userID)
@@ -213,7 +223,11 @@ func (h *Handler) GetListText(ctx context.Context, req *pb.TextGetListRequest) (
 		i := &pb.TextGetResponse{}
 		i.SetTitle(entity.Title)
 		i.SetDescription(entity.Description)
+
 		i.SetText(entity.Text)
+		i.SetNonce(entity.Nonce)
+		i.SetKeyId(entity.KeyID)
+
 		i.SetNumber(entity.Number)
 		i.SetCreatedAt(entity.CreatedAt.Format(time.RFC3339))
 		if !entity.UpdatedAt.IsZero() {

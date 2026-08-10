@@ -36,7 +36,16 @@ func initTextRepo(db *sqlx.DB) (*Repository, error) {
 
 func textFixture(ctx context.Context, cardRepo *Repository, entityData text.CreateText) uint64 {
 	notNullFields := []string{
-		"title", "description", "hashed_text", "user_id", "created_at", "number",
+		"title",
+		"description",
+
+		"hashed_text",
+		"nonce",
+		"key_id",
+
+		"user_id",
+		"created_at",
+		"number",
 	}
 	number, err := cardRepo.Create(ctx, entityData, notNullFields)
 	if err != nil {
@@ -96,12 +105,25 @@ func TestCreateText(t *testing.T) {
 			data: text.CreateText{
 				Title:       "test title",
 				Description: "test description",
-				Text:        "test text",
-				UserID:      firstUser,
-				CreatedAt:   time.Now(),
+
+				Text:  []byte("test text"),
+				Nonce: []byte("test nonce"),
+				KeyID: 1,
+
+				UserID:    firstUser,
+				CreatedAt: time.Now(),
 			},
 			notNullFields: []string{
-				"title", "description", "hashed_text", "user_id", "created_at", "number",
+				"title",
+				"description",
+
+				"hashed_text",
+				"nonce",
+				"key_id",
+
+				"user_id",
+				"created_at",
+				"number",
 			},
 			failure: false,
 			error:   nil,
@@ -111,12 +133,25 @@ func TestCreateText(t *testing.T) {
 			data: text.CreateText{
 				Title:       "test title",
 				Description: "test description",
-				Text:        "test text",
-				UserID:      firstUser,
-				CreatedAt:   time.Now(),
+
+				Text:  []byte("test text"),
+				Nonce: []byte("test nonce"),
+				KeyID: 1,
+
+				UserID:    firstUser,
+				CreatedAt: time.Now(),
 			},
 			notNullFields: []string{
-				"title", "description", "hashed_text", "user_id", "created_at", "number",
+				"title",
+				"description",
+
+				"hashed_text",
+				"nonce",
+				"key_id",
+
+				"user_id",
+				"created_at",
+				"number",
 			},
 			failure: true,
 			error:   constants.ErrEntityAlreadyExists,
@@ -124,14 +159,25 @@ func TestCreateText(t *testing.T) {
 		{
 			name: "failure - no title",
 			data: text.CreateText{
-				Title:       "test title",
 				Description: "test description",
-				Text:        "test text",
-				UserID:      firstUser,
-				CreatedAt:   time.Now(),
+
+				Text:  []byte("test text"),
+				Nonce: []byte("test nonce"),
+				KeyID: 1,
+
+				UserID:    firstUser,
+				CreatedAt: time.Now(),
 			},
 			notNullFields: []string{
-				"description", "hashed_text", "user_id", "created_at", "number",
+				"description",
+
+				"hashed_text",
+				"nonce",
+				"key_id",
+
+				"user_id",
+				"created_at",
+				"number",
 			},
 			failure: true,
 			error:   constants.ErrRequiredField,
@@ -165,9 +211,13 @@ func TestGetByNumber(t *testing.T) {
 	fixtureData := text.CreateText{
 		Title:       "test title",
 		Description: "test description",
-		Text:        "test text",
-		UserID:      firstUser,
-		CreatedAt:   time.Now(),
+
+		Text:  []byte("test text"),
+		Nonce: []byte("test nonce"),
+		KeyID: 1,
+
+		UserID:    firstUser,
+		CreatedAt: time.Now(),
 	}
 	entityNumber := textFixture(tc.ctx, tc.textRepo, fixtureData)
 
@@ -229,9 +279,13 @@ func TestUpdateText(t *testing.T) {
 	fixtureData := text.CreateText{
 		Title:       "update test title",
 		Description: "update test description",
-		Text:        "update test text",
-		UserID:      firstUser,
-		CreatedAt:   time.Now(),
+
+		Text:  []byte("update test text"),
+		Nonce: []byte("update test nonce"),
+		KeyID: 1,
+
+		UserID:    firstUser,
+		CreatedAt: time.Now(),
 	}
 	entityNumber := textFixture(tc.ctx, tc.textRepo, fixtureData)
 
@@ -250,14 +304,27 @@ func TestUpdateText(t *testing.T) {
 			data: text.UpdateText{
 				Title:       "updated title",
 				Description: "updated description",
-				Text:        "updated text",
-				UpdatedAt:   time.Now(),
+
+				Text:  []byte("updated text"),
+				Nonce: []byte("update test nonce"),
+				KeyID: 1,
+
+				UpdatedAt: time.Now(),
 			},
 
-			number:        entityNumber,
-			notNullFields: []string{"title", "description", "hashed_text", "updated_at"},
-			failure:       false,
-			error:         nil,
+			number: entityNumber,
+			notNullFields: []string{
+				"title",
+				"description",
+
+				"hashed_text",
+				"nonce",
+				"key_id",
+
+				"updated_at",
+			},
+			failure: false,
+			error:   nil,
 		},
 		{
 			name:   "failure - the first user does not have a text record with number 2",
@@ -265,13 +332,26 @@ func TestUpdateText(t *testing.T) {
 			data: text.UpdateText{
 				Title:       "updated title",
 				Description: "updated description",
-				Text:        "updated text",
-				UpdatedAt:   time.Now(),
+
+				Text:  []byte("updated text"),
+				Nonce: []byte("update test nonce"),
+				KeyID: 1,
+
+				UpdatedAt: time.Now(),
 			},
-			number:        2,
-			notNullFields: []string{"title", "description", "hashed_text", "updated_at"},
-			failure:       true,
-			error:         constants.ErrEntityNotFound,
+			number: 2,
+			notNullFields: []string{
+				"title",
+				"description",
+
+				"hashed_text",
+				"nonce",
+				"key_id",
+
+				"updated_at",
+			},
+			failure: true,
+			error:   constants.ErrEntityNotFound,
 		},
 		{
 			name:   "failure - the second user does not have a text record with number 1",
@@ -279,13 +359,26 @@ func TestUpdateText(t *testing.T) {
 			data: text.UpdateText{
 				Title:       "updated title",
 				Description: "updated description",
-				Text:        "updated text",
-				UpdatedAt:   time.Now(),
+
+				Text:  []byte("updated text"),
+				Nonce: []byte("update test nonce"),
+				KeyID: 1,
+
+				UpdatedAt: time.Now(),
 			},
-			number:        entityNumber,
-			notNullFields: []string{"title", "description", "hashed_text", "updated_at"},
-			failure:       true,
-			error:         constants.ErrEntityNotFound,
+			number: entityNumber,
+			notNullFields: []string{
+				"title",
+				"description",
+
+				"hashed_text",
+				"nonce",
+				"key_id",
+
+				"updated_at",
+			},
+			failure: true,
+			error:   constants.ErrEntityNotFound,
 		},
 	}
 	for _, tt := range tests {
@@ -340,9 +433,13 @@ func TestGetList(t *testing.T) {
 		fixtureData := text.CreateText{
 			Title:       fmt.Sprintf("test title %d", i),
 			Description: fmt.Sprintf("test description %d", i),
-			Text:        fmt.Sprintf("test text %d", i),
-			UserID:      testUserID,
-			CreatedAt:   time.Now(),
+
+			Text:  []byte(fmt.Sprintf("test text %d", i)),
+			Nonce: []byte(fmt.Sprintf("test nonce %d", i)),
+			KeyID: uint64(i),
+
+			UserID:    testUserID,
+			CreatedAt: time.Now(),
 		}
 		_ = textFixture(tc.ctx, tc.textRepo, fixtureData)
 
@@ -399,9 +496,13 @@ func TestDeleteText(t *testing.T) {
 	fixtureData := text.CreateText{
 		Title:       "update test title",
 		Description: "update test description",
-		Text:        "update test text",
-		UserID:      firstUser,
-		CreatedAt:   time.Now(),
+
+		Text:  []byte("update test text"),
+		Nonce: []byte("update test nonce"),
+		KeyID: 1,
+
+		UserID:    firstUser,
+		CreatedAt: time.Now(),
 	}
 	entityNumber := textFixture(tc.ctx, tc.textRepo, fixtureData)
 

@@ -6,6 +6,7 @@ import (
 
 	textspb "github.com/artni96/GophKeeper/api/proto/texts"
 	"github.com/artni96/GophKeeper/internal/client/utils"
+	"github.com/artni96/GophKeeper/internal/server/constants"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/wrapperspb"
@@ -115,19 +116,24 @@ func (m *Menu) initTextMenu() {
 			m.needInput = false
 			pbEntity := &textspb.TextCreateRequest{}
 
+			activeKey := m.app.State.ActiveKeyID
+
 			for i := range m.app.Cfg.MaxAttempts {
 				fmt.Printf("Enter title: ")
 				title, err := m.app.ReadLine()
 				if err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid title")
 					continue
 				}
-				if title == "" {
+				if title == "" || title == " " {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						fmt.Println("Title cannot be empty")
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid title: field is required")
 					continue
@@ -143,6 +149,7 @@ func (m *Menu) initTextMenu() {
 				if err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid description")
 					continue
@@ -153,15 +160,25 @@ func (m *Menu) initTextMenu() {
 
 			for i := range m.app.Cfg.MaxAttempts {
 				fmt.Printf("Enter text: ")
-				password, err := m.app.ReadLine()
+				text, err := m.app.ReadLine()
 				if err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid text")
 					continue
 				}
-				pbEntity.SetText(wrapperspb.String(password))
+
+				encryptedValue, nonce, err := m.app.EncryptField(text)
+
+				if err != nil {
+					continue
+				}
+
+				pbEntity.SetText(wrapperspb.Bytes(encryptedValue))
+				pbEntity.SetNonce(wrapperspb.Bytes(nonce))
+				pbEntity.SetKeyId(wrapperspb.UInt64(activeKey))
 				break
 			}
 
@@ -198,14 +215,26 @@ func (m *Menu) initTextMenu() {
 			m.needInput = false
 			pbEntity := &textspb.TextUpdateRequest{}
 
+			activeKey := m.app.State.ActiveKeyID
+
 			for i := range m.app.Cfg.MaxAttempts {
 				fmt.Printf("Enter title: ")
 				title, err := m.app.ReadLine()
 				if err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid title")
+					continue
+				}
+
+				if title == "" {
+					break
+				}
+
+				if title == " " {
+					fmt.Println("Title cannot be empty")
 					continue
 				}
 
@@ -219,6 +248,7 @@ func (m *Menu) initTextMenu() {
 				if err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid description")
 					continue
@@ -229,15 +259,25 @@ func (m *Menu) initTextMenu() {
 
 			for i := range m.app.Cfg.MaxAttempts {
 				fmt.Printf("Enter text: ")
-				url, err := m.app.ReadLine()
+				text, err := m.app.ReadLine()
 				if err != nil {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid text")
 					continue
 				}
-				pbEntity.SetText(wrapperspb.String(url))
+
+				encryptedValue, nonce, err := m.app.EncryptField(text)
+
+				if err != nil {
+					continue
+				}
+
+				pbEntity.SetText(wrapperspb.Bytes(encryptedValue))
+				pbEntity.SetNonce(wrapperspb.Bytes(nonce))
+				pbEntity.SetKeyId(wrapperspb.UInt64(activeKey))
 				break
 			}
 

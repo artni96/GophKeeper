@@ -131,9 +131,10 @@ func (m *Menu) initLoginMenu() {
 					fmt.Println("Invalid title")
 					continue
 				}
-				if title == "" {
+				if title == "" || title == " " {
 					if i == m.app.Cfg.MaxAttempts-1 {
 						m.isFailed = true
+						fmt.Println("Title cannot be empty")
 						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid title: field is required")
@@ -266,6 +267,15 @@ func (m *Menu) initLoginMenu() {
 						return constants.ErrInvalidInput
 					}
 					fmt.Println("Invalid title")
+					continue
+				}
+
+				if title == "" {
+					break
+				}
+
+				if title == " " {
+					fmt.Println("Title cannot be empty")
 					continue
 				}
 

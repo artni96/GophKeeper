@@ -71,7 +71,7 @@ func (app *App) InitDependencies() {
 	app.LoginService = loginserv.NewService(app.Cfg, app.conn, loginRepo, app.State)
 
 	textRepo := textrepo.NewRepository(app.NumberMap)
-	app.TextService = textserv.NewService(app.Cfg, app.conn, textRepo)
+	app.TextService = textserv.NewService(app.Cfg, app.conn, textRepo, app.State)
 
 	app.UserService = userserv.NewService(app.Cfg, app.State, app.conn, app.NotificationChan, app.IsBeingUpdated)
 

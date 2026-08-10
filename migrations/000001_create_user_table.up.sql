@@ -23,12 +23,18 @@ CREATE TABLE IF NOT EXISTS logins (
     number INTEGER NOT NULL,
     url VARCHAR(255),
     description TEXT,
+
     hashed_login BYTEA,
+    login_nonce BYTEA,
+    login_key_id INTEGER,
+
     hashed_password BYTEA,
+    password_nonce BYTEA,
+    password_key_id INTEGER,
+
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP,
-    nonce BYTEA NOT NULL,
-    key_id INTEGER NOT NULL,
+
     CONSTRAINT logins_fk_user FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT logins_unique_constraint_user_title UNIQUE (user_id, title),
     CONSTRAINT logins_unique_constraint_user_number UNIQUE (user_id, number)
@@ -82,7 +88,11 @@ CREATE TABLE IF NOT EXISTS texts (
     title VARCHAR(255) NOT NULL,
     description TEXT,
     number INTEGER NOT NULL,
-    hashed_text VARCHAR(255),
+
+    hashed_text BYTEA,
+    nonce BYTEA,
+    key_id INTEGER,
+
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP,
     CONSTRAINT texts_fk_user FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,

@@ -8,40 +8,59 @@ import (
 )
 
 type CreateTextRequest struct {
-	Title       *wrapperspb.StringValue `protobuf:"bytes,1,opt,name=title" json:"title,omitempty"`
-	Description *wrapperspb.StringValue `protobuf:"bytes,2,opt,name=description" json:"description,omitempty"`
-	Text        *wrapperspb.StringValue `protobuf:"bytes,3,opt,name=text" json:"text,omitempty"`
-	UserID      uuid.UUID
+	Title       *wrapperspb.StringValue
+	Description *wrapperspb.StringValue
+
+	Text  *wrapperspb.BytesValue
+	Nonce *wrapperspb.BytesValue
+	KeyID *wrapperspb.UInt64Value
+
+	UserID uuid.UUID
 }
 
 type CreateText struct {
 	Title       string
 	Description string
-	Text        string `gorm:"column:hashed_text"`
-	UserID      uuid.UUID
-	CreatedAt   time.Time
-	Number      uint64
+
+	Text  []byte `gorm:"column:hashed_text"`
+	Nonce []byte
+	KeyID uint64
+
+	UserID    uuid.UUID
+	CreatedAt time.Time
+	Number    uint64
 }
 
 type Text struct {
 	Title       string
 	Description string
-	Text        string `gorm:"column:hashed_text"`
-	UserID      uuid.UUID
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	Number      uint64
+
+	Text  []byte `gorm:"column:hashed_text"`
+	Nonce []byte
+	KeyID uint64
+
+	UserID    uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Number    uint64
 }
 
 type UpdateTextRequest struct {
-	Title       *wrapperspb.StringValue `protobuf:"bytes,1,opt,name=title" json:"title,omitempty"`
-	Description *wrapperspb.StringValue `protobuf:"bytes,2,opt,name=description" json:"description,omitempty"`
-	Text        *wrapperspb.StringValue `protobuf:"bytes,3,opt,name=text" json:"text,omitempty"`
+	Title       *wrapperspb.StringValue
+	Description *wrapperspb.StringValue
+
+	Text  *wrapperspb.BytesValue
+	Nonce *wrapperspb.BytesValue
+	KeyID *wrapperspb.UInt64Value
 }
 
 type UpdateText struct {
 	Title       string
 	Description string
-	Text        string `gorm:"column:hashed_text"`
-	UpdatedAt   time.Time
+
+	Text  []byte `gorm:"column:hashed_text"`
+	Nonce []byte
+	KeyID uint64
+
+	UpdatedAt time.Time
 }

@@ -36,10 +36,25 @@ func initCardRepo(db *sqlx.DB) (*Repository, error) {
 func cardFixture(ctx context.Context, cardRepo *Repository, entityData card.CreateCard) {
 	notNullFields := []string{
 		"hashed_pan",
+		"pan_nonce",
+		"pan_key_id",
+
 		"hashed_holder",
+		"holder_nonce",
+		"holder_key_id",
+
 		"hashed_expiry_date",
+		"expiry_date_nince",
+		"expiry_date_key_id",
+
 		"hashed_cvv",
+		"cvv_nonce",
+		"cvv_key_id",
+
 		"hashed_pin",
+		"pin_nonce",
+		"pin_key_id",
+
 		"bank",
 		"brand",
 		"user_id",
@@ -47,8 +62,6 @@ func cardFixture(ctx context.Context, cardRepo *Repository, entityData card.Crea
 		"description",
 		"created_at",
 		"number",
-		"nonce",
-		"key_id",
 	}
 	_, err := cardRepo.Create(ctx, entityData, notNullFields)
 	if err != nil {
@@ -105,26 +118,54 @@ func TestCreate(t *testing.T) {
 		{
 			name: "success",
 			data: card.CreateCard{
-				PAN:         []byte("1234567812345678"),
+				PAN:      []byte("1234567812345678"),
+				PanNonce: []byte("test nonce"),
+				PanKeyID: 1,
+
 				Holder:      []byte("Test Holder"),
-				ExpiryDate:  []byte("0535"),
-				CVV:         []byte("123"),
-				PIN:         []byte("1234"),
+				HolderNonce: []byte("test nonce"),
+				HolderKeyID: 1,
+
+				ExpiryDate:      []byte("0535"),
+				ExpiryDateNonce: []byte("test nonce"),
+				ExpiryDateKeyID: 1,
+
+				CVV:      []byte("123"),
+				CVVNonce: []byte("test nonce"),
+				CVVKeyID: 1,
+
+				PIN:      []byte("1234"),
+				PINNonce: []byte("test nonce"),
+				PINKeyID: 1,
+
 				Bank:        "test",
 				Brand:       "test",
 				UserID:      firstUser,
 				Title:       "Test Title",
 				Description: "Test Description",
 				CreatedAt:   time.Now(),
-				Nonce:       []byte("test nonce"),
-				KeyID:       1,
 			},
 			notNullFields: []string{
 				"hashed_pan",
+				"pan_nonce",
+				"pan_key_id",
+
 				"hashed_holder",
+				"holder_nonce",
+				"holder_key_id",
+
 				"hashed_expiry_date",
+				"expiry_date_nonce",
+				"expiry_date_key_id",
+
 				"hashed_cvv",
+				"cvv_nonce",
+				"cvv_key_id",
+
 				"hashed_pin",
+				"pin_nonce",
+				"pin_key_id",
+
 				"bank",
 				"brand",
 				"user_id",
@@ -132,35 +173,60 @@ func TestCreate(t *testing.T) {
 				"description",
 				"created_at",
 				"number",
-				"nonce",
-				"key_id",
 			},
 			failure: false,
 		},
 		{
-			name: "failure - pan duplicate",
+			name: "failure - pan publicate",
 			data: card.CreateCard{
-				PAN:         []byte("1234567812345678"),
+				PAN:      []byte("1234567812345678"),
+				PanNonce: []byte("test nonce"),
+				PanKeyID: 1,
+
 				Holder:      []byte("Test Holder"),
-				ExpiryDate:  []byte("0535"),
-				CVV:         []byte("123"),
-				PIN:         []byte("1234"),
+				HolderNonce: []byte("test nonce"),
+				HolderKeyID: 1,
+
+				ExpiryDate:      []byte("0535"),
+				ExpiryDateNonce: []byte("test nonce"),
+				ExpiryDateKeyID: 1,
+
+				CVV:      []byte("123"),
+				CVVNonce: []byte("test nonce"),
+				CVVKeyID: 1,
+
+				PIN:      []byte("1234"),
+				PINNonce: []byte("test nonce"),
+				PINKeyID: 1,
+
 				Bank:        "test",
 				Brand:       "test",
 				UserID:      firstUser,
-				Title:       "Test Title 1",
+				Title:       "Another Title",
 				Description: "Test Description",
 				CreatedAt:   time.Now(),
-				Nonce:       []byte("test nonce"),
-				KeyID:       1,
 			},
-			failure: true,
 			notNullFields: []string{
 				"hashed_pan",
+				"pan_nonce",
+				"pan_key_id",
+
 				"hashed_holder",
+				"holder_nonce",
+				"holder_key_id",
+
 				"hashed_expiry_date",
+				"expiry_date_nonce",
+				"expiry_date_key_id",
+
 				"hashed_cvv",
+				"cvv_nonce",
+				"cvv_key_id",
+
 				"hashed_pin",
+				"pin_nonce",
+				"pin_key_id",
+
 				"bank",
 				"brand",
 				"user_id",
@@ -168,35 +234,61 @@ func TestCreate(t *testing.T) {
 				"description",
 				"created_at",
 				"number",
-				"nonce",
-				"key_id",
 			},
-			error: constants.ErrEntityAlreadyExists,
+			failure: true,
+			error:   constants.ErrEntityAlreadyExists,
 		},
 		{
 			name: "failure - title duplicate",
 			data: card.CreateCard{
-				PAN:         []byte("1234567812345678"),
+				PAN:      []byte("1234567812345678"),
+				PanNonce: []byte("test nonce"),
+				PanKeyID: 1,
+
 				Holder:      []byte("Test Holder"),
-				ExpiryDate:  []byte("0535"),
-				CVV:         []byte("123"),
-				PIN:         []byte("1234"),
+				HolderNonce: []byte("test nonce"),
+				HolderKeyID: 1,
+
+				ExpiryDate:      []byte("0535"),
+				ExpiryDateNonce: []byte("test nonce"),
+				ExpiryDateKeyID: 1,
+
+				CVV:      []byte("123"),
+				CVVNonce: []byte("test nonce"),
+				CVVKeyID: 1,
+
+				PIN:      []byte("1234"),
+				PINNonce: []byte("test nonce"),
+				PINKeyID: 1,
+
 				Bank:        "test",
 				Brand:       "test",
 				UserID:      firstUser,
 				Title:       "Test Title",
 				Description: "Test Description",
 				CreatedAt:   time.Now(),
-				Nonce:       []byte("test nonce"),
-				KeyID:       1,
 			},
-			failure: true,
 			notNullFields: []string{
 				"hashed_pan",
+				"pan_nonce",
+				"pan_key_id",
+
 				"hashed_holder",
+				"holder_nonce",
+				"holder_key_id",
+
 				"hashed_expiry_date",
+				"expiry_date_nonce",
+				"expiry_date_key_id",
+
 				"hashed_cvv",
+				"cvv_nonce",
+				"cvv_key_id",
+
 				"hashed_pin",
+				"pin_nonce",
+				"pin_key_id",
+
 				"bank",
 				"brand",
 				"user_id",
@@ -204,44 +296,69 @@ func TestCreate(t *testing.T) {
 				"description",
 				"created_at",
 				"number",
-				"nonce",
-				"key_id",
 			},
-			error: constants.ErrEntityAlreadyExists,
+			failure: true,
+			error:   constants.ErrEntityAlreadyExists,
 		},
 		{
 			name: "failure - no title",
 			data: card.CreateCard{
-				PAN:         []byte("1234567812345678"),
+				PAN:      []byte("1234567812345678"),
+				PanNonce: []byte("test nonce"),
+				PanKeyID: 1,
+
 				Holder:      []byte("Test Holder"),
-				ExpiryDate:  []byte("0535"),
-				CVV:         []byte("123"),
-				PIN:         []byte("1234"),
+				HolderNonce: []byte("test nonce"),
+				HolderKeyID: 1,
+
+				ExpiryDate:      []byte("0535"),
+				ExpiryDateNonce: []byte("test nonce"),
+				ExpiryDateKeyID: 1,
+
+				CVV:      []byte("123"),
+				CVVNonce: []byte("test nonce"),
+				CVVKeyID: 1,
+
+				PIN:      []byte("1234"),
+				PINNonce: []byte("test nonce"),
+				PINKeyID: 1,
+
 				Bank:        "test",
 				Brand:       "test",
 				UserID:      firstUser,
 				Description: "Test Description",
 				CreatedAt:   time.Now(),
-				Nonce:       []byte("test nonce"),
-				KeyID:       1,
 			},
-			failure: true,
 			notNullFields: []string{
 				"hashed_pan",
+				"pan_nonce",
+				"pan_key_id",
+
 				"hashed_holder",
+				"holder_nonce",
+				"holder_key_id",
+
 				"hashed_expiry_date",
+				"expiry_date_nonce",
+				"expiry_date_key_id",
+
 				"hashed_cvv",
+				"cvv_nonce",
+				"cvv_key_id",
+
 				"hashed_pin",
+				"pin_nonce",
+				"pin_key_id",
+
 				"bank",
 				"brand",
 				"user_id",
 				"description",
 				"created_at",
 				"number",
-				"nonce",
-				"key_id",
 			},
-			error: constants.ErrRequiredField,
+			failure: true,
+			error:   constants.ErrRequiredField,
 		},
 	}
 	for _, tt := range tests {
@@ -270,19 +387,31 @@ func TestGetByNumber(t *testing.T) {
 	}
 
 	fixtureData := card.CreateCard{
-		PAN:         []byte("1234567812345678"),
+		PAN:      []byte("1234567812345678"),
+		PanNonce: []byte("test nonce"),
+		PanKeyID: 1,
+
 		Holder:      []byte("Test Holder"),
-		ExpiryDate:  []byte("0535"),
-		CVV:         []byte("123"),
-		PIN:         []byte("1234"),
+		HolderNonce: []byte("test nonce"),
+		HolderKeyID: 1,
+
+		ExpiryDate:      []byte("0535"),
+		ExpiryDateNonce: []byte("test nonce"),
+		ExpiryDateKeyID: 1,
+
+		CVV:      []byte("123"),
+		CVVNonce: []byte("test nonce"),
+		CVVKeyID: 1,
+
+		PIN:      []byte("1234"),
+		PINNonce: []byte("test nonce"),
+		PINKeyID: 1,
+
 		Bank:        "test",
 		Brand:       "test",
 		UserID:      firstUser,
-		Title:       "Test Title",
 		Description: "Test Description",
 		CreatedAt:   time.Now(),
-		Nonce:       []byte("test nonce"),
-		KeyID:       1,
 	}
 	cardFixture(tc.ctx, tc.cardRepo, fixtureData)
 
@@ -346,19 +475,31 @@ func TestUpdate(t *testing.T) {
 	}
 
 	fixtureData := card.CreateCard{
-		PAN:         []byte("1234567812345677"),
+		PAN:      []byte("1234567812345678"),
+		PanNonce: []byte("test nonce"),
+		PanKeyID: 1,
+
 		Holder:      []byte("Test Holder"),
-		ExpiryDate:  []byte("0535"),
-		CVV:         []byte("123"),
-		PIN:         []byte("1234"),
+		HolderNonce: []byte("test nonce"),
+		HolderKeyID: 1,
+
+		ExpiryDate:      []byte("0535"),
+		ExpiryDateNonce: []byte("test nonce"),
+		ExpiryDateKeyID: 1,
+
+		CVV:      []byte("123"),
+		CVVNonce: []byte("test nonce"),
+		CVVKeyID: 1,
+
+		PIN:      []byte("1234"),
+		PINNonce: []byte("test nonce"),
+		PINKeyID: 1,
+
 		Bank:        "test",
 		Brand:       "test",
 		UserID:      firstUser,
-		Title:       "Test Title",
 		Description: "Test Description",
 		CreatedAt:   time.Now(),
-		Nonce:       []byte("test nonce"),
-		KeyID:       1,
 	}
 	cardFixture(tc.ctx, tc.cardRepo, fixtureData)
 
@@ -374,33 +515,57 @@ func TestUpdate(t *testing.T) {
 			name:   "success",
 			userID: firstUser,
 			data: card.UpdateCard{
-				PAN:         []byte("1234567812345678"),
+				PAN:      []byte("1234567887654321"),
+				PanNonce: []byte("test nonce"),
+				PanKeyID: 1,
+
 				Holder:      []byte("Test Holder"),
-				ExpiryDate:  []byte("0535"),
-				CVV:         []byte("123"),
-				PIN:         []byte("1234"),
+				HolderNonce: []byte("test nonce"),
+				HolderKeyID: 1,
+
+				ExpiryDate:      []byte("0535"),
+				ExpiryDateNonce: []byte("test nonce"),
+				ExpiryDateKeyID: 1,
+
+				CVV:      []byte("123"),
+				CVVNonce: []byte("test nonce"),
+				CVVKeyID: 1,
+
+				PIN:      []byte("1234"),
+				PINNonce: []byte("test nonce"),
+				PINKeyID: 1,
+
 				Bank:        "test",
 				Brand:       "test",
-				Title:       "Test Title",
 				Description: "Test Description",
 				UpdatedAt:   time.Now(),
-				Nonce:       []byte("test nonce"),
-				KeyID:       1,
 			},
 			number: 1,
 			notNullFields: []string{
 				"hashed_pan",
+				"pan_nonce",
+				"pan_key_id",
+
 				"hashed_holder",
+				"holder_nonce",
+				"holder_key_id",
+
 				"hashed_expiry_date",
+				"expiry_date_nonce",
+				"expiry_date_key_id",
+
 				"hashed_cvv",
+				"cvv_nonce",
+				"cvv_key_id",
+
 				"hashed_pin",
+				"pin_nonce",
+				"pin_key_id",
+
 				"bank",
 				"brand",
-				"title",
 				"description",
 				"updated_at",
-				"nonce",
-				"key_id",
 			},
 			failure: false,
 		},
@@ -408,33 +573,57 @@ func TestUpdate(t *testing.T) {
 			name:   "failure - the first user does not have a card with number 2",
 			userID: firstUser,
 			data: card.UpdateCard{
-				PAN:         []byte("1234567812345678"),
+				PAN:      []byte("1234567887654321"),
+				PanNonce: []byte("test nonce"),
+				PanKeyID: 1,
+
 				Holder:      []byte("Test Holder"),
-				ExpiryDate:  []byte("0535"),
-				CVV:         []byte("123"),
-				PIN:         []byte("1234"),
+				HolderNonce: []byte("test nonce"),
+				HolderKeyID: 1,
+
+				ExpiryDate:      []byte("0535"),
+				ExpiryDateNonce: []byte("test nonce"),
+				ExpiryDateKeyID: 1,
+
+				CVV:      []byte("123"),
+				CVVNonce: []byte("test nonce"),
+				CVVKeyID: 1,
+
+				PIN:      []byte("1234"),
+				PINNonce: []byte("test nonce"),
+				PINKeyID: 1,
+
 				Bank:        "test",
 				Brand:       "test",
-				Title:       "Test Title",
 				Description: "Test Description",
 				UpdatedAt:   time.Now(),
-				Nonce:       []byte("test nonce"),
-				KeyID:       1,
 			},
 			number: 2,
 			notNullFields: []string{
 				"hashed_pan",
+				"pan_nonce",
+				"pan_key_id",
+
 				"hashed_holder",
+				"holder_nonce",
+				"holder_key_id",
+
 				"hashed_expiry_date",
+				"expiry_date_nonce",
+				"expiry_date_key_id",
+
 				"hashed_cvv",
+				"cvv_nonce",
+				"cvv_key_id",
+
 				"hashed_pin",
+				"pin_nonce",
+				"pin_key_id",
+
 				"bank",
 				"brand",
-				"title",
 				"description",
 				"updated_at",
-				"nonce",
-				"key_id",
 			},
 			failure: true,
 		},
@@ -442,33 +631,57 @@ func TestUpdate(t *testing.T) {
 			name:   "failure - the second user does not have a card with number 1",
 			userID: secondUser,
 			data: card.UpdateCard{
-				PAN:         []byte("1234567812345678"),
+				PAN:      []byte("1234567887654321"),
+				PanNonce: []byte("test nonce"),
+				PanKeyID: 1,
+
 				Holder:      []byte("Test Holder"),
-				ExpiryDate:  []byte("0535"),
-				CVV:         []byte("123"),
-				PIN:         []byte("1234"),
+				HolderNonce: []byte("test nonce"),
+				HolderKeyID: 1,
+
+				ExpiryDate:      []byte("0535"),
+				ExpiryDateNonce: []byte("test nonce"),
+				ExpiryDateKeyID: 1,
+
+				CVV:      []byte("123"),
+				CVVNonce: []byte("test nonce"),
+				CVVKeyID: 1,
+
+				PIN:      []byte("1234"),
+				PINNonce: []byte("test nonce"),
+				PINKeyID: 1,
+
 				Bank:        "test",
 				Brand:       "test",
-				Title:       "Test Title",
 				Description: "Test Description",
 				UpdatedAt:   time.Now(),
-				Nonce:       []byte("test nonce"),
-				KeyID:       1,
 			},
 			number: 1,
 			notNullFields: []string{
 				"hashed_pan",
+				"pan_nonce",
+				"pan_key_id",
+
 				"hashed_holder",
+				"holder_nonce",
+				"holder_key_id",
+
 				"hashed_expiry_date",
+				"expiry_date_nonce",
+				"expiry_date_key_id",
+
 				"hashed_cvv",
+				"cvv_nonce",
+				"cvv_key_id",
+
 				"hashed_pin",
+				"pin_nonce",
+				"pin_key_id",
+
 				"bank",
 				"brand",
-				"title",
 				"description",
 				"updated_at",
-				"nonce",
-				"key_id",
 			},
 			failure: true,
 		},
@@ -520,10 +733,6 @@ func TestGetList(t *testing.T) {
 			userID = secondUser
 		}
 		strPan := fmt.Sprintf("123456781234567%d", i)
-		//testPan, err := strconv.Atoi(strPan)
-		//if err != nil {
-		//	t.Fatal(err)
-		//}
 
 		var testUserID uuid.UUID
 		if i%2 == 0 {
@@ -533,19 +742,32 @@ func TestGetList(t *testing.T) {
 		}
 
 		fixtureData := card.CreateCard{
-			PAN:         []byte(strPan),
-			Holder:      []byte(fmt.Sprintf("Test Holder %d", i)),
-			ExpiryDate:  []byte(fmt.Sprintf("053%d", i)),
-			CVV:         []byte(fmt.Sprintf("12%d", i)),
-			PIN:         []byte(fmt.Sprintf("123%d", i)),
-			Bank:        fmt.Sprintf("Test Bank %d", i),
-			Brand:       fmt.Sprintf("Test Brand %d", i),
+			PAN:      []byte(strPan),
+			PanNonce: []byte("test nonce"),
+			PanKeyID: 1,
+
+			Holder:      []byte("Test Holder"),
+			HolderNonce: []byte("test nonce"),
+			HolderKeyID: 1,
+
+			ExpiryDate:      []byte("0535"),
+			ExpiryDateNonce: []byte("test nonce"),
+			ExpiryDateKeyID: 1,
+
+			CVV:      []byte("123"),
+			CVVNonce: []byte("test nonce"),
+			CVVKeyID: 1,
+
+			PIN:      []byte("1234"),
+			PINNonce: []byte("test nonce"),
+			PINKeyID: 1,
+
+			Title:       fmt.Sprintf("Test title %d", i),
+			Bank:        "test",
+			Brand:       "test",
 			UserID:      testUserID,
-			Title:       fmt.Sprintf("Test Title %d", i),
-			Description: fmt.Sprintf("Test Description %d", i),
+			Description: "Test Description",
 			CreatedAt:   time.Now(),
-			Nonce:       []byte("test nonce"),
-			KeyID:       1,
 		}
 		cardFixture(tc.ctx, tc.cardRepo, fixtureData)
 
@@ -599,19 +821,31 @@ func TestDelete(t *testing.T) {
 	}
 
 	fixtureData := card.CreateCard{
-		PAN:         []byte("1234567812345677"),
+		PAN:      []byte("1234567812345678"),
+		PanNonce: []byte("test nonce"),
+		PanKeyID: 1,
+
 		Holder:      []byte("Test Holder"),
-		ExpiryDate:  []byte("0535"),
-		CVV:         []byte("123"),
-		PIN:         []byte("1234"),
+		HolderNonce: []byte("test nonce"),
+		HolderKeyID: 1,
+
+		ExpiryDate:      []byte("0535"),
+		ExpiryDateNonce: []byte("test nonce"),
+		ExpiryDateKeyID: 1,
+
+		CVV:      []byte("123"),
+		CVVNonce: []byte("test nonce"),
+		CVVKeyID: 1,
+
+		PIN:      []byte("1234"),
+		PINNonce: []byte("test nonce"),
+		PINKeyID: 1,
+
 		Bank:        "test",
 		Brand:       "test",
 		UserID:      firstUser,
-		Title:       "Test Title",
 		Description: "Test Description",
 		CreatedAt:   time.Now(),
-		Nonce:       []byte("test nonce"),
-		KeyID:       1,
 	}
 	cardFixture(tc.ctx, tc.cardRepo, fixtureData)
 
