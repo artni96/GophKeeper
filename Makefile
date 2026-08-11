@@ -2,6 +2,8 @@
 
 DB_DSN := "postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(SSL_MODE)"
 
+VERSION ?= N/A
+COMMIT := $(shell git rev-parse --short HEAD)
 
 .PHONY: help
 help:
@@ -29,3 +31,16 @@ server-up:
 .PHONY: server-down
 server-down:
 	docker compose down
+
+
+## build-darwin: Builds client binary for macOS.
+.PHONY: build-darwin
+build-darwin:
+	@echo "Building client binary for darwin"
+	GOARCH=arm64 GOOS=darwin go build -ldflags="-X main.buildVersion=$(VERSION) -X 'main.buildDate=$$(date +'%Y/%m/%d-%H:%M:%S')' -X main.buildCommit=$(COMMIT)" -o ./gk-darwin ./cmd/client
+
+## build-darwin: Builds client binary for linux.
+.PHONY: build-linux
+build-linux:
+	@echo "Building client binary for linux"
+	GOARCH=amd64 GOOS=linux go build -ldflags="-X main.buildVersion=$(VERSION) -X 'main.buildDate=$$(date +'%Y/%m/%d-%H:%M:%S')' -X main.buildCommit=$(COMMIT)" -o ./gk-linux ./cmd/client

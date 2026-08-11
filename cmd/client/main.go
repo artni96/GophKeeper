@@ -12,7 +12,15 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+var buildVersion = "N/A"
+var buildDate = "N/A"
+var buildCommit = "N/A"
+
 func main() {
+	fmt.Println("Build version: " + buildVersion)
+	fmt.Println("Build date: " + buildDate)
+	fmt.Println("Build commit: " + buildCommit)
+	fmt.Println()
 	eg := errgroup.Group{}
 	ctx := context.Background()
 	app := clientapp.NewApp(&eg)
