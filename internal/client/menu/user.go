@@ -47,6 +47,7 @@ func (m *Menu) initUserMenu() {
 				return err
 			}
 			fmt.Println("User registered successfully!")
+			fmt.Println()
 
 			fmt.Print()
 			fmt.Println("1. Register")

@@ -36,7 +36,7 @@ tests-db-down:
 ## server-up: Creates and launches docker containers with server and database.
 .PHONY: server-up
 server-up:
-	docker compose up -d
+	docker compose up -d --build
 
 ## server-down: Shuts docker containers with server and database.
 .PHONY: server-down

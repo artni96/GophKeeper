@@ -118,7 +118,7 @@ func (h *Handler) GetLogin(ctx context.Context, req *pb.LoginGetRequest) (*pb.Lo
 	resp.SetLoginKeyId(dbEntity.LoginKeyID)
 
 	resp.SetPassword(dbEntity.Password)
-	resp.SetPassword(dbEntity.PasswordNonce)
+	resp.SetPasswordNonce(dbEntity.PasswordNonce)
 	resp.SetPasswordKeyId(dbEntity.PasswordKeyID)
 
 	resp.SetCreatedAt(dbEntity.CreatedAt.Format(time.RFC3339))
@@ -243,7 +243,7 @@ func (h *Handler) GetListLogin(ctx context.Context, req *pb.LoginGetListRequest)
 		i.SetNumber(entity.Number)
 		i.SetUrl(entity.URL)
 		i.SetDescription(entity.Description)
-		
+
 		i.SetLogin(entity.Login)
 		i.SetLoginNonce(entity.LoginNonce)
 		i.SetLoginKeyId(entity.LoginKeyID)

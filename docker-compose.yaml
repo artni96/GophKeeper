@@ -25,10 +25,10 @@ services:
     depends_on:
       - gk-db
     build: .
+    restart: on-failure
     ports:
       - "${EXTERNAL_SERVER_PORT}:${SERVER_PORT}"
     container_name: gk-server
-
     networks:
       - gk-network
 

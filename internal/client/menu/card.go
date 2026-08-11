@@ -274,7 +274,7 @@ func (m *Menu) initCardMenu() {
 					continue
 				}
 				pbEntity.SetExpiryDate(wrapperspb.Bytes(encryptedValue))
-				pbEntity.SetExpiryDate(wrapperspb.Bytes(nonce))
+				pbEntity.SetExpiryDateNonce(wrapperspb.Bytes(nonce))
 				pbEntity.SetExpiryDateKeyId(wrapperspb.UInt64(activeKey))
 				break
 			}
