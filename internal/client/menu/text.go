@@ -217,6 +217,8 @@ func (m *Menu) initTextMenu() {
 
 			activeKey := m.app.State.ActiveKeyID
 
+			pbEntity.SetNumber(m.currentEntityNumber)
+
 			for i := range m.app.Cfg.MaxAttempts {
 				fmt.Printf("Enter title: ")
 				title, err := m.app.ReadLine()
@@ -280,14 +282,16 @@ func (m *Menu) initTextMenu() {
 				pbEntity.SetKeyId(wrapperspb.UInt64(activeKey))
 				break
 			}
-
-			pbEntity.SetNumber(m.currentEntityNumber)
+			err := m.confirmAction()
+			if err != nil {
+				return err
+			}
 
 			fmt.Println()
 
 			mdCtx := utils.PrepareMDContext(ctx, m.app.State.Token)
 
-			_, err := m.app.TextService.Client.UpdateText(mdCtx, pbEntity)
+			_, err = m.app.TextService.Client.UpdateText(mdCtx, pbEntity)
 			if err != nil {
 				m.isFailed = true
 				st, ok := status.FromError(err)

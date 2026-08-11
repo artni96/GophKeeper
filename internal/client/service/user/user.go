@@ -74,20 +74,20 @@ func (s *Service) handleKey(key *userspb.UserKey) error {
 	salt := key.GetSalt()
 	derivedKey := pbkdf2.Key([]byte(s.state.Password), salt, 10000, 32, sha256.New)
 
-	block, err := aes.NewCipher(derivedKey)
+	aesblock, err := aes.NewCipher(derivedKey)
 	if err != nil {
 		return err
 	}
 
-	gcm, err := cipher.NewGCM(block)
+	aesgcm, err := cipher.NewGCM(aesblock)
 	if err != nil {
 		return err
 	}
 
-	nonce := encryptedKey[:gcm.NonceSize()]
-	ciphertext := encryptedKey[gcm.NonceSize():]
+	nonce := encryptedKey[:aesgcm.NonceSize()]
+	ciphertext := encryptedKey[aesgcm.NonceSize():]
 
-	aesKey, err := gcm.Open(nil, nonce, ciphertext, nil)
+	aesKey, err := aesgcm.Open(nil, nonce, ciphertext, nil)
 	if err != nil {
 		return err
 	}

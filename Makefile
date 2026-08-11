@@ -1,13 +1,4 @@
-CONFIG_PATH := internal/server/config/config.json
-DB_NAME := $(shell jq -r '.db_name' $(CONFIG_PATH))
-DB_HOST := $(shell jq -r '.db_host' $(CONFIG_PATH))
-DB_PORT := $(shell jq -r '.db_port' $(CONFIG_PATH))
-DB_USER := $(shell jq -r '.db_user' $(CONFIG_PATH))
-DB_PASSWORD := $(shell jq -r '.db_password' $(CONFIG_PATH))
-SSL_MODE := $(shell jq -r '.ssl_mode' $(CONFIG_PATH))
-ifeq ($(SSL_MODE), null)
-	SSL_MODE := "disable"
-endif
+-include .env
 
 DB_DSN := "postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(SSL_MODE)"
 
@@ -17,10 +8,24 @@ help:
 	@echo "Commands list:"
 	@sed -n "s/^##//p" $(MAKEFILE_LIST) | column -t -s ":" | sed -e "s/^/ /"
 
+
+## db-up: Runs database migrations up.
 .PHONY: db-up
 db-up:
 	migrate -database $(DB_DSN) -path ./migrations up
 
+## db-down: Rolls back database migrations down.
 .PHONY: db-down
 db-down:
 	migrate -database $(DB_DSN) -path ./migrations down
+
+
+## server-up: Creates and launches docker containers with server and database.
+.PHONY: server-up
+server-up:
+	docker compose up -d
+
+## server-down: Shuts docker containers with server and database.
+.PHONY: server-down
+server-down:
+	docker compose down

@@ -1,40 +1,23 @@
 package config
 
 import (
-	"encoding/json"
-	"os"
-
 	"github.com/google/uuid"
 )
 
 type Config struct {
-	ServerAddress string `json:"server_addr"`
-	ClientID      uuid.UUID
-	MaxAttempts   uint64
+	ServerAddress   string `json:"server_addr"`
+	ClientID        uuid.UUID
+	MaxAttempts     uint64
+	DefaultServAddr string
 }
 
 func NewConfig() *Config {
 	newCfg := &Config{
-		ClientID:    uuid.New(),
-		MaxAttempts: 3,
-	}
-	err := newCfg.SetServerAddress()
-	if err != nil {
-		panic(err)
+		ClientID:        uuid.New(),
+		MaxAttempts:     3,
+		DefaultServAddr: ":3200",
 	}
 	return newCfg
-}
-
-func (c *Config) SetServerAddress() error {
-	file, err := os.ReadFile("./internal/server/config/config.json")
-	if err != nil {
-		return err
-	}
-	err = json.Unmarshal(file, &c)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 // State represent the client state metrics.

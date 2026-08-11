@@ -1,0 +1,40 @@
+services:
+  gk-db:
+    image: postgres:latest
+    restart: always
+    container_name: gk-db
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "${EXTERNAL_DB_PORT}:${DB_PORT}"
+    networks:
+      - gk-network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U gk -d gkdb" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  gk-server:
+    depends_on:
+      - gk-db
+    build: .
+    ports:
+      - "${EXTERNAL_SERVER_PORT}:${SERVER_PORT}"
+    container_name: gk-server
+
+    networks:
+      - gk-network
+
+networks:
+  gk-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

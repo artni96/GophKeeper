@@ -745,7 +745,7 @@ func (m *Menu) initCardMenu() {
 						return err
 					}
 				}
-				fmt.Println("Failed to update card")
+				fmt.Println("Failed to update card record")
 				fmt.Println()
 				return err
 			}

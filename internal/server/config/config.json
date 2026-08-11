@@ -2,7 +2,7 @@
   "server_addr": "localhost:3200",
 
   "db_host": "localhost",
-  "db_port": 5432,
+  "db_port": 6433,
   "db_user": "gk",
   "db_password": "12345",
   "db_name": "gophkeeper",

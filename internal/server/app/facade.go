@@ -58,7 +58,7 @@ func NewApp(eg *errgroup.Group, cfg *config.Config) *App {
 
 // initLogger initializes the app logger.
 func (a *App) initLogger() error {
-	logger, err := applog.InitLogger(a.Cfg.LoggingLvl)
+	logger, err := applog.InitLogger(a.Cfg.LogLvl)
 	if err != nil {
 		return fmt.Errorf("failed to initialize app logger: %w", err)
 	}
@@ -265,8 +265,8 @@ func (a *App) configStdout() string {
 	if a.Cfg.KeyFile != "" {
 		resp += fmt.Sprintf("	TLS key is set: %t\n", a.Cfg.KeyFile != "")
 	}
-	resp += fmt.Sprintf("	Logging level: %s\n", a.Cfg.LoggingLvl)
-	resp += fmt.Sprintf("	Grace period: %d seconds\n", a.Cfg.GPeriod)
-	resp += fmt.Sprintf("	Force period: %d seconds\n", a.Cfg.FPeriod)
+	resp += fmt.Sprintf("	Logging level: %s\n", a.Cfg.LogLvl)
+	resp += fmt.Sprintf("	Grace period: %f seconds\n", a.Cfg.GPeriod.Seconds())
+	resp += fmt.Sprintf("	Force period: %f seconds\n", a.Cfg.FPeriod.Seconds())
 	return resp
 }

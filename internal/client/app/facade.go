@@ -85,7 +85,17 @@ func (app *App) InitServerConn(ctx context.Context) error {
 			fmt.Printf("Attempt #%d\n", i+1)
 		}
 
-		conn, err := grpc.NewClient(app.Cfg.ServerAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		fmt.Printf("Enter server address (default: %s): ", app.Cfg.DefaultServAddr)
+		addr, err := app.ReadLine()
+		if err != nil {
+			fmt.Println("Invalid server address.")
+			continue
+		}
+		if addr == "" {
+			addr = app.Cfg.DefaultServAddr
+		}
+
+		conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
 			fmt.Println("Failed to connect to the server")
 			app.State.AddAttempt()
@@ -102,7 +112,7 @@ func (app *App) InitServerConn(ctx context.Context) error {
 		app.State.ResetAttempts()
 		return nil
 	}
-	return errors.New("failed to connect to the server")
+	return fmt.Errorf("Failed to connect to the server")
 }
 
 func (app *App) CloseServerConn() {
@@ -253,11 +263,11 @@ func (app *App) EncryptField(value string) ([]byte, []byte, error) {
 		return nil, nil, err
 	}
 
-	gcm, err := cipher.NewGCM(aesblock)
+	aesgcm, err := cipher.NewGCM(aesblock)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	ciphertext := gcm.Seal(nil, nonce, []byte(value), nil)
+	ciphertext := aesgcm.Seal(nil, nonce, []byte(value), nil)
 	return ciphertext, nonce, nil
 }
