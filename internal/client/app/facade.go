@@ -32,10 +32,9 @@ import (
 )
 
 type App struct {
-	EG        *errgroup.Group
-	conn      *grpc.ClientConn
-	Cfg       *config.Config
-	NumberMap map[uint64]string
+	EG   *errgroup.Group
+	conn *grpc.ClientConn
+	Cfg  *config.Config
 
 	CardService   *cardserv.Service
 	LoginService  *loginserv.Service
@@ -58,19 +57,18 @@ func NewApp(eg *errgroup.Group) *App {
 		State:            config.NewState(),
 		Cfg:              config.NewConfig(),
 		ClientID:         uuid.New(),
-		NumberMap:        make(map[uint64]string, 100),
 		Reader:           bufio.NewReader(os.Stdin),
 		NotificationChan: make(chan common.Notification, 100)}
 }
 
 func (app *App) InitDependencies() {
-	cardRepo := cardrepo.NewRepository(app.NumberMap)
+	cardRepo := cardrepo.NewRepository()
 	app.CardService = cardserv.NewService(app.Cfg, app.conn, cardRepo, app.State)
 
-	loginRepo := loginrepo.NewRepository(app.NumberMap)
+	loginRepo := loginrepo.NewRepository()
 	app.LoginService = loginserv.NewService(app.Cfg, app.conn, loginRepo, app.State)
 
-	textRepo := textrepo.NewRepository(app.NumberMap)
+	textRepo := textrepo.NewRepository()
 	app.TextService = textserv.NewService(app.Cfg, app.conn, textRepo, app.State)
 
 	app.UserService = userserv.NewService(app.Cfg, app.State, app.conn, app.NotificationChan, app.IsBeingUpdated)

@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-type ConfigFile struct {
+type FileSettings struct {
 	ServerAddr string `json:"server_addr"`
 
 	DBHost     string `json:"db_host"`
@@ -33,6 +33,8 @@ type ConfigFile struct {
 	GPeriod time.Duration `json:"grace_period"`
 	FPeriod time.Duration `json:"force_period"`
 }
+
+// Config represents main setting for the server.
 type Config struct {
 	ServerAddr string
 	DBDsn      string
@@ -49,7 +51,7 @@ type Config struct {
 
 func ParseConfig() (*Config, error) {
 	conf := Config{}
-	confFile := ConfigFile{}
+	file := FileSettings{}
 
 	fs := flag.NewFlagSet("config", flag.ExitOnError)
 
@@ -76,7 +78,7 @@ func ParseConfig() (*Config, error) {
 		declaredFlags[f.Name] = true
 	})
 
-	err = confFile.parseFile()
+	err = file.parseFile()
 	if err != nil {
 		return &conf, err
 	}
@@ -86,8 +88,8 @@ func ParseConfig() (*Config, error) {
 	envServerAddr, ok := os.LookupEnv("SERVER_ADDR")
 	if ok && !declaredFlags["a"] {
 		conf.ServerAddr = envServerAddr
-	} else if confFile.ServerAddr != "" {
-		conf.ServerAddr = confFile.ServerAddr
+	} else if file.ServerAddr != "" {
+		conf.ServerAddr = file.ServerAddr
 	} else {
 		errs = append(errs, "grpc address is not set")
 	}
@@ -95,16 +97,16 @@ func ParseConfig() (*Config, error) {
 	envEnableTPS, ok := os.LookupEnv("ENABLE_TPS")
 	if ok && !declaredFlags["t"] {
 		conf.EnableTCP = envEnableTPS == "true"
-	} else if confFile.EnableTCP {
-		conf.EnableTCP = confFile.EnableTCP
+	} else if file.EnableTCP {
+		conf.EnableTCP = file.EnableTCP
 	}
 
-	dbDSN, err := confFile.AssembleDBDsn()
+	dbDSN, err := file.AssembleDBDsn()
 	if err != nil {
 		errs = append(errs, err.Error())
 	} else {
 		conf.DBDsn = dbDSN
-		conf.DBName = confFile.DBName
+		conf.DBName = file.DBName
 	}
 
 	envTokenExp, ok := os.LookupEnv("TOKEN_EXP")
@@ -114,8 +116,8 @@ func ParseConfig() (*Config, error) {
 			errs = append(errs, err.Error())
 		}
 		conf.TokenExp = time.Duration(t) * time.Minute
-	} else if confFile.TokenExp != 0 {
-		conf.TokenExp = confFile.TokenExp * time.Minute
+	} else if file.TokenExp != 0 {
+		conf.TokenExp = file.TokenExp * time.Minute
 	} else if !declaredFlags["e"] {
 		errs = append(errs, "token expiration is not set")
 	}
@@ -123,8 +125,8 @@ func ParseConfig() (*Config, error) {
 	envCertFile, ok := os.LookupEnv("CERT_FILE")
 	if ok && !declaredFlags["cf"] {
 		conf.CertFile = envCertFile
-	} else if confFile.CertFile != "" {
-		conf.CertFile = confFile.CertFile
+	} else if file.CertFile != "" {
+		conf.CertFile = file.CertFile
 	} else if conf.EnableTCP {
 		errs = append(errs, "certificate file is not set")
 	}
@@ -132,8 +134,8 @@ func ParseConfig() (*Config, error) {
 	envKeyFile, ok := os.LookupEnv("KEY_FILE")
 	if ok && !declaredFlags["kf"] {
 		conf.KeyFile = envKeyFile
-	} else if confFile.KeyFile != "" {
-		conf.KeyFile = confFile.KeyFile
+	} else if file.KeyFile != "" {
+		conf.KeyFile = file.KeyFile
 	} else if conf.EnableTCP {
 		errs = append(errs, "key file is not set")
 	}
@@ -141,26 +143,26 @@ func ParseConfig() (*Config, error) {
 	envLoggingLvl, ok := os.LookupEnv("LOGGING_LVL")
 	if ok && !declaredFlags["l"] {
 		conf.LoggingLvl = envLoggingLvl
-	} else if confFile.LoggingLvl != "" {
-		conf.LoggingLvl = confFile.LoggingLvl
+	} else if file.LoggingLvl != "" {
+		conf.LoggingLvl = file.LoggingLvl
 	} else {
 		conf.LoggingLvl = zapcore.DebugLevel.String()
 	}
 
-	if confFile.SecretKey != "" {
-		conf.SecretKey = confFile.SecretKey
+	if file.SecretKey != "" {
+		conf.SecretKey = file.SecretKey
 	} else {
 		errs = append(errs, "secret key is not set")
 	}
 
-	if confFile.GPeriod != 0 {
-		conf.GPeriod = confFile.GPeriod
+	if file.GPeriod != 0 {
+		conf.GPeriod = file.GPeriod
 	} else {
 		errs = append(errs, "grace period is not set")
 	}
 
-	if confFile.FPeriod != 0 {
-		conf.FPeriod = confFile.FPeriod
+	if file.FPeriod != 0 {
+		conf.FPeriod = file.FPeriod
 	} else {
 		errs = append(errs, "force period is not set")
 	}
@@ -172,7 +174,7 @@ func ParseConfig() (*Config, error) {
 }
 
 // parseFile collects configuration settings from config.json into ConfigFile.
-func (f *ConfigFile) parseFile() error {
+func (f *FileSettings) parseFile() error {
 	file, err := os.ReadFile("./internal/server/config/config.json")
 	if err != nil {
 		return fmt.Errorf("failed to read config file: %w", err)
@@ -185,7 +187,7 @@ func (f *ConfigFile) parseFile() error {
 }
 
 // AssembleDBDsn parses app config and returns a database destination string.
-func (f *ConfigFile) AssembleDBDsn() (string, error) {
+func (f *FileSettings) AssembleDBDsn() (string, error) {
 	var errs []string
 	if f.DBHost == "" {
 		errs = append(errs, "db host is not set")
