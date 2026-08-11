@@ -2,21 +2,24 @@ package tests
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	"github.com/artni96/GophKeeper/internal/server/config"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/jmoiron/sqlx"
+	"github.com/joho/godotenv"
 
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
+
+var ErrEnvVarNotFound = errors.New("environment variable not found")
 
 type TestDependencies struct {
 	cfg *config.Config
@@ -59,30 +62,53 @@ func findProjectRoot() (string, error) {
 }
 
 func (td *TestDependencies) initConfig() error {
-	cfg := config.Config{}
-	configFile := config.ConfigFile{}
-
-	root, err := findProjectRoot()
+	projectRoot, err := findProjectRoot()
+	if err != nil {
+		return err
+	}
+	fmt.Println(projectRoot + "/.env-tests")
+	err = godotenv.Load(projectRoot + "/.env-tests")
 	if err != nil {
 		return err
 	}
 
-	configPath := filepath.Join(root, "tests/test_config.json")
+	cfg := config.Config{}
 
-	file, err := os.ReadFile(configPath)
-	if err != nil {
-		return fmt.Errorf("failed to read config file: %w", err)
-	}
-	err = json.Unmarshal(file, &configFile)
-	if err != nil {
-		return fmt.Errorf("failed to parse config file: %w", err)
+	sslMode := "disable"
+
+	dbHost, ok := os.LookupEnv("DB_HOST")
+	if !ok {
+		return ErrEnvVarNotFound
 	}
 
-	dbDSN, err := configFile.AssembleDBDsn()
-	if err != nil {
-		return fmt.Errorf("failed to parse config file: %w", err)
+	dbName, ok := os.LookupEnv("DB_NAME")
+	if !ok {
+		return ErrEnvVarNotFound
 	}
-	cfg.DBDsn = dbDSN
+
+	dbUser, ok := os.LookupEnv("DB_USER")
+	if !ok {
+		return ErrEnvVarNotFound
+	}
+
+	dbPassword, ok := os.LookupEnv("DB_PASSWORD")
+	if !ok {
+		return ErrEnvVarNotFound
+	}
+
+	dbPort, ok := os.LookupEnv("DB_PORT")
+	if !ok {
+		return ErrEnvVarNotFound
+	}
+
+	dbPortInt, err := strconv.Atoi(dbPort)
+	if err != nil {
+		return ErrEnvVarNotFound
+	}
+
+	cfg.DBDsn = fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
+		dbHost, dbPortInt, dbUser, dbPassword, dbName, sslMode)
+	fmt.Println(cfg.DBDsn)
 	td.cfg = &cfg
 	return nil
 }

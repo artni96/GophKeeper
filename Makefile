@@ -22,6 +22,17 @@ db-down:
 	migrate -database $(DB_DSN) -path ./migrations down
 
 
+## tests-db-up: Creates database for running integration tests.
+.PHONY: tests-db-up
+tests-db-up:
+	docker compose -f docker-compose-tests.yaml --env-file .env-tests up -d
+
+## tests-db-down: Shuts down tests database.
+.PHONY: tests-db-down
+tests-db-down:
+	docker compose -f docker-compose-tests.yaml down
+
+
 ## server-up: Creates and launches docker containers with server and database.
 .PHONY: server-up
 server-up:

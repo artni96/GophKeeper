@@ -176,7 +176,7 @@ func ParseConfig() (*Config, error) {
 	}
 
 	if dbName != "" && dbHost != "" && dbUser != "" && dbPass != "" && dbPort != 0 && sslMode != "" {
-		conf.DBDsn = assembleDBDsn(dbName, dbHost, dbUser, dbPass, sslMode, dbPort)
+		conf.DBDsn = AssembleDBDsn(dbName, dbHost, dbUser, dbPass, sslMode, dbPort)
 	}
 
 	if !declaredFlags["t"] {
@@ -276,7 +276,7 @@ func ParseConfig() (*Config, error) {
 	return &conf, nil
 }
 
-func assembleDBDsn(dbName, dbHost, dbUser, dbPassword, sslMode string, dbPort int) string {
+func AssembleDBDsn(dbName, dbHost, dbUser, dbPassword, sslMode string, dbPort int) string {
 	dbDSN := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
 		dbHost, dbPort, dbUser, dbPassword, dbName, sslMode)
 	return dbDSN
