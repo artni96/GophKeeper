@@ -2,6 +2,7 @@ package login
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 
@@ -10,7 +11,6 @@ import (
 	"github.com/artni96/GophKeeper/internal/server/repository/common"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -34,8 +34,8 @@ type Repository struct {
 }
 
 // NewRepository initializes and return the new Login repository instance.
-func NewRepository(sqlxDB *sqlx.DB, logger *zap.Logger) (*Repository, error) {
-	db, err := common.InitDBConnByGORM(sqlxDB, logger)
+func NewRepository(sqlDB *sql.DB, logger *zap.Logger) (*Repository, error) {
+	db, err := common.InitDBConnByGORM(sqlDB, logger)
 	if err != nil {
 		return nil, err
 	}

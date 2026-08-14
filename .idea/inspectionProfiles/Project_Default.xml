@@ -12,6 +12,7 @@
         <function importPath="net" name="Listen" />
         <function importPath="github.com/golang-migrate/migrate/database/postgres" name="WithInstance" />
         <function importPath="google.golang.org/grpc" name="NewClient" />
+        <function importPath="database/sql" name="Open" />
       </functions>
     </inspection_tool>
     <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">

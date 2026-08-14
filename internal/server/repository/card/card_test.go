@@ -2,6 +2,7 @@ package card
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
 	"testing"
@@ -13,11 +14,10 @@ import (
 	userfixture "github.com/artni96/GophKeeper/internal/server/repository/user/fixture"
 	"github.com/artni96/GophKeeper/tests"
 	"github.com/google/uuid"
-	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 )
 
-func initUserRepo(db *sqlx.DB) (*user.Repository, error) {
+func initUserRepo(db *sql.DB) (*user.Repository, error) {
 	repo, err := user.NewRepository(db, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize test user repository: %w", err)
@@ -25,7 +25,7 @@ func initUserRepo(db *sqlx.DB) (*user.Repository, error) {
 	return repo, nil
 }
 
-func initCardRepo(db *sqlx.DB) (*Repository, error) {
+func initCardRepo(db *sql.DB) (*Repository, error) {
 	repo, err := NewRepository(db, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize test login repository: %w", err)

@@ -1,10 +1,10 @@
 package common
 
 import (
+	"database/sql"
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -32,7 +32,7 @@ func GetNextRecordNumber(tx *gorm.DB, userID uuid.UUID) (uint64, error) {
 }
 
 // InitDBConnByGORM initializes the database connection through GORM by the *sqxl.DB.
-func InitDBConnByGORM(db *sqlx.DB, logger *zap.Logger) (*gorm.DB, error) {
+func InitDBConnByGORM(db *sql.DB, logger *zap.Logger) (*gorm.DB, error) {
 	conn, err := gorm.Open(postgres.New(postgres.Config{
 		Conn: db,
 	}), &gorm.Config{

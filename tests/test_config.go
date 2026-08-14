@@ -2,6 +2,7 @@ package tests
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"log"
@@ -13,7 +14,6 @@ import (
 	"github.com/artni96/GophKeeper/internal/server/config"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
-	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
 
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -23,7 +23,7 @@ var ErrEnvVarNotFound = errors.New("environment variable not found")
 
 type TestDependencies struct {
 	cfg *config.Config
-	DB  *sqlx.DB
+	DB  *sql.DB
 }
 
 func NewTestDependencies(ctx context.Context) (*TestDependencies, error) {
@@ -117,7 +117,7 @@ func (td *TestDependencies) initDBConn(ctx context.Context) error {
 	if td.cfg.DBDsn == "" {
 		return fmt.Errorf("database dsn is not provided")
 	}
-	db, err := sqlx.Open("pgx", td.cfg.DBDsn)
+	db, err := sql.Open("pgx", td.cfg.DBDsn)
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %w", err)
 	}
@@ -134,7 +134,7 @@ func (td *TestDependencies) initDBConn(ctx context.Context) error {
 }
 
 func (c *TestDependencies) applyMigrations() error {
-	driver, err := postgres.WithInstance(c.DB.DB, &postgres.Config{})
+	driver, err := postgres.WithInstance(c.DB, &postgres.Config{})
 	if err != nil {
 		log.Println(fmt.Errorf("failed to create database driver: %w", err))
 		return err

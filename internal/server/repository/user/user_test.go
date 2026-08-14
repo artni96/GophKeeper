@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
 	"testing"
@@ -9,11 +10,10 @@ import (
 
 	usermodel "github.com/artni96/GophKeeper/internal/server/model/user"
 	"github.com/artni96/GophKeeper/tests"
-	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 )
 
-func initUserRepo(db *sqlx.DB) (*Repository, error) {
+func initUserRepo(db *sql.DB) (*Repository, error) {
 	repo, err := NewRepository(db, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize test user repository: %w", err)

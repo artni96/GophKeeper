@@ -2,16 +2,16 @@ package fixture
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"time"
 
 	usermodel "github.com/artni96/GophKeeper/internal/server/model/user"
 	"github.com/artni96/GophKeeper/internal/server/repository/user"
 	"github.com/google/uuid"
-	"github.com/jmoiron/sqlx"
 )
 
-func CreateFirstUser(ctx context.Context, db *sqlx.DB, repo *user.Repository) (uuid.UUID, error) {
+func CreateFirstUser(ctx context.Context, db *sql.DB, repo *user.Repository) (uuid.UUID, error) {
 	if repo == nil {
 		return uuid.Nil, fmt.Errorf("user repository is not initialized")
 	}
@@ -31,14 +31,14 @@ func CreateFirstUser(ctx context.Context, db *sqlx.DB, repo *user.Repository) (u
 	}
 	query := "SELECT id FROM users WHERE username = 'user 1'"
 	var userID uuid.UUID
-	err = db.DB.QueryRow(query).Scan(&userID)
+	err = db.QueryRow(query).Scan(&userID)
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("failed to get first user: %w", err)
 	}
 	return userID, nil
 }
 
-func CreateSecondUser(ctx context.Context, db *sqlx.DB, repo *user.Repository) (uuid.UUID, error) {
+func CreateSecondUser(ctx context.Context, db *sql.DB, repo *user.Repository) (uuid.UUID, error) {
 	if repo == nil {
 		return uuid.Nil, fmt.Errorf("user repository is not initialized")
 	}
@@ -58,7 +58,7 @@ func CreateSecondUser(ctx context.Context, db *sqlx.DB, repo *user.Repository) (
 	}
 	query := "SELECT id FROM users WHERE username = 'user 2'"
 	var userID uuid.UUID
-	err = db.DB.QueryRow(query).Scan(&userID)
+	err = db.QueryRow(query).Scan(&userID)
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("failed to get second user: %w", err)
 	}

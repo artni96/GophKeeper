@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"log"
@@ -22,7 +23,6 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/google/uuid"
-	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 
@@ -33,7 +33,7 @@ import (
 type App struct {
 	eg               *errgroup.Group
 	Cfg              *config.Config
-	DB               *sqlx.DB
+	DB               *sql.DB
 	Logger           *zap.Logger
 	server           grpc.GRPCServer
 	userService      *userserv.Service
@@ -73,7 +73,7 @@ func (a *App) InitDBConn(ctx context.Context) error {
 		return fmt.Errorf("database dsn is not provided")
 	}
 
-	db, err := sqlx.Open("pgx", a.Cfg.DBDsn)
+	db, err := sql.Open("pgx", a.Cfg.DBDsn)
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %w", err)
 	}
@@ -92,7 +92,7 @@ func (a *App) InitDBConn(ctx context.Context) error {
 
 // applyMigrations updates the atabase up to the latest migration file.
 func (a *App) applyMigrations() error {
-	driver, err := postgres.WithInstance(a.DB.DB, &postgres.Config{})
+	driver, err := postgres.WithInstance(a.DB, &postgres.Config{})
 	if err != nil {
 		return fmt.Errorf("failed to initialize postgres driver: %w", err)
 	}
