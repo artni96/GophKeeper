@@ -217,6 +217,7 @@ func (a *App) Stop(ctx context.Context, ctxCancel context.CancelFunc, isClosedCh
 // Launch starts the app with all credentials.
 func (a *App) Launch(ctx context.Context) error {
 	err := a.initLogger()
+
 	if err != nil {
 		log.Fatal("failed to initialize logger", zap.Error(err))
 		return err

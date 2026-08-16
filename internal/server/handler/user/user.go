@@ -3,7 +3,6 @@ package user
 import (
 	"context"
 	"errors"
-	"fmt"
 	"sync"
 
 	pb "github.com/artni96/GophKeeper/api/proto/users"
@@ -76,7 +75,7 @@ func (h *Handler) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginRes
 		}
 		return nil, status.Errorf(codes.Internal, "internal grpc error")
 	}
-	
+
 	resp.SetToken(userCredentials.Token)
 	var keyspb []*pb.UserKey
 	for _, key := range userCredentials.Keys {
@@ -141,7 +140,6 @@ func (h *Handler) SeekUpdates(req *pb.SeekUpdateRequest, stream pb.UserService_S
 	for {
 		select {
 		case update := <-notificationChan:
-			fmt.Println("test on server side")
 			if err := stream.Send(update); err != nil {
 				return err
 			}

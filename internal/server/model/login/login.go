@@ -4,19 +4,15 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/artni96/GophKeeper/internal/server/model/common"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 // CreateLoginRequest is a model-mediator for transferring the gRPC request data to the Login service.
 type CreateLoginRequest struct {
-	Login      *wrapperspb.BytesValue
-	LoginNonce *wrapperspb.BytesValue
-	LoginKeyID *wrapperspb.UInt64Value
-
-	Password      *wrapperspb.BytesValue
-	PasswordNonce *wrapperspb.BytesValue
-	PasswordKeyID *wrapperspb.UInt64Value
+	Login    common.PBEncryptedField
+	Password common.PBEncryptedField
 
 	UserID      uuid.UUID
 	Title       *wrapperspb.StringValue
@@ -33,31 +29,22 @@ func (m *CreateLoginRequest) Validate() error {
 
 // CreateLogin is a model-mediator for transferring the Login creation data to the Login repository.
 type CreateLogin struct {
-	UserID     uuid.UUID
-	Login      []byte `gorm:"column:hashed_login;not null"`
-	LoginNonce []byte
-	LoginKeyID uint64
+	UserID   uuid.UUID
+	Login    common.EncryptedField `gorm:"embedded;embeddedPrefix:login_"`
+	Password common.EncryptedField `gorm:"embedded;embeddedPrefix:password_"`
 
-	Password      []byte `gorm:"column:hashed_password;not null"`
-	PasswordNonce []byte
-	PasswordKeyID uint64
-	Title         string
-	Number        uint64
-	URL           string
-	Description   string
-	CreatedAt     time.Time
+	Title       string
+	Number      uint64
+	URL         string
+	Description string
+	CreatedAt   time.Time
 }
 
 type Login struct {
-	ID         uuid.UUID
-	UserID     uuid.UUID
-	Login      []byte `gorm:"column:hashed_login"`
-	LoginNonce []byte
-	LoginKeyID uint64
-
-	Password      []byte `gorm:"column:hashed_password"`
-	PasswordNonce []byte
-	PasswordKeyID uint64
+	ID       uuid.UUID
+	UserID   uuid.UUID
+	Login    common.EncryptedField `gorm:"embedded;embeddedPrefix:login_"`
+	Password common.EncryptedField `gorm:"embedded;embeddedPrefix:password_"`
 
 	Title       string
 	Number      uint64
@@ -72,13 +59,8 @@ type UpdateLoginRequest struct {
 	URL         *wrapperspb.StringValue
 	Description *wrapperspb.StringValue
 
-	Login      *wrapperspb.BytesValue
-	LoginNonce *wrapperspb.BytesValue
-	LoginKeyID *wrapperspb.UInt64Value
-
-	Password      *wrapperspb.BytesValue
-	PasswordNonce *wrapperspb.BytesValue
-	PasswordKeyID *wrapperspb.UInt64Value
+	Login    common.PBEncryptedField
+	Password common.PBEncryptedField
 }
 
 func (u *UpdateLoginRequest) Validate() error {
@@ -89,22 +71,11 @@ func (u *UpdateLoginRequest) Validate() error {
 }
 
 type UpdateLogin struct {
-	Login      []byte `gorm:"column:hashed_login"`
-	LoginNonce []byte
-	LoginKeyID uint64
-
-	Password      []byte `gorm:"column:hashed_password"`
-	PasswordNonce []byte
-	PasswordKeyID uint64
+	Login    common.EncryptedField `gorm:"embedded;embeddedPrefix:login_"`
+	Password common.EncryptedField `gorm:"embedded;embeddedPrefix:password_"`
 
 	Title       string
 	URL         string
 	Description string
 	UpdatedAt   time.Time
-}
-
-type GetListLoginResponse struct {
-	Title       string
-	Description string
-	Number      uint64
 }

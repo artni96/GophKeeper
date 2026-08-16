@@ -155,7 +155,7 @@ func (m *Menu) Run(ctx context.Context) {
 	failsCounter := 0
 
 	for {
-		if m.app.IsBeingUpdated {
+		if m.app.IsBeingUpdated.Load() == true {
 			continue
 		}
 		for currentStep != exit {

@@ -30,7 +30,6 @@ func InitLogger(level string) (*zap.Logger, error) {
 
 	loggerCore := zapcore.NewTee(fileOut, stdOut)
 	logger := zap.New(loggerCore, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel))
-	defer logger.Sync()
 
 	return logger, nil
 }

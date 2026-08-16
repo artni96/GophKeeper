@@ -24,11 +24,11 @@ CREATE TABLE IF NOT EXISTS logins (
     url VARCHAR(255),
     description TEXT,
 
-    hashed_login BYTEA,
+    login_value BYTEA,
     login_nonce BYTEA,
     login_key_id INTEGER,
 
-    hashed_password BYTEA,
+    password_value BYTEA,
     password_nonce BYTEA,
     password_key_id INTEGER,
 
@@ -52,23 +52,23 @@ CREATE TABLE IF NOT EXISTS cards (
     title VARCHAR(255) NOT NULL,
     description TEXT,
     number INTEGER NOT NULL,
-    hashed_pan BYTEA,
+    pan_value BYTEA,
     pan_nonce BYTEA,
     pan_key_id INTEGER,
 
-    hashed_holder BYTEA,
+    holder_value BYTEA,
     holder_nonce BYTEA,
     holder_key_id INTEGER,
 
-    hashed_expiry_date BYTEA,
+    expiry_date_value BYTEA,
     expiry_date_nonce BYTEA,
     expiry_date_key_id INTEGER,
 
-    hashed_cvv BYTEA,
+    cvv_value BYTEA,
     cvv_nonce BYTEA,
     cvv_key_id INTEGER,
 
-    hashed_pin BYTEA,
+    pin_value BYTEA,
     pin_nonce BYTEA,
     pin_key_id INTEGER,
 
@@ -79,7 +79,7 @@ CREATE TABLE IF NOT EXISTS cards (
     CONSTRAINT cardss_fk_user FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT cards_unique_constraint_user_title UNIQUE (user_id, title),
     CONSTRAINT cards_unqiue_constraint_user_number UNIQUE (user_id, number),
-    CONStRAINT cards_unqiue_constraint_user_pan UNIQUE (user_id, hashed_pan)
+    CONStRAINT cards_unqiue_constraint_user_pan UNIQUE (user_id, pan_value)
 );
 
 CREATE TABLE IF NOT EXISTS texts (
@@ -89,9 +89,9 @@ CREATE TABLE IF NOT EXISTS texts (
     description TEXT,
     number INTEGER NOT NULL,
 
-    hashed_text BYTEA,
-    nonce BYTEA,
-    key_id INTEGER,
+    text_value BYTEA,
+    text_nonce BYTEA,
+    text_key_id INTEGER,
 
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP,

@@ -60,10 +60,10 @@ func RequestLoggerInterceptor(logger *zap.Logger) grpc.UnaryServerInterceptor {
 func AuthInterceptor(cfg *config.Config, logger *zap.Logger) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		if info.FullMethod == "/users.UserService/CreateUser" || info.FullMethod == "/users.UserService/Login" ||
-			info.FullMethod == "/health.HealthService/CheckHealth" {
+			info.FullMethod == "/health.HealthService/CheckHealth" || info.FullMethod == "/users.UserService/SeekUpdates" {
 			return handler(ctx, req)
 		}
-
+		
 		if md, ok := metadata.FromIncomingContext(ctx); ok {
 			if len(md["authorization"]) == 0 {
 				logger.Info("no authorization header in the request")

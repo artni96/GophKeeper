@@ -10,6 +10,7 @@ import (
 	userspb "github.com/artni96/GophKeeper/api/proto/users"
 	"github.com/artni96/GophKeeper/internal/server/constants"
 	"github.com/artni96/GophKeeper/internal/server/interceptors"
+	commonmodel "github.com/artni96/GophKeeper/internal/server/model/common"
 	loginmodel "github.com/artni96/GophKeeper/internal/server/model/login"
 	"github.com/artni96/GophKeeper/internal/server/service/login"
 	"github.com/google/uuid"
@@ -45,13 +46,17 @@ func (h *Handler) CreateLogin(ctx context.Context, req *pb.LoginCreateRequest) (
 		return resp, status.Errorf(codes.Unauthenticated, "not authenticated")
 	}
 	entityToCreate := loginmodel.CreateLoginRequest{
-		Login:      req.GetLogin(),
-		LoginNonce: req.GetLoginNonce(),
-		LoginKeyID: req.GetLoginKeyId(),
+		Login: commonmodel.PBEncryptedField{
+			Value: req.GetLoginValue(),
+			Nonce: req.GetLoginNonce(),
+			KeyID: req.GetLoginKeyId(),
+		},
 
-		Password:      req.GetPassword(),
-		PasswordNonce: req.GetPasswordNonce(),
-		PasswordKeyID: req.GetPasswordKeyId(),
+		Password: commonmodel.PBEncryptedField{
+			Value: req.GetPasswordValue(),
+			Nonce: req.GetPasswordNonce(),
+			KeyID: req.GetPasswordKeyId(),
+		},
 
 		Title:       req.GetTitle(),
 		Description: req.GetDescription(),
@@ -108,18 +113,7 @@ func (h *Handler) GetLogin(ctx context.Context, req *pb.LoginGetRequest) (*pb.Lo
 		return resp, status.Error(codes.Internal, constants.DefaultError)
 	}
 
-	resp.SetUrl(dbEntity.URL)
-	resp.SetTitle(dbEntity.Title)
-	resp.SetDescription(dbEntity.Description)
-	resp.SetNumber(dbEntity.Number)
-
-	resp.SetLogin(dbEntity.Login)
-	resp.SetLoginNonce(dbEntity.LoginNonce)
-	resp.SetLoginKeyId(dbEntity.LoginKeyID)
-
-	resp.SetPassword(dbEntity.Password)
-	resp.SetPasswordNonce(dbEntity.PasswordNonce)
-	resp.SetPasswordKeyId(dbEntity.PasswordKeyID)
+	resp = prepareResponseItem(*dbEntity)
 
 	resp.SetCreatedAt(dbEntity.CreatedAt.Format(time.RFC3339))
 	if !dbEntity.UpdatedAt.IsZero() {
@@ -138,13 +132,17 @@ func (h *Handler) UpdateLogin(ctx context.Context, req *pb.LoginUpdateRequest) (
 	entityNumber := req.GetNumber()
 
 	dataToUpdate := loginmodel.UpdateLoginRequest{
-		Login:      req.GetLogin(),
-		LoginNonce: req.GetLoginNonce(),
-		LoginKeyID: req.GetLoginKeyId(),
+		Login: commonmodel.PBEncryptedField{
+			Value: req.GetLoginValue(),
+			Nonce: req.GetLoginNonce(),
+			KeyID: req.GetLoginKeyId(),
+		},
 
-		Password:      req.GetPassword(),
-		PasswordNonce: req.GetPasswordNonce(),
-		PasswordKeyID: req.GetPasswordKeyId(),
+		Password: commonmodel.PBEncryptedField{
+			Value: req.GetPasswordValue(),
+			Nonce: req.GetPasswordNonce(),
+			KeyID: req.GetPasswordKeyId(),
+		},
 
 		Title:       req.GetTitle(),
 		Description: req.GetDescription(),
@@ -238,27 +236,29 @@ func (h *Handler) GetListLogin(ctx context.Context, req *pb.LoginGetListRequest)
 
 	pbList := make([]*pb.LoginGetResponse, 0)
 	for _, entity := range dbEntities {
-		i := &pb.LoginGetResponse{}
-		i.SetTitle(entity.Title)
-		i.SetNumber(entity.Number)
-		i.SetUrl(entity.URL)
-		i.SetDescription(entity.Description)
-
-		i.SetLogin(entity.Login)
-		i.SetLoginNonce(entity.LoginNonce)
-		i.SetLoginKeyId(entity.LoginKeyID)
-
-		i.SetPassword(entity.Password)
-		i.SetPasswordNonce(entity.PasswordNonce)
-		i.SetPasswordKeyId(entity.PasswordKeyID)
-
-		i.SetCreatedAt(entity.CreatedAt.Format(time.RFC3339))
-		if !entity.UpdatedAt.IsZero() {
-			i.SetUpdatedAt(entity.UpdatedAt.Format(time.RFC3339))
-		}
+		i := prepareResponseItem(entity)
 		pbList = append(pbList, i)
 	}
 	resp.SetLogins(pbList)
 
 	return resp, nil
+}
+
+// prepareResponseItem prepares and returns the Login response entity.
+func prepareResponseItem(dbEntity loginmodel.Login) *pb.LoginGetResponse {
+	resp := &pb.LoginGetResponse{}
+
+	resp.SetLoginValue(dbEntity.Login.Value)
+	resp.SetLoginNonce(dbEntity.Login.Nonce)
+	resp.SetLoginKeyId(dbEntity.Login.KeyID)
+
+	resp.SetPasswordValue(dbEntity.Password.Value)
+	resp.SetPasswordNonce(dbEntity.Password.Nonce)
+	resp.SetPasswordKeyId(dbEntity.Password.KeyID)
+
+	resp.SetUrl(dbEntity.URL)
+	resp.SetTitle(dbEntity.Title)
+	resp.SetDescription(dbEntity.Description)
+	resp.SetNumber(dbEntity.Number)
+	return resp
 }

@@ -10,6 +10,7 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	userspb "github.com/artni96/GophKeeper/api/proto/users"
@@ -48,7 +49,7 @@ type App struct {
 	Reader   *bufio.Reader
 
 	NotificationChan chan common.Notification
-	IsBeingUpdated   bool
+	IsBeingUpdated   *atomic.Bool
 }
 
 func NewApp(eg *errgroup.Group) *App {
@@ -58,7 +59,9 @@ func NewApp(eg *errgroup.Group) *App {
 		Cfg:              config.NewConfig(),
 		ClientID:         uuid.New(),
 		Reader:           bufio.NewReader(os.Stdin),
-		NotificationChan: make(chan common.Notification, 100)}
+		NotificationChan: make(chan common.Notification, 100),
+		IsBeingUpdated:   &atomic.Bool{},
+	}
 }
 
 func (app *App) InitDependencies() {
@@ -247,7 +250,7 @@ func (app *App) UpdateStorage(ctx context.Context, n common.Notification) error 
 			}
 		}
 	}
-	app.IsBeingUpdated = false
+	app.IsBeingUpdated.Store(false)
 	return nil
 }
 

@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	loginspb "github.com/artni96/GophKeeper/api/proto/logins"
+	"github.com/artni96/GophKeeper/internal/client/constants"
 	"github.com/artni96/GophKeeper/internal/client/utils"
-	"github.com/artni96/GophKeeper/internal/server/constants"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/wrapperspb"
@@ -178,7 +178,7 @@ func (m *Menu) initLoginMenu() {
 					continue
 				}
 
-				pbEntity.SetLogin(wrapperspb.Bytes(encryptedValue))
+				pbEntity.SetLoginValue(wrapperspb.Bytes(encryptedValue))
 				pbEntity.SetLoginNonce(wrapperspb.Bytes(nonce))
 				pbEntity.SetLoginKeyId(wrapperspb.UInt64(activeKey))
 				break
@@ -202,7 +202,7 @@ func (m *Menu) initLoginMenu() {
 					continue
 				}
 
-				pbEntity.SetPassword(wrapperspb.Bytes(encryptedValue))
+				pbEntity.SetPasswordValue(wrapperspb.Bytes(encryptedValue))
 				pbEntity.SetPasswordNonce(wrapperspb.Bytes(nonce))
 				pbEntity.SetPasswordKeyId(wrapperspb.UInt64(activeKey))
 				break
@@ -316,7 +316,7 @@ func (m *Menu) initLoginMenu() {
 					continue
 				}
 
-				pbEntity.SetLogin(wrapperspb.Bytes(encryptedValue))
+				pbEntity.SetLoginValue(wrapperspb.Bytes(encryptedValue))
 				pbEntity.SetLoginNonce(wrapperspb.Bytes(nonce))
 				pbEntity.SetLoginKeyId(wrapperspb.UInt64(activeKey))
 				break
@@ -340,7 +340,7 @@ func (m *Menu) initLoginMenu() {
 					continue
 				}
 
-				pbEntity.SetPassword(wrapperspb.Bytes(encryptedValue))
+				pbEntity.SetPasswordValue(wrapperspb.Bytes(encryptedValue))
 				pbEntity.SetPasswordNonce(wrapperspb.Bytes(nonce))
 				pbEntity.SetPasswordKeyId(wrapperspb.UInt64(activeKey))
 				break

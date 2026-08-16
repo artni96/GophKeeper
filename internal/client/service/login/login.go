@@ -2,6 +2,7 @@ package login
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	loginspb "github.com/artni96/GophKeeper/api/proto/logins"
@@ -16,6 +17,11 @@ import (
 
 	"google.golang.org/grpc"
 )
+
+type decryptedEntity struct {
+	login    string
+	password string
+}
 
 // Service implements the Login client service to manage login-related data business logic.
 type Service struct {
@@ -56,27 +62,14 @@ func (s *Service) Add(ctx context.Context, entityNumber uint64) error {
 		updatedAt = time.Time{}
 	}
 
-	loginNonce := pbEntity.GetLoginNonce()
-	loginKeyID := pbEntity.GetLoginKeyId()
-	loginAesKey := s.state.Keys[loginKeyID]
-
-	decryptedLogin, err := utils.DecryptField(pbEntity.GetLogin(), loginAesKey, loginNonce)
-	if err != nil {
-		return err
-	}
-
-	passwordNonce := pbEntity.GetPasswordNonce()
-	passwordKeyID := pbEntity.GetPasswordKeyId()
-	passwordAesKey := s.state.Keys[passwordKeyID]
-
-	decryptedPassword, err := utils.DecryptField(pbEntity.GetPassword(), passwordAesKey, passwordNonce)
+	decryptedFields, err := s.decryptPBEntity(pbEntity)
 	if err != nil {
 		return err
 	}
 
 	entity := login.Login{
-		Login:       string(decryptedLogin),
-		Password:    string(decryptedPassword),
+		Login:       decryptedFields.login,
+		Password:    decryptedFields.password,
 		Title:       pbEntity.GetTitle(),
 		Number:      pbEntity.GetNumber(),
 		URL:         pbEntity.GetUrl(),
@@ -101,20 +94,7 @@ func (s *Service) AddBatch(ctx context.Context) error {
 
 	var entities []login.Login
 	for _, pbEntity := range pbEntities {
-		loginNonce := pbEntity.GetLoginNonce()
-		loginKeyID := pbEntity.GetLoginKeyId()
-		loginAesKey := s.state.Keys[loginKeyID]
-
-		decryptedLogin, err := utils.DecryptField(pbEntity.GetLogin(), loginAesKey, loginNonce)
-		if err != nil {
-			return err
-		}
-
-		passwordNonce := pbEntity.GetPasswordNonce()
-		passwordKeyID := pbEntity.GetPasswordKeyId()
-		passwordAesKey := s.state.Keys[passwordKeyID]
-
-		decryptedPassword, err := utils.DecryptField(pbEntity.GetPassword(), passwordAesKey, passwordNonce)
+		decryptedFields, err := s.decryptPBEntity(pbEntity)
 		if err != nil {
 			return err
 		}
@@ -131,8 +111,8 @@ func (s *Service) AddBatch(ctx context.Context) error {
 		}
 
 		entity := login.Login{
-			Login:       string(decryptedLogin),
-			Password:    string(decryptedPassword),
+			Login:       decryptedFields.login,
+			Password:    decryptedFields.password,
 			Title:       pbEntity.GetTitle(),
 			Number:      pbEntity.GetNumber(),
 			URL:         pbEntity.GetUrl(),
@@ -170,20 +150,7 @@ func (s *Service) Update(ctx context.Context, entityNumber uint64) error {
 		return constants.ErrEntityNotFound
 	}
 
-	loginNonce := pbEntity.GetLoginNonce()
-	loginKeyID := pbEntity.GetLoginKeyId()
-	loginAesKey := s.state.Keys[loginKeyID]
-
-	decryptedLogin, err := utils.DecryptField(pbEntity.GetLogin(), loginAesKey, loginNonce)
-	if err != nil {
-		return err
-	}
-
-	passwordNonce := pbEntity.GetPasswordNonce()
-	passwordKeyID := pbEntity.GetPasswordKeyId()
-	passwordAesKey := s.state.Keys[passwordKeyID]
-
-	decryptedPassword, err := utils.DecryptField(pbEntity.GetPassword(), passwordAesKey, passwordNonce)
+	decryptedFields, err := s.decryptPBEntity(pbEntity)
 	if err != nil {
 		return err
 	}
@@ -197,8 +164,8 @@ func (s *Service) Update(ctx context.Context, entityNumber uint64) error {
 		return err
 	}
 	updatedEntity := login.Login{
-		Login:       string(decryptedLogin),
-		Password:    string(decryptedPassword),
+		Login:       decryptedFields.login,
+		Password:    decryptedFields.password,
 		Title:       pbEntity.GetTitle(),
 		Number:      pbEntity.GetNumber(),
 		URL:         pbEntity.GetUrl(),
@@ -220,4 +187,28 @@ func (s *Service) Delete(entityNumber uint64) error {
 		return err
 	}
 	return nil
+}
+
+// decryptPBEntity decrypts encrypted fields of a Login entity.
+func (s *Service) decryptPBEntity(pbEntity *loginspb.LoginGetResponse) (*decryptedEntity, error) {
+	result := &decryptedEntity{}
+
+	loginNonce := pbEntity.GetLoginNonce()
+	loginKeyID := pbEntity.GetLoginKeyId()
+	loginAesKey := s.state.Keys[loginKeyID]
+	decryptedLogin, err := utils.DecryptField(pbEntity.GetLoginValue(), loginAesKey, loginNonce)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decrypt login: %w", err)
+	}
+	result.login = string(decryptedLogin)
+
+	passwordNonce := pbEntity.GetPasswordNonce()
+	passwordKeyID := pbEntity.GetPasswordKeyId()
+	passwordAesKey := s.state.Keys[passwordKeyID]
+	decryptedPassword, err := utils.DecryptField(pbEntity.GetPasswordValue(), passwordAesKey, passwordNonce)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decrypt password: %w", err)
+	}
+	result.password = string(decryptedPassword)
+	return result, err
 }

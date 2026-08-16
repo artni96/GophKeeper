@@ -6,9 +6,9 @@ import (
 	"strconv"
 
 	cardspb "github.com/artni96/GophKeeper/api/proto/cards"
+	"github.com/artni96/GophKeeper/internal/client/constants"
 	"github.com/artni96/GophKeeper/internal/client/utils"
 	"github.com/artni96/GophKeeper/internal/client/validators"
-	"github.com/artni96/GophKeeper/internal/server/constants"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/wrapperspb"
@@ -209,7 +209,7 @@ func (m *Menu) initCardMenu() {
 					continue
 				}
 
-				pbEntity.SetPan(wrapperspb.Bytes(encryptedValue))
+				pbEntity.SetPanValue(wrapperspb.Bytes(encryptedValue))
 				pbEntity.SetPanNonce(wrapperspb.Bytes(nonce))
 				pbEntity.SetPanKeyId(wrapperspb.UInt64(activeKey))
 				break
@@ -236,7 +236,7 @@ func (m *Menu) initCardMenu() {
 				if err != nil {
 					continue
 				}
-				pbEntity.SetHolder(wrapperspb.Bytes(encryptedValue))
+				pbEntity.SetHolderValue(wrapperspb.Bytes(encryptedValue))
 				pbEntity.SetHolderNonce(wrapperspb.Bytes(nonce))
 				pbEntity.SetHolderKeyId(wrapperspb.UInt64(activeKey))
 				break
@@ -273,7 +273,7 @@ func (m *Menu) initCardMenu() {
 				if err != nil {
 					continue
 				}
-				pbEntity.SetExpiryDate(wrapperspb.Bytes(encryptedValue))
+				pbEntity.SetExpiryDateValue(wrapperspb.Bytes(encryptedValue))
 				pbEntity.SetExpiryDateNonce(wrapperspb.Bytes(nonce))
 				pbEntity.SetExpiryDateKeyId(wrapperspb.UInt64(activeKey))
 				break
@@ -309,7 +309,7 @@ func (m *Menu) initCardMenu() {
 				if err != nil {
 					continue
 				}
-				pbEntity.SetCvv(wrapperspb.Bytes(encryptedValue))
+				pbEntity.SetCvvValue(wrapperspb.Bytes(encryptedValue))
 				pbEntity.SetCvvNonce(wrapperspb.Bytes(nonce))
 				pbEntity.SetCvvKeyId(wrapperspb.UInt64(activeKey))
 				break
@@ -345,7 +345,7 @@ func (m *Menu) initCardMenu() {
 				if err != nil {
 					continue
 				}
-				pbEntity.SetPin(wrapperspb.Bytes(encryptedValue))
+				pbEntity.SetPinValue(wrapperspb.Bytes(encryptedValue))
 				pbEntity.SetPinNonce(wrapperspb.Bytes(nonce))
 				pbEntity.SetPinKeyId(wrapperspb.UInt64(activeKey))
 				break
@@ -488,7 +488,7 @@ func (m *Menu) initCardMenu() {
 				}
 
 				if strPAN == " " {
-					pbEntity.SetPan(wrapperspb.Bytes(nil))
+					pbEntity.SetPanValue(wrapperspb.Bytes(nil))
 					pbEntity.SetPanNonce(wrapperspb.Bytes(nil))
 					pbEntity.SetPanKeyId(wrapperspb.UInt64(0))
 					break
@@ -518,7 +518,7 @@ func (m *Menu) initCardMenu() {
 				if err != nil {
 					continue
 				}
-				pbEntity.SetPan(wrapperspb.Bytes(encryptedValue))
+				pbEntity.SetPanValue(wrapperspb.Bytes(encryptedValue))
 				pbEntity.SetPanNonce(wrapperspb.Bytes(nonce))
 				pbEntity.SetPanKeyId(wrapperspb.UInt64(activeKey))
 				break
@@ -541,7 +541,7 @@ func (m *Menu) initCardMenu() {
 				}
 
 				if holder == " " {
-					pbEntity.SetHolder(wrapperspb.Bytes(nil))
+					pbEntity.SetHolderValue(wrapperspb.Bytes(nil))
 					pbEntity.SetHolderNonce(wrapperspb.Bytes(nil))
 					pbEntity.SetHolderKeyId(wrapperspb.UInt64(0))
 					break
@@ -552,7 +552,7 @@ func (m *Menu) initCardMenu() {
 				if err != nil {
 					continue
 				}
-				pbEntity.SetHolder(wrapperspb.Bytes(encryptedValue))
+				pbEntity.SetHolderValue(wrapperspb.Bytes(encryptedValue))
 				pbEntity.SetHolderNonce(wrapperspb.Bytes(nonce))
 				pbEntity.SetHolderKeyId(wrapperspb.UInt64(activeKey))
 				break
@@ -576,7 +576,7 @@ func (m *Menu) initCardMenu() {
 				}
 
 				if expiryDate == " " {
-					pbEntity.SetExpiryDate(wrapperspb.Bytes(nil))
+					pbEntity.SetExpiryDateValue(wrapperspb.Bytes(nil))
 					pbEntity.SetExpiryDateNonce(wrapperspb.Bytes(nil))
 					pbEntity.SetExpiryDateKeyId(wrapperspb.UInt64(activeKey))
 					break
@@ -596,7 +596,7 @@ func (m *Menu) initCardMenu() {
 				if err != nil {
 					continue
 				}
-				pbEntity.SetExpiryDate(wrapperspb.Bytes(encryptedValue))
+				pbEntity.SetExpiryDateValue(wrapperspb.Bytes(encryptedValue))
 				pbEntity.SetExpiryDateNonce(wrapperspb.Bytes(nonce))
 				pbEntity.SetExpiryDateKeyId(wrapperspb.UInt64(activeKey))
 				break
@@ -619,7 +619,7 @@ func (m *Menu) initCardMenu() {
 				}
 
 				if cvv == " " {
-					pbEntity.SetCvv(wrapperspb.Bytes(nil))
+					pbEntity.SetCvvValue(wrapperspb.Bytes(nil))
 					pbEntity.SetCvvNonce(wrapperspb.Bytes(nil))
 					pbEntity.SetCvvKeyId(wrapperspb.UInt64(activeKey))
 				}
@@ -638,7 +638,7 @@ func (m *Menu) initCardMenu() {
 				if err != nil {
 					continue
 				}
-				pbEntity.SetCvv(wrapperspb.Bytes(encryptedValue))
+				pbEntity.SetCvvValue(wrapperspb.Bytes(encryptedValue))
 				pbEntity.SetCvvNonce(wrapperspb.Bytes(nonce))
 				pbEntity.SetCvvKeyId(wrapperspb.UInt64(activeKey))
 				break
@@ -661,7 +661,7 @@ func (m *Menu) initCardMenu() {
 				}
 
 				if pin == " " {
-					pbEntity.SetPin(wrapperspb.Bytes(nil))
+					pbEntity.SetPinValue(wrapperspb.Bytes(nil))
 					pbEntity.SetPinNonce(wrapperspb.Bytes(nil))
 					pbEntity.SetPinKeyId(wrapperspb.UInt64(0))
 				}
@@ -681,7 +681,7 @@ func (m *Menu) initCardMenu() {
 				if err != nil {
 					continue
 				}
-				pbEntity.SetPin(wrapperspb.Bytes(encryptedValue))
+				pbEntity.SetPinValue(wrapperspb.Bytes(encryptedValue))
 				pbEntity.SetPinNonce(wrapperspb.Bytes(nonce))
 				pbEntity.SetPinKeyId(wrapperspb.UInt64(activeKey))
 				break

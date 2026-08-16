@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/artni96/GophKeeper/internal/server/constants"
+	"github.com/artni96/GophKeeper/internal/server/model/common"
 	"github.com/artni96/GophKeeper/internal/server/model/login"
 	"github.com/artni96/GophKeeper/internal/server/repository/user"
 	userfixture "github.com/artni96/GophKeeper/internal/server/repository/user/fixture"
@@ -38,11 +39,11 @@ func loginFixture(ctx context.Context, loginRepo *Repository, entityData login.C
 		"title",
 		"description",
 
-		"hashed_login",
+		"login_value",
 		"login_nonce",
 		"login_key_id",
 
-		"hashed_password",
+		"password_value",
 		"password_nonce",
 		"password_key_id",
 
@@ -106,13 +107,17 @@ func TestCreate(t *testing.T) {
 		{
 			name: "success",
 			data: login.CreateLogin{
-				Login:      []byte("test login creation"),
-				LoginNonce: []byte("test nonce"),
-				LoginKeyID: 1,
+				Login: common.EncryptedField{
+					Value: []byte("test login creation"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
 
-				Password:      []byte("test password creation"),
-				PasswordNonce: []byte("test nonce"),
-				PasswordKeyID: 1,
+				Password: common.EncryptedField{
+					Value: []byte("test password"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
 
 				UserID: firstUser,
 				Title:  "test title creation",
@@ -125,11 +130,11 @@ func TestCreate(t *testing.T) {
 				"title",
 				"description",
 
-				"hashed_login",
+				"login_value",
 				"login_nonce",
 				"login_key_id",
 
-				"hashed_password",
+				"password_value",
 				"password_nonce",
 				"password_key_id",
 
@@ -144,13 +149,17 @@ func TestCreate(t *testing.T) {
 		{
 			name: "failure - no user id",
 			data: login.CreateLogin{
-				Login:      []byte("test login creation"),
-				LoginNonce: []byte("test nonce"),
-				LoginKeyID: 1,
+				Login: common.EncryptedField{
+					Value: []byte("test login creation"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
 
-				Password:      []byte("test password creation"),
-				PasswordNonce: []byte("test nonce"),
-				PasswordKeyID: 1,
+				Password: common.EncryptedField{
+					Value: []byte("test password"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
 
 				UserID: firstUser,
 				Title:  "test title creation",
@@ -162,11 +171,11 @@ func TestCreate(t *testing.T) {
 			notNullFields: []string{
 				"title",
 				"description",
-				"hashed_login",
+				"login_value",
 				"login_nonce",
 				"login_key_id",
 
-				"hashed_password",
+				"password_value",
 				"password_nonce",
 				"password_key_id",
 
@@ -180,13 +189,17 @@ func TestCreate(t *testing.T) {
 		{
 			name: "failure - title duplicate",
 			data: login.CreateLogin{
-				Login:      []byte("test login creation"),
-				LoginNonce: []byte("test nonce"),
-				LoginKeyID: 1,
+				Login: common.EncryptedField{
+					Value: []byte("test login creation"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
 
-				Password:      []byte("test password creation"),
-				PasswordNonce: []byte("test nonce"),
-				PasswordKeyID: 1,
+				Password: common.EncryptedField{
+					Value: []byte("test password"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
 
 				UserID: firstUser,
 				Title:  "test title creation",
@@ -198,11 +211,11 @@ func TestCreate(t *testing.T) {
 			notNullFields: []string{
 				"title",
 				"description",
-				"hashed_login",
+				"login_value",
 				"login_nonce",
 				"login_key_id",
 
-				"hashed_password",
+				"password_value",
 				"password_nonce",
 				"password_key_id",
 
@@ -241,13 +254,17 @@ func TestGetByNumber(t *testing.T) {
 	}
 
 	fixtureData := login.CreateLogin{
-		Login:      []byte("test login"),
-		LoginNonce: []byte("test nonce"),
-		LoginKeyID: 1,
+		Login: common.EncryptedField{
+			Value: []byte("test login"),
+			Nonce: []byte("test nonce"),
+			KeyID: 1,
+		},
 
-		Password:      []byte("test password"),
-		PasswordNonce: []byte("test nonce"),
-		PasswordKeyID: 1,
+		Password: common.EncryptedField{
+			Value: []byte("test password"),
+			Nonce: []byte("test nonce"),
+			KeyID: 1,
+		},
 
 		UserID: firstUser,
 		Title:  "test title",
@@ -312,13 +329,17 @@ func TestUpdate(t *testing.T) {
 	}
 
 	fixtureData := login.CreateLogin{
-		Login:      []byte("test login"),
-		LoginNonce: []byte("test nonce"),
-		LoginKeyID: 1,
+		Login: common.EncryptedField{
+			Value: []byte("test login"),
+			Nonce: []byte("test nonce"),
+			KeyID: 1,
+		},
 
-		Password:      []byte("test password"),
-		PasswordNonce: []byte("test nonce"),
-		PasswordKeyID: 1,
+		Password: common.EncryptedField{
+			Value: []byte("test password"),
+			Nonce: []byte("test nonce"),
+			KeyID: 1,
+		},
 
 		UserID: firstUser,
 		Title:  "test title",
@@ -339,13 +360,17 @@ func TestUpdate(t *testing.T) {
 		{
 			name: "success",
 			data: login.UpdateLogin{
-				Login:      []byte("updated login"),
-				LoginNonce: []byte("updated nonce"),
-				LoginKeyID: 1,
+				Login: common.EncryptedField{
+					Value: []byte("updated login"),
+					Nonce: []byte("updated nonce"),
+					KeyID: 2,
+				},
 
-				Password:      []byte("updated password"),
-				PasswordNonce: []byte("updated nonce"),
-				PasswordKeyID: 1,
+				Password: common.EncryptedField{
+					Value: []byte("updated password"),
+					Nonce: []byte("updated nonce"),
+					KeyID: 2,
+				},
 
 				Title:       "updated title",
 				URL:         "updated url",
@@ -353,11 +378,11 @@ func TestUpdate(t *testing.T) {
 			},
 			number: uint64(1),
 			fieldsToUpdate: []string{
-				"hashed_login",
+				"login_value",
 				"login_nonce",
 				"login_key_id",
 
-				"hashed_password",
+				"password_value",
 				"password_nonce",
 				"password_key_id",
 
@@ -373,13 +398,17 @@ func TestUpdate(t *testing.T) {
 		{
 			name: "failure - login does not exist",
 			data: login.UpdateLogin{
-				Login:      []byte("updated login"),
-				LoginNonce: []byte("updated nonce"),
-				LoginKeyID: 1,
+				Login: common.EncryptedField{
+					Value: []byte("updated login"),
+					Nonce: []byte("updated nonce"),
+					KeyID: 2,
+				},
 
-				Password:      []byte("updated password"),
-				PasswordNonce: []byte("updated nonce"),
-				PasswordKeyID: 1,
+				Password: common.EncryptedField{
+					Value: []byte("updated password"),
+					Nonce: []byte("updated nonce"),
+					KeyID: 2,
+				},
 
 				Title:       "updated title",
 				URL:         "updated url",
@@ -387,11 +416,11 @@ func TestUpdate(t *testing.T) {
 			},
 			number: uint64(1),
 			fieldsToUpdate: []string{
-				"hashed_login",
+				"login_value",
 				"login_nonce",
 				"login_key_id",
 
-				"hashed_password",
+				"password_value",
 				"password_nonce",
 				"password_key_id",
 
@@ -449,13 +478,17 @@ func TestGetList(t *testing.T) {
 			userID = secondUser
 		}
 		fixtureData := login.CreateLogin{
-			Login:      []byte(fmt.Sprintf("test login %d", i)),
-			LoginNonce: []byte(fmt.Sprintf("test nonce %d", i)),
-			LoginKeyID: 1,
+			Login: common.EncryptedField{
+				Value: []byte(fmt.Sprintf("test login %d", i)),
+				Nonce: []byte(fmt.Sprintf("test nonce %d", i)),
+				KeyID: 1,
+			},
 
-			Password:      []byte(fmt.Sprintf("test password %d", i)),
-			PasswordNonce: []byte(fmt.Sprintf("test nonce %d", i)),
-			PasswordKeyID: 1,
+			Password: common.EncryptedField{
+				Value: []byte(fmt.Sprintf("test password %d", i)),
+				Nonce: []byte(fmt.Sprintf("test nonce %d", i)),
+				KeyID: 1,
+			},
 
 			UserID:      userID,
 			Title:       fmt.Sprintf("test title %d", i),
@@ -511,13 +544,17 @@ func TestDelete(t *testing.T) {
 		t.Fatal(err)
 	}
 	fixtureData := login.CreateLogin{
-		Login:      []byte("test login"),
-		LoginNonce: []byte("test nonce"),
-		LoginKeyID: 1,
+		Login: common.EncryptedField{
+			Value: []byte("test login"),
+			Nonce: []byte("test nonce"),
+			KeyID: 1,
+		},
 
-		Password:      []byte("test password"),
-		PasswordNonce: []byte("test nonce"),
-		PasswordKeyID: 1,
+		Password: common.EncryptedField{
+			Value: []byte("test password"),
+			Nonce: []byte("test nonce"),
+			KeyID: 1,
+		},
 
 		UserID:      firstUser,
 		Title:       "test title",

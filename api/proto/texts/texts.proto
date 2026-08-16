@@ -17,9 +17,9 @@ service TextService {
 message TextCreateRequest {
   google.protobuf.StringValue title = 1;
   google.protobuf.StringValue description = 2;
-  google.protobuf.BytesValue text = 3;
-  google.protobuf.BytesValue nonce = 4;
-  google.protobuf.UInt64Value key_id = 5;
+  google.protobuf.BytesValue text_value = 3;
+  google.protobuf.BytesValue text_nonce = 4;
+  google.protobuf.UInt64Value text_key_id = 5;
 }
 
 message TextCreateResponse {
@@ -33,9 +33,9 @@ message TextGetRequest {
 message TextGetResponse {
   string title = 1;
   string description = 2;
-  bytes text = 3;
-  bytes nonce = 4;
-  uint64 key_id = 5;
+  bytes text_value = 3;
+  bytes text_nonce = 4;
+  uint64 text_key_id = 5;
   uint64 number = 6;
   string created_at = 7;
   string updated_at = 8;
@@ -44,9 +44,9 @@ message TextGetResponse {
 message TextUpdateRequest {
   google.protobuf.StringValue title = 1;
   google.protobuf.StringValue description = 2;
-  google.protobuf.BytesValue text = 3;
-  google.protobuf.BytesValue nonce = 4;
-  google.protobuf.UInt64Value key_id = 5;
+  google.protobuf.BytesValue text_value = 3;
+  google.protobuf.BytesValue text_nonce = 4;
+  google.protobuf.UInt64Value text_key_id = 5;
   uint64 number = 6;
 }
 

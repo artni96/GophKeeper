@@ -7,6 +7,7 @@ import (
 	"github.com/artni96/GophKeeper/internal/server/config"
 	textmodel "github.com/artni96/GophKeeper/internal/server/model/text"
 	"github.com/artni96/GophKeeper/internal/server/repository/text"
+	"github.com/artni96/GophKeeper/internal/server/service/common"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
@@ -41,15 +42,8 @@ func (s *Service) Create(ctx context.Context, data textmodel.CreateTextRequest) 
 	notNullFields := make([]string, 0, 3)
 	entityToCreate := textmodel.CreateText{}
 
-	if data.Text != nil {
-		entityToCreate.Text = data.Text.Value
-		notNullFields = append(notNullFields, "hashed_text")
-
-		entityToCreate.Nonce = data.Nonce.Value
-		notNullFields = append(notNullFields, "nonce")
-
-		entityToCreate.KeyID = data.KeyID.Value
-		notNullFields = append(notNullFields, "key_id")
+	if data.Text.Value != nil {
+		common.EncryptedFieldSetter(&data.Text, &entityToCreate.Text, "text", &notNullFields)
 	}
 
 	if data.Title != nil {
@@ -91,15 +85,8 @@ func (s *Service) Update(ctx context.Context, data textmodel.UpdateTextRequest, 
 	notNullFields := make([]string, 0, 3)
 	dataToUpdate := textmodel.UpdateText{}
 
-	if data.Text != nil {
-		dataToUpdate.Text = data.Text.Value
-		notNullFields = append(notNullFields, "hashed_text")
-
-		dataToUpdate.Nonce = data.Nonce.Value
-		notNullFields = append(notNullFields, "nonce")
-
-		dataToUpdate.KeyID = data.KeyID.Value
-		notNullFields = append(notNullFields, "key_id")
+	if data.Text.Value != nil {
+		common.EncryptedFieldSetter(&data.Text, &dataToUpdate.Text, "text", &notNullFields)
 	}
 
 	if data.Title != nil {

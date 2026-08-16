@@ -82,8 +82,6 @@ func (r *Repository) GetByNumber(ctx context.Context, number uint64, userID uuid
 
 // Update updates the Login entity in the database by its number (only for authors).
 func (r *Repository) Update(ctx context.Context, entity login.UpdateLogin, number uint64, userID uuid.UUID, fieldsToUpdate []string) error {
-	x, _ := userID.Value()
-	fmt.Println(x)
 	db := r.db.WithContext(ctx)
 	result := db.Table(tableName).Select(fieldsToUpdate).Where("number = ? AND user_id = ?", number, userID).Updates(entity)
 	if result.Error != nil {

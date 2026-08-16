@@ -3,30 +3,17 @@ package card
 import (
 	"time"
 
+	"github.com/artni96/GophKeeper/internal/server/model/common"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 type CreateCardRequest struct {
-	PAN      *wrapperspb.BytesValue
-	PANNonce *wrapperspb.BytesValue
-	PANKeyID *wrapperspb.UInt64Value
-
-	Holder      *wrapperspb.BytesValue
-	HolderNonce *wrapperspb.BytesValue
-	HolderKeyID *wrapperspb.UInt64Value
-
-	ExpiryDate      *wrapperspb.BytesValue
-	ExpiryDateNonce *wrapperspb.BytesValue
-	ExpiryDateKeyID *wrapperspb.UInt64Value
-
-	CVV      *wrapperspb.BytesValue
-	CVVNonce *wrapperspb.BytesValue
-	CVVKeyID *wrapperspb.UInt64Value
-
-	PIN      *wrapperspb.BytesValue
-	PINNonce *wrapperspb.BytesValue
-	PINKeyID *wrapperspb.UInt64Value
+	PAN        common.PBEncryptedField
+	Holder     common.PBEncryptedField
+	ExpiryDate common.PBEncryptedField
+	CVV        common.PBEncryptedField
+	PIN        common.PBEncryptedField
 
 	Bank        *wrapperspb.StringValue
 	Brand       *wrapperspb.StringValue
@@ -36,25 +23,11 @@ type CreateCardRequest struct {
 }
 
 type CreateCard struct {
-	PAN      []byte `gorm:"column:hashed_pan"`
-	PanNonce []byte
-	PanKeyID uint64
-
-	Holder      []byte `gorm:"column:hashed_holder"`
-	HolderNonce []byte
-	HolderKeyID uint64
-
-	ExpiryDate      []byte `gorm:"column:hashed_expiry_date"`
-	ExpiryDateNonce []byte
-	ExpiryDateKeyID uint64
-
-	CVV      []byte `gorm:"column:hashed_cvv"`
-	CVVNonce []byte
-	CVVKeyID uint64
-
-	PIN      []byte `gorm:"column:hashed_pin"`
-	PINNonce []byte
-	PINKeyID uint64
+	PAN        common.EncryptedField `gorm:"embedded;embeddedPrefix:pan_"`
+	Holder     common.EncryptedField `gorm:"embedded;embeddedPrefix:holder_"`
+	ExpiryDate common.EncryptedField `gorm:"embedded;embeddedPrefix:expiry_date_"`
+	CVV        common.EncryptedField `gorm:"embedded;embeddedPrefix:cvv_"`
+	PIN        common.EncryptedField `gorm:"embedded;embeddedPrefix:pin_"`
 
 	Bank        string
 	Brand       string
@@ -66,25 +39,12 @@ type CreateCard struct {
 }
 
 type Card struct {
-	PAN      []byte `gorm:"column:hashed_pan"`
-	PanNonce []byte
-	PanKeyID uint64
+	PAN        common.EncryptedField `gorm:"embedded;embeddedPrefix:pan_"`
+	Holder     common.EncryptedField `gorm:"embedded;embeddedPrefix:holder_"`
+	ExpiryDate common.EncryptedField `gorm:"embedded;embeddedPrefix:expiry_date_"`
+	CVV        common.EncryptedField `gorm:"embedded;embeddedPrefix:cvv_"`
+	PIN        common.EncryptedField `gorm:"embedded;embeddedPrefix:pin_"`
 
-	Holder      []byte `gorm:"column:hashed_holder"`
-	HolderNonce []byte
-	HolderKeyID uint64
-
-	ExpiryDate      []byte `gorm:"column:hashed_expiry_date"`
-	ExpiryDateNonce []byte
-	ExpiryDateKeyID uint64
-
-	CVV      []byte `gorm:"column:hashed_cvv"`
-	CVVNonce []byte
-	CVVKeyID uint64
-
-	PIN         []byte `gorm:"column:hashed_pin"`
-	PINNonce    []byte
-	PINKeyID    uint64
 	Bank        string
 	Brand       string
 	UserID      uuid.UUID
@@ -96,25 +56,11 @@ type Card struct {
 }
 
 type UpdateCardRequest struct {
-	PAN      *wrapperspb.BytesValue
-	PANNonce *wrapperspb.BytesValue
-	PANKeyID *wrapperspb.UInt64Value
-
-	Holder      *wrapperspb.BytesValue
-	HolderNonce *wrapperspb.BytesValue
-	HolderKeyID *wrapperspb.UInt64Value
-
-	ExpiryDate      *wrapperspb.BytesValue
-	ExpiryDateNonce *wrapperspb.BytesValue
-	ExpiryDateKeyID *wrapperspb.UInt64Value
-
-	CVV      *wrapperspb.BytesValue
-	CVVNonce *wrapperspb.BytesValue
-	CVVKeyID *wrapperspb.UInt64Value
-
-	PIN      *wrapperspb.BytesValue
-	PINNonce *wrapperspb.BytesValue
-	PINKeyID *wrapperspb.UInt64Value
+	PAN        common.PBEncryptedField
+	Holder     common.PBEncryptedField
+	ExpiryDate common.PBEncryptedField
+	CVV        common.PBEncryptedField
+	PIN        common.PBEncryptedField
 
 	Bank        *wrapperspb.StringValue
 	Brand       *wrapperspb.StringValue
@@ -123,25 +69,11 @@ type UpdateCardRequest struct {
 }
 
 type UpdateCard struct {
-	PAN      []byte `gorm:"column:hashed_pan"`
-	PanNonce []byte
-	PanKeyID uint64
-
-	Holder      []byte `gorm:"column:hashed_holder"`
-	HolderNonce []byte
-	HolderKeyID uint64
-
-	ExpiryDate      []byte `gorm:"column:hashed_expiry_date"`
-	ExpiryDateNonce []byte
-	ExpiryDateKeyID uint64
-
-	CVV      []byte `gorm:"column:hashed_cvv"`
-	CVVNonce []byte
-	CVVKeyID uint64
-
-	PIN      []byte `gorm:"column:hashed_pin"`
-	PINNonce []byte
-	PINKeyID uint64
+	PAN        common.EncryptedField `gorm:"embedded;embeddedPrefix:pan_"`
+	Holder     common.EncryptedField `gorm:"embedded;embeddedPrefix:holder_"`
+	ExpiryDate common.EncryptedField `gorm:"embedded;embeddedPrefix:expiry_date_"`
+	CVV        common.EncryptedField `gorm:"embedded;embeddedPrefix:cvv_"`
+	PIN        common.EncryptedField `gorm:"embedded;embeddedPrefix:pin_"`
 
 	Bank        string
 	Brand       string

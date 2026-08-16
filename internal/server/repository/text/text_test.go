@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/artni96/GophKeeper/internal/server/constants"
+	"github.com/artni96/GophKeeper/internal/server/model/common"
 	"github.com/artni96/GophKeeper/internal/server/model/text"
 	"github.com/artni96/GophKeeper/internal/server/repository/user"
 	userfixture "github.com/artni96/GophKeeper/internal/server/repository/user/fixture"
@@ -39,9 +40,9 @@ func textFixture(ctx context.Context, cardRepo *Repository, entityData text.Crea
 		"title",
 		"description",
 
-		"hashed_text",
-		"nonce",
-		"key_id",
+		"text_value",
+		"text_nonce",
+		"text_key_id",
 
 		"user_id",
 		"created_at",
@@ -106,9 +107,11 @@ func TestCreateText(t *testing.T) {
 				Title:       "test title",
 				Description: "test description",
 
-				Text:  []byte("test text"),
-				Nonce: []byte("test nonce"),
-				KeyID: 1,
+				Text: common.EncryptedField{
+					Value: []byte("test text"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
 
 				UserID:    firstUser,
 				CreatedAt: time.Now(),
@@ -117,9 +120,9 @@ func TestCreateText(t *testing.T) {
 				"title",
 				"description",
 
-				"hashed_text",
-				"nonce",
-				"key_id",
+				"text_value",
+				"text_nonce",
+				"text_key_id",
 
 				"user_id",
 				"created_at",
@@ -134,9 +137,11 @@ func TestCreateText(t *testing.T) {
 				Title:       "test title",
 				Description: "test description",
 
-				Text:  []byte("test text"),
-				Nonce: []byte("test nonce"),
-				KeyID: 1,
+				Text: common.EncryptedField{
+					Value: []byte("test text"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
 
 				UserID:    firstUser,
 				CreatedAt: time.Now(),
@@ -145,9 +150,9 @@ func TestCreateText(t *testing.T) {
 				"title",
 				"description",
 
-				"hashed_text",
-				"nonce",
-				"key_id",
+				"text_value",
+				"text_nonce",
+				"text_key_id",
 
 				"user_id",
 				"created_at",
@@ -161,9 +166,11 @@ func TestCreateText(t *testing.T) {
 			data: text.CreateText{
 				Description: "test description",
 
-				Text:  []byte("test text"),
-				Nonce: []byte("test nonce"),
-				KeyID: 1,
+				Text: common.EncryptedField{
+					Value: []byte("test text"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
 
 				UserID:    firstUser,
 				CreatedAt: time.Now(),
@@ -171,9 +178,9 @@ func TestCreateText(t *testing.T) {
 			notNullFields: []string{
 				"description",
 
-				"hashed_text",
-				"nonce",
-				"key_id",
+				"text_value",
+				"text_nonce",
+				"text_key_id",
 
 				"user_id",
 				"created_at",
@@ -212,9 +219,11 @@ func TestGetByNumber(t *testing.T) {
 		Title:       "test title",
 		Description: "test description",
 
-		Text:  []byte("test text"),
-		Nonce: []byte("test nonce"),
-		KeyID: 1,
+		Text: common.EncryptedField{
+			Value: []byte("test text"),
+			Nonce: []byte("test nonce"),
+			KeyID: 1,
+		},
 
 		UserID:    firstUser,
 		CreatedAt: time.Now(),
@@ -277,12 +286,14 @@ func TestUpdateText(t *testing.T) {
 	}
 
 	fixtureData := text.CreateText{
-		Title:       "update test title",
-		Description: "update test description",
+		Title:       "test title",
+		Description: "test description",
 
-		Text:  []byte("update test text"),
-		Nonce: []byte("update test nonce"),
-		KeyID: 1,
+		Text: common.EncryptedField{
+			Value: []byte("test text"),
+			Nonce: []byte("test nonce"),
+			KeyID: 1,
+		},
 
 		UserID:    firstUser,
 		CreatedAt: time.Now(),
@@ -305,9 +316,11 @@ func TestUpdateText(t *testing.T) {
 				Title:       "updated title",
 				Description: "updated description",
 
-				Text:  []byte("updated text"),
-				Nonce: []byte("update test nonce"),
-				KeyID: 1,
+				Text: common.EncryptedField{
+					Value: []byte("updated test text"),
+					Nonce: []byte("updated test nonce"),
+					KeyID: 1,
+				},
 
 				UpdatedAt: time.Now(),
 			},
@@ -317,9 +330,9 @@ func TestUpdateText(t *testing.T) {
 				"title",
 				"description",
 
-				"hashed_text",
-				"nonce",
-				"key_id",
+				"text_value",
+				"text_nonce",
+				"text_key_id",
 
 				"updated_at",
 			},
@@ -333,9 +346,11 @@ func TestUpdateText(t *testing.T) {
 				Title:       "updated title",
 				Description: "updated description",
 
-				Text:  []byte("updated text"),
-				Nonce: []byte("update test nonce"),
-				KeyID: 1,
+				Text: common.EncryptedField{
+					Value: []byte("updated test text"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
 
 				UpdatedAt: time.Now(),
 			},
@@ -344,9 +359,9 @@ func TestUpdateText(t *testing.T) {
 				"title",
 				"description",
 
-				"hashed_text",
-				"nonce",
-				"key_id",
+				"text_value",
+				"text_nonce",
+				"text_key_id",
 
 				"updated_at",
 			},
@@ -360,9 +375,11 @@ func TestUpdateText(t *testing.T) {
 				Title:       "updated title",
 				Description: "updated description",
 
-				Text:  []byte("updated text"),
-				Nonce: []byte("update test nonce"),
-				KeyID: 1,
+				Text: common.EncryptedField{
+					Value: []byte("updated test text"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
 
 				UpdatedAt: time.Now(),
 			},
@@ -371,9 +388,9 @@ func TestUpdateText(t *testing.T) {
 				"title",
 				"description",
 
-				"hashed_text",
-				"nonce",
-				"key_id",
+				"text_value",
+				"text_nonce",
+				"text_key_id",
 
 				"updated_at",
 			},
@@ -434,9 +451,11 @@ func TestGetList(t *testing.T) {
 			Title:       fmt.Sprintf("test title %d", i),
 			Description: fmt.Sprintf("test description %d", i),
 
-			Text:  []byte(fmt.Sprintf("test text %d", i)),
-			Nonce: []byte(fmt.Sprintf("test nonce %d", i)),
-			KeyID: uint64(i),
+			Text: common.EncryptedField{
+				Value: []byte(fmt.Sprintf("test text %d", i)),
+				Nonce: []byte(fmt.Sprintf("test nonce %d", i)),
+				KeyID: uint64(i),
+			},
 
 			UserID:    testUserID,
 			CreatedAt: time.Now(),
@@ -497,9 +516,11 @@ func TestDeleteText(t *testing.T) {
 		Title:       "update test title",
 		Description: "update test description",
 
-		Text:  []byte("update test text"),
-		Nonce: []byte("update test nonce"),
-		KeyID: 1,
+		Text: common.EncryptedField{
+			Value: []byte("update test text"),
+			Nonce: []byte("update test nonce"),
+			KeyID: 1,
+		},
 
 		UserID:    firstUser,
 		CreatedAt: time.Now(),

@@ -10,6 +10,7 @@ import (
 	userspb "github.com/artni96/GophKeeper/api/proto/users"
 	"github.com/artni96/GophKeeper/internal/server/constants"
 	"github.com/artni96/GophKeeper/internal/server/interceptors"
+	commonmodel "github.com/artni96/GophKeeper/internal/server/model/common"
 	textmodel "github.com/artni96/GophKeeper/internal/server/model/text"
 	"github.com/artni96/GophKeeper/internal/server/service/text"
 	"github.com/google/uuid"
@@ -45,13 +46,15 @@ func (h *Handler) CreateText(ctx context.Context, req *pb.TextCreateRequest) (*p
 		return resp, status.Errorf(codes.Unauthenticated, "not authenticated")
 	}
 	entityToCreate := textmodel.CreateTextRequest{
-		Title: req.GetTitle(),
-		Nonce: req.GetNonce(),
-		KeyID: req.GetKeyId(),
-
+		Title:       req.GetTitle(),
 		Description: req.GetDescription(),
-		Text:        req.GetText(),
-		UserID:      userID,
+
+		Text: commonmodel.PBEncryptedField{
+			Value: req.GetTextValue(),
+			Nonce: req.GetTextNonce(),
+			KeyID: req.GetTextKeyId(),
+		},
+		UserID: userID,
 	}
 	entityNumber, err := h.Service.Create(ctx, entityToCreate)
 	if err != nil {
@@ -101,12 +104,7 @@ func (h *Handler) GetText(ctx context.Context, req *pb.TextGetRequest) (*pb.Text
 		return resp, status.Error(codes.Internal, constants.DefaultError)
 	}
 
-	resp.SetTitle(dbEntity.Title)
-	resp.SetDescription(dbEntity.Description)
-
-	resp.SetText(dbEntity.Text)
-	resp.SetNonce(dbEntity.Nonce)
-	resp.SetKeyId(dbEntity.KeyID)
+	resp = prepareResponseItem(*dbEntity)
 
 	resp.SetCreatedAt(dbEntity.CreatedAt.Format(time.RFC3339))
 	if !dbEntity.UpdatedAt.IsZero() {
@@ -132,9 +130,11 @@ func (h *Handler) UpdateText(ctx context.Context, req *pb.TextUpdateRequest) (*p
 		Title:       req.GetTitle(),
 		Description: req.GetDescription(),
 
-		Text:  req.GetText(),
-		Nonce: req.GetNonce(),
-		KeyID: req.GetKeyId(),
+		Text: commonmodel.PBEncryptedField{
+			Value: req.GetTextValue(),
+			Nonce: req.GetTextNonce(),
+			KeyID: req.GetTextKeyId(),
+		},
 	}
 
 	err := h.Service.Update(ctx, dataToUpdate, entityNumber, userID)
@@ -220,21 +220,27 @@ func (h *Handler) GetListText(ctx context.Context, req *pb.TextGetListRequest) (
 
 	pbList := make([]*pb.TextGetResponse, 0)
 	for _, entity := range dbEntities {
-		i := &pb.TextGetResponse{}
-		i.SetTitle(entity.Title)
-		i.SetDescription(entity.Description)
-
-		i.SetText(entity.Text)
-		i.SetNonce(entity.Nonce)
-		i.SetKeyId(entity.KeyID)
-
-		i.SetNumber(entity.Number)
-		i.SetCreatedAt(entity.CreatedAt.Format(time.RFC3339))
-		if !entity.UpdatedAt.IsZero() {
-			i.SetUpdatedAt(entity.UpdatedAt.Format(time.RFC3339))
-		}
+		i := prepareResponseItem(entity)
 		pbList = append(pbList, i)
 	}
 	resp.SetTexts(pbList)
 	return resp, nil
+}
+
+// prepareResponseItem prepares and returns the Text response entity.
+func prepareResponseItem(dbEntity textmodel.Text) *pb.TextGetResponse {
+	resp := &pb.TextGetResponse{}
+
+	resp.SetTextValue(dbEntity.Text.Value)
+	resp.SetTextNonce(dbEntity.Text.Nonce)
+	resp.SetTextKeyId(dbEntity.Text.KeyID)
+
+	resp.SetTitle(dbEntity.Title)
+	resp.SetDescription(dbEntity.Description)
+	resp.SetNumber(dbEntity.Number)
+	resp.SetCreatedAt(dbEntity.CreatedAt.Format(time.RFC3339))
+	if !dbEntity.UpdatedAt.IsZero() {
+		resp.SetUpdatedAt(dbEntity.UpdatedAt.Format(time.RFC3339))
+	}
+	return resp
 }

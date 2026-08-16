@@ -2,6 +2,7 @@ package card
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	cardspb "github.com/artni96/GophKeeper/api/proto/cards"
@@ -13,6 +14,14 @@ import (
 	"github.com/artni96/GophKeeper/internal/client/utils"
 	"google.golang.org/grpc"
 )
+
+type decryptedEntity struct {
+	pan        string
+	holder     string
+	expiryDate string
+	cvv        string
+	pin        string
+}
 
 // Service implements the Card client service to manage card-related data business logic.
 type Service struct {
@@ -53,57 +62,17 @@ func (s *Service) Add(ctx context.Context, entityNumber uint64) error {
 		updatedAt = time.Time{}
 	}
 
-	panNonce := pbEntity.GetPanNonce()
-	panKeyID := pbEntity.GetPanKeyId()
-	panAesKey := s.state.Keys[panKeyID]
-
-	decryptedPAN, err := utils.DecryptField(pbEntity.GetPan(), panAesKey, panNonce)
-	if err != nil {
-		return err
-	}
-
-	holderNonce := pbEntity.GetHolderNonce()
-	holderKeyID := pbEntity.GetHolderKeyId()
-	holderAesKey := s.state.Keys[holderKeyID]
-
-	decryptedHolder, err := utils.DecryptField(pbEntity.GetHolder(), holderAesKey, holderNonce)
-	if err != nil {
-		return err
-	}
-
-	expiryDateNonce := pbEntity.GetExpiryDateNonce()
-	expiryDateKeyID := pbEntity.GetExpiryDateKeyId()
-	expiryDateAesKey := s.state.Keys[expiryDateKeyID]
-
-	decryptedExpiryDate, err := utils.DecryptField(pbEntity.GetExpiryDate(), expiryDateAesKey, expiryDateNonce)
-	if err != nil {
-		return err
-	}
-
-	cvvNonce := pbEntity.GetCvvNonce()
-	cvvKeyID := pbEntity.GetCvvKeyId()
-	cvvAesKey := s.state.Keys[cvvKeyID]
-
-	decryptedCVV, err := utils.DecryptField(pbEntity.GetCvv(), cvvAesKey, cvvNonce)
-	if err != nil {
-		return err
-	}
-
-	pinNonce := pbEntity.GetPinNonce()
-	pinKeyID := pbEntity.GetPinKeyId()
-	pinAesKey := s.state.Keys[pinKeyID]
-
-	decryptedPIN, err := utils.DecryptField(pbEntity.GetPin(), pinAesKey, pinNonce)
+	decryptedFields, err := s.decryptPBEntity(pbEntity)
 	if err != nil {
 		return err
 	}
 
 	entity := card.Card{
-		PAN:         string(decryptedPAN),
-		Holder:      string(decryptedHolder),
-		ExpiryDate:  string(decryptedExpiryDate),
-		CVV:         string(decryptedCVV),
-		PIN:         string(decryptedPIN),
+		PAN:         decryptedFields.pan,
+		Holder:      decryptedFields.holder,
+		ExpiryDate:  decryptedFields.expiryDate,
+		CVV:         decryptedFields.cvv,
+		PIN:         decryptedFields.pin,
 		Bank:        pbEntity.GetBank(),
 		Brand:       pbEntity.GetBrand(),
 		Title:       pbEntity.GetTitle(),
@@ -140,57 +109,17 @@ func (s *Service) AddBatch(ctx context.Context) error {
 			updatedAt = time.Time{}
 		}
 
-		panNonce := pbEntity.GetPanNonce()
-		panKeyID := pbEntity.GetPanKeyId()
-		panAesKey := s.state.Keys[panKeyID]
-
-		decryptedPAN, err := utils.DecryptField(pbEntity.GetPan(), panAesKey, panNonce)
-		if err != nil {
-			return err
-		}
-
-		holderNonce := pbEntity.GetHolderNonce()
-		holderKeyID := pbEntity.GetHolderKeyId()
-		holderAesKey := s.state.Keys[holderKeyID]
-
-		decryptedHolder, err := utils.DecryptField(pbEntity.GetHolder(), holderAesKey, holderNonce)
-		if err != nil {
-			return err
-		}
-
-		expiryDateNonce := pbEntity.GetExpiryDateNonce()
-		expiryDateKeyID := pbEntity.GetExpiryDateKeyId()
-		expiryDateAesKey := s.state.Keys[expiryDateKeyID]
-
-		decryptedExpiryDate, err := utils.DecryptField(pbEntity.GetExpiryDate(), expiryDateAesKey, expiryDateNonce)
-		if err != nil {
-			return err
-		}
-
-		cvvNonce := pbEntity.GetCvvNonce()
-		cvvKeyID := pbEntity.GetCvvKeyId()
-		cvvAesKey := s.state.Keys[cvvKeyID]
-
-		decryptedCVV, err := utils.DecryptField(pbEntity.GetCvv(), cvvAesKey, cvvNonce)
-		if err != nil {
-			return err
-		}
-
-		pinNonce := pbEntity.GetPinNonce()
-		pinKeyID := pbEntity.GetPinKeyId()
-		pinAesKey := s.state.Keys[pinKeyID]
-
-		decryptedPIN, err := utils.DecryptField(pbEntity.GetPin(), pinAesKey, pinNonce)
+		decryptedFields, err := s.decryptPBEntity(pbEntity)
 		if err != nil {
 			return err
 		}
 
 		entity := card.Card{
-			PAN:         string(decryptedPAN),
-			Holder:      string(decryptedHolder),
-			ExpiryDate:  string(decryptedExpiryDate),
-			CVV:         string(decryptedCVV),
-			PIN:         string(decryptedPIN),
+			PAN:         decryptedFields.pan,
+			Holder:      decryptedFields.holder,
+			ExpiryDate:  decryptedFields.expiryDate,
+			CVV:         decryptedFields.cvv,
+			PIN:         decryptedFields.pin,
 			Bank:        pbEntity.GetBank(),
 			Brand:       pbEntity.GetBrand(),
 			Title:       pbEntity.GetTitle(),
@@ -238,57 +167,17 @@ func (s *Service) Update(ctx context.Context, entityNumber uint64) error {
 		return err
 	}
 
-	panNonce := pbEntity.GetPanNonce()
-	panKeyID := pbEntity.GetPanKeyId()
-	panAesKey := s.state.Keys[panKeyID]
-
-	decryptedPAN, err := utils.DecryptField(pbEntity.GetPan(), panAesKey, panNonce)
-	if err != nil {
-		return err
-	}
-
-	holderNonce := pbEntity.GetHolderNonce()
-	holderKeyID := pbEntity.GetHolderKeyId()
-	holderAesKey := s.state.Keys[holderKeyID]
-
-	decryptedHolder, err := utils.DecryptField(pbEntity.GetHolder(), holderAesKey, holderNonce)
-	if err != nil {
-		return err
-	}
-
-	expiryDateNonce := pbEntity.GetExpiryDateNonce()
-	expiryDateKeyID := pbEntity.GetExpiryDateKeyId()
-	expiryDateAesKey := s.state.Keys[expiryDateKeyID]
-
-	decryptedExpiryDate, err := utils.DecryptField(pbEntity.GetExpiryDate(), expiryDateAesKey, expiryDateNonce)
-	if err != nil {
-		return err
-	}
-
-	cvvNonce := pbEntity.GetCvvNonce()
-	cvvKeyID := pbEntity.GetCvvKeyId()
-	cvvAesKey := s.state.Keys[cvvKeyID]
-
-	decryptedCVV, err := utils.DecryptField(pbEntity.GetCvv(), cvvAesKey, cvvNonce)
-	if err != nil {
-		return err
-	}
-
-	pinNonce := pbEntity.GetPinNonce()
-	pinKeyID := pbEntity.GetPinKeyId()
-	pinAesKey := s.state.Keys[pinKeyID]
-
-	decryptedPIN, err := utils.DecryptField(pbEntity.GetPin(), pinAesKey, pinNonce)
+	decryptedFields, err := s.decryptPBEntity(pbEntity)
 	if err != nil {
 		return err
 	}
 
 	entity := card.Card{
-		PAN:         string(decryptedPAN),
-		Holder:      string(decryptedHolder),
-		ExpiryDate:  string(decryptedExpiryDate),
-		CVV:         string(decryptedCVV),
-		PIN:         string(decryptedPIN),
+		PAN:         decryptedFields.pan,
+		Holder:      decryptedFields.holder,
+		ExpiryDate:  decryptedFields.expiryDate,
+		CVV:         decryptedFields.cvv,
+		PIN:         decryptedFields.pin,
 		Bank:        pbEntity.GetBank(),
 		Brand:       pbEntity.GetBrand(),
 		Title:       pbEntity.GetTitle(),
@@ -311,4 +200,56 @@ func (s *Service) Delete(entityNumber uint64) error {
 		return err
 	}
 	return nil
+}
+
+// decryptPBEntity decrypts encrypted fields of a Card entity.
+func (s *Service) decryptPBEntity(pbEntity *cardspb.CardGetResponse) (*decryptedEntity, error) {
+	result := &decryptedEntity{}
+
+	panNonce := pbEntity.GetPanNonce()
+	panKeyID := pbEntity.GetPanKeyId()
+	panAesKey := s.state.Keys[panKeyID]
+	decryptedPAN, err := utils.DecryptField(pbEntity.GetPanValue(), panAesKey, panNonce)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decrypt pan value: %w", err)
+	}
+	result.pan = string(decryptedPAN)
+
+	holderNonce := pbEntity.GetHolderNonce()
+	holderKeyID := pbEntity.GetHolderKeyId()
+	holderAesKey := s.state.Keys[holderKeyID]
+	decryptedHolder, err := utils.DecryptField(pbEntity.GetHolderValue(), holderAesKey, holderNonce)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decrypt holder value: %w", err)
+	}
+	result.holder = string(decryptedHolder)
+
+	expiryDateNonce := pbEntity.GetExpiryDateNonce()
+	expiryDateKeyID := pbEntity.GetExpiryDateKeyId()
+	expiryDateAesKey := s.state.Keys[expiryDateKeyID]
+	decryptedExpiryDate, err := utils.DecryptField(pbEntity.GetExpiryDateValue(), expiryDateAesKey, expiryDateNonce)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decrypt expiry date value: %w", err)
+	}
+	result.expiryDate = string(decryptedExpiryDate)
+
+	cvvNonce := pbEntity.GetCvvNonce()
+	cvvKeyID := pbEntity.GetCvvKeyId()
+	cvvAesKey := s.state.Keys[cvvKeyID]
+	decryptedCVV, err := utils.DecryptField(pbEntity.GetCvvValue(), cvvAesKey, cvvNonce)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decrypt cvv value: %w", err)
+	}
+	result.cvv = string(decryptedCVV)
+
+	pinNonce := pbEntity.GetPinNonce()
+	pinKeyID := pbEntity.GetPinKeyId()
+	pinAesKey := s.state.Keys[pinKeyID]
+
+	decryptedPIN, err := utils.DecryptField(pbEntity.GetPinValue(), pinAesKey, pinNonce)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decrypt pin value: %w", err)
+	}
+	result.pin = string(decryptedPIN)
+	return result, nil
 }

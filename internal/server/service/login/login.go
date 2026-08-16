@@ -7,6 +7,7 @@ import (
 	"github.com/artni96/GophKeeper/internal/server/config"
 	loginmodel "github.com/artni96/GophKeeper/internal/server/model/login"
 	"github.com/artni96/GophKeeper/internal/server/repository/login"
+	"github.com/artni96/GophKeeper/internal/server/service/common"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
@@ -23,8 +24,6 @@ type Service struct {
 	repo   login.RepositoryI
 	cfg    *config.Config
 	logger *zap.Logger
-	//notificationChan chan *userpb.UpdateNotification
-	//mu               sync.RWMutex
 }
 
 // NewService initializes and returns the new Login service instance.
@@ -33,38 +32,20 @@ func NewService(cfg *config.Config, logger *zap.Logger, repo login.RepositoryI) 
 		repo:   repo,
 		cfg:    cfg,
 		logger: logger,
-		//notificationChan: notifChan,
 	}
 }
 
 // Create creates a new Login entity by the repository.
 func (s *Service) Create(ctx context.Context, data loginmodel.CreateLoginRequest) (uint64, error) {
-	//if err := data.Validate(); err != nil {
-	//	return 0, fmt.Errorf("%w: %w", constants.ErrInvalidRequest, err)
-	//}
 	notNullFields := make([]string, 0, 9)
 	entityToCreate := loginmodel.CreateLogin{}
 
-	if data.Login != nil {
-		entityToCreate.Login = data.Login.Value
-		notNullFields = append(notNullFields, "hashed_login")
-
-		entityToCreate.LoginNonce = data.LoginNonce.Value
-		notNullFields = append(notNullFields, "login_nonce")
-
-		entityToCreate.LoginKeyID = data.LoginKeyID.Value
-		notNullFields = append(notNullFields, "login_key_id")
+	if data.Login.Value != nil {
+		common.EncryptedFieldSetter(&data.Login, &entityToCreate.Login, "login", &notNullFields)
 	}
 
-	if data.Password != nil {
-		entityToCreate.Password = data.Password.Value
-		notNullFields = append(notNullFields, "hashed_password")
-
-		entityToCreate.PasswordNonce = data.PasswordNonce.Value
-		notNullFields = append(notNullFields, "password_nonce")
-
-		entityToCreate.PasswordKeyID = data.PasswordKeyID.Value
-		notNullFields = append(notNullFields, "password_key_id")
+	if data.Password.Value != nil {
+		common.EncryptedFieldSetter(&data.Password, &entityToCreate.Password, "password", &notNullFields)
 	}
 
 	if data.URL != nil {
@@ -109,26 +90,12 @@ func (s *Service) Update(ctx context.Context, data loginmodel.UpdateLoginRequest
 	notNullFields := make([]string, 0, 8)
 	dataToUpdate := loginmodel.UpdateLogin{}
 
-	if data.Login != nil {
-		dataToUpdate.Login = data.Login.Value
-		notNullFields = append(notNullFields, "hashed_login")
-
-		dataToUpdate.LoginNonce = data.LoginNonce.Value
-		notNullFields = append(notNullFields, "login_nonce")
-
-		dataToUpdate.LoginKeyID = data.LoginKeyID.Value
-		notNullFields = append(notNullFields, "login_key_id")
+	if data.Login.Value != nil {
+		common.EncryptedFieldSetter(&data.Login, &dataToUpdate.Login, "login", &notNullFields)
 	}
 
-	if data.Password != nil {
-		dataToUpdate.Password = data.Password.Value
-		notNullFields = append(notNullFields, "hashed_password")
-
-		dataToUpdate.PasswordNonce = data.PasswordNonce.Value
-		notNullFields = append(notNullFields, "password_nonce")
-
-		dataToUpdate.PasswordKeyID = data.PasswordKeyID.Value
-		notNullFields = append(notNullFields, "password_key_id")
+	if data.Password.Value != nil {
+		common.EncryptedFieldSetter(&data.Password, &dataToUpdate.Password, "password", &notNullFields)
 	}
 
 	if data.URL != nil {

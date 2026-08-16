@@ -120,7 +120,7 @@ func (m *Menu) initUserMenu() {
 			if err != nil {
 				return err
 			}
-			m.app.IsBeingUpdated = true
+			m.app.IsBeingUpdated.Store(true)
 			fmt.Println("Successfully logged in!")
 			fmt.Println()
 

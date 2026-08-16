@@ -53,11 +53,11 @@ func (s *Service) Add(ctx context.Context, entityNumber uint64) error {
 		updatedAt = time.Time{}
 	}
 
-	nonce := pbEntity.GetNonce()
-	keyID := pbEntity.GetKeyId()
+	nonce := pbEntity.GetTextNonce()
+	keyID := pbEntity.GetTextKeyId()
 	aesKey := s.state.Keys[keyID]
 
-	decryptedText, err := utils.DecryptField(pbEntity.GetText(), aesKey, nonce)
+	decryptedText, err := utils.DecryptField(pbEntity.GetTextValue(), aesKey, nonce)
 	if err != nil {
 		return err
 	}
@@ -98,11 +98,11 @@ func (s *Service) AddBatch(ctx context.Context) error {
 			updatedAt = time.Time{}
 		}
 
-		nonce := pbEntity.GetNonce()
-		keyID := pbEntity.GetKeyId()
+		nonce := pbEntity.GetTextNonce()
+		keyID := pbEntity.GetTextKeyId()
 		aesKey := s.state.Keys[keyID]
 
-		decryptedText, err := utils.DecryptField(pbEntity.GetText(), aesKey, nonce)
+		decryptedText, err := utils.DecryptField(pbEntity.GetTextValue(), aesKey, nonce)
 		if err != nil {
 			return err
 		}
@@ -154,11 +154,11 @@ func (s *Service) Update(ctx context.Context, entityNumber uint64) error {
 		return err
 	}
 
-	nonce := pbEntity.GetNonce()
-	keyID := pbEntity.GetKeyId()
+	nonce := pbEntity.GetTextNonce()
+	keyID := pbEntity.GetTextKeyId()
 	aesKey := s.state.Keys[keyID]
 
-	decryptedText, err := utils.DecryptField(pbEntity.GetText(), aesKey, nonce)
+	decryptedText, err := utils.DecryptField(pbEntity.GetTextValue(), aesKey, nonce)
 	if err != nil {
 		return err
 	}

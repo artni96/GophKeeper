@@ -13,3 +13,9 @@ type Notification struct {
 	EntityType   userspb.EntityType
 	EntityNumber uint64
 }
+
+type DecryptedField struct {
+	EncryptedField string
+	KeyID          string
+	Nonce          []byte
+}

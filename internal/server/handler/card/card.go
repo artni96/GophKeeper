@@ -11,6 +11,7 @@ import (
 	"github.com/artni96/GophKeeper/internal/server/constants"
 	"github.com/artni96/GophKeeper/internal/server/interceptors"
 	cardmodel "github.com/artni96/GophKeeper/internal/server/model/card"
+	commonmodel "github.com/artni96/GophKeeper/internal/server/model/common"
 	"github.com/artni96/GophKeeper/internal/server/service/card"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -45,25 +46,35 @@ func (h *Handler) CreateCard(ctx context.Context, req *pb.CardCreateRequest) (*p
 		return resp, status.Errorf(codes.Unauthenticated, "not authenticated")
 	}
 	entityToCreate := cardmodel.CreateCardRequest{
-		PAN:      req.GetPan(),
-		PANNonce: req.GetPanNonce(),
-		PANKeyID: req.GetPanKeyId(),
+		PAN: commonmodel.PBEncryptedField{
+			Value: req.GetPanValue(),
+			Nonce: req.GetPanNonce(),
+			KeyID: req.GetPanKeyId(),
+		},
 
-		Holder:      req.GetHolder(),
-		HolderNonce: req.GetHolderNonce(),
-		HolderKeyID: req.GetHolderKeyId(),
+		Holder: commonmodel.PBEncryptedField{
+			Value: req.GetHolderValue(),
+			Nonce: req.GetHolderNonce(),
+			KeyID: req.GetHolderKeyId(),
+		},
 
-		ExpiryDate:      req.GetExpiryDate(),
-		ExpiryDateNonce: req.GetExpiryDateNonce(),
-		ExpiryDateKeyID: req.GetExpiryDateKeyId(),
+		ExpiryDate: commonmodel.PBEncryptedField{
+			Value: req.GetExpiryDateValue(),
+			Nonce: req.GetExpiryDateNonce(),
+			KeyID: req.GetExpiryDateKeyId(),
+		},
 
-		CVV:      req.GetCvv(),
-		CVVNonce: req.GetCvvNonce(),
-		CVVKeyID: req.GetCvvKeyId(),
+		CVV: commonmodel.PBEncryptedField{
+			Value: req.GetCvvValue(),
+			Nonce: req.GetCvvNonce(),
+			KeyID: req.GetCvvKeyId(),
+		},
 
-		PIN:      req.GetPin(),
-		PINNonce: req.GetPinNonce(),
-		PINKeyID: req.GetPinKeyId(),
+		PIN: commonmodel.PBEncryptedField{
+			Value: req.GetPinValue(),
+			Nonce: req.GetPinNonce(),
+			KeyID: req.GetPinKeyId(),
+		},
 
 		Bank:        req.GetBank(),
 		Brand:       req.GetBrand(),
@@ -117,36 +128,7 @@ func (h *Handler) GetCard(ctx context.Context, req *pb.CardGetRequest) (*pb.Card
 		}
 		return resp, status.Error(codes.Internal, constants.DefaultError)
 	}
-
-	resp.SetPan(dbEntity.PAN)
-	resp.SetPanNonce(dbEntity.PanNonce)
-	resp.SetPanKeyId(dbEntity.PanKeyID)
-
-	resp.SetHolder(dbEntity.Holder)
-	resp.SetHolderNonce(dbEntity.HolderNonce)
-	resp.SetHolderKeyId(dbEntity.HolderKeyID)
-
-	resp.SetExpiryDate(dbEntity.ExpiryDate)
-	resp.SetExpiryDateNonce(dbEntity.ExpiryDateNonce)
-	resp.SetExpiryDateKeyId(dbEntity.ExpiryDateKeyID)
-
-	resp.SetCvv(dbEntity.CVV)
-	resp.SetCvvNonce(dbEntity.CVVNonce)
-	resp.SetCvvKeyId(dbEntity.CVVKeyID)
-
-	resp.SetPin(dbEntity.PIN)
-	resp.SetPinNonce(dbEntity.PINNonce)
-	resp.SetPinKeyId(dbEntity.PINKeyID)
-
-	resp.SetBank(dbEntity.Bank)
-	resp.SetBrand(dbEntity.Brand)
-	resp.SetTitle(dbEntity.Title)
-	resp.SetDescription(dbEntity.Description)
-	resp.SetCreatedAt(dbEntity.CreatedAt.Format(time.RFC3339))
-	if !dbEntity.UpdatedAt.IsZero() {
-		resp.SetUpdatedAt(dbEntity.UpdatedAt.Format(time.RFC3339))
-	}
-	resp.SetNumber(dbEntity.Number)
+	resp = prepareResponseItem(*dbEntity)
 	return resp, nil
 }
 
@@ -163,25 +145,36 @@ func (h *Handler) UpdateCard(ctx context.Context, req *pb.CardUpdateRequest) (*p
 	}
 
 	dataToUpdate := cardmodel.UpdateCardRequest{
-		PAN:      req.GetPan(),
-		PANNonce: req.GetPanNonce(),
-		PANKeyID: req.GetPanKeyId(),
+		PAN: commonmodel.PBEncryptedField{
+			Value: req.GetPanValue(),
+			Nonce: req.GetPanNonce(),
+			KeyID: req.GetPanKeyId(),
+		},
 
-		Holder:      req.GetHolder(),
-		HolderNonce: req.GetHolderNonce(),
-		HolderKeyID: req.GetHolderKeyId(),
+		Holder: commonmodel.PBEncryptedField{
+			Value: req.GetHolderValue(),
+			Nonce: req.GetHolderNonce(),
+			KeyID: req.GetHolderKeyId(),
+		},
 
-		ExpiryDate:      req.GetExpiryDate(),
-		ExpiryDateNonce: req.GetExpiryDateNonce(),
-		ExpiryDateKeyID: req.GetExpiryDateKeyId(),
+		ExpiryDate: commonmodel.PBEncryptedField{
+			Value: req.GetExpiryDateValue(),
+			Nonce: req.GetExpiryDateNonce(),
+			KeyID: req.GetExpiryDateKeyId(),
+		},
 
-		CVV:      req.GetCvv(),
-		CVVNonce: req.GetCvvNonce(),
-		CVVKeyID: req.GetCvvKeyId(),
+		CVV: commonmodel.PBEncryptedField{
+			Value: req.GetCvvValue(),
+			Nonce: req.GetCvvNonce(),
+			KeyID: req.GetCvvKeyId(),
+		},
 
-		PIN:         req.GetPin(),
-		PINNonce:    req.GetPinNonce(),
-		PINKeyID:    req.GetPinKeyId(),
+		PIN: commonmodel.PBEncryptedField{
+			Value: req.GetPinValue(),
+			Nonce: req.GetPinNonce(),
+			KeyID: req.GetPinKeyId(),
+		},
+
 		Bank:        req.GetBank(),
 		Brand:       req.GetBrand(),
 		Title:       req.GetTitle(),
@@ -271,39 +264,46 @@ func (h *Handler) GetListCard(ctx context.Context, req *pb.CardGetListRequest) (
 
 	pbList := make([]*pb.CardGetResponse, 0)
 	for _, entity := range dbEntities {
-		i := &pb.CardGetResponse{}
-		i.SetPan(entity.PAN)
-		i.SetPanNonce(entity.PanNonce)
-		i.SetPanKeyId(entity.PanKeyID)
-
-		i.SetHolder(entity.Holder)
-		i.SetHolderNonce(entity.HolderNonce)
-		i.SetHolderKeyId(entity.HolderKeyID)
-
-		i.SetExpiryDate(entity.ExpiryDate)
-		i.SetExpiryDateNonce(entity.ExpiryDateNonce)
-		i.SetExpiryDateKeyId(entity.ExpiryDateKeyID)
-
-		i.SetCvv(entity.CVV)
-		i.SetCvvNonce(entity.CVVNonce)
-		i.SetCvvKeyId(entity.CVVKeyID)
-
-		i.SetPin(entity.PIN)
-		i.SetPinNonce(entity.PINNonce)
-		i.SetPinKeyId(entity.PINKeyID)
-
-		i.SetBank(entity.Bank)
-		i.SetBrand(entity.Brand)
-		i.SetTitle(entity.Title)
-		i.SetDescription(entity.Description)
-		i.SetNumber(entity.Number)
-		i.SetCreatedAt(entity.CreatedAt.Format(time.RFC3339))
-		if !entity.UpdatedAt.IsZero() {
-			i.SetUpdatedAt(entity.UpdatedAt.Format(time.RFC3339))
-		}
+		i := prepareResponseItem(entity)
 		pbList = append(pbList, i)
 	}
 	resp.SetCards(pbList)
 
 	return resp, nil
+}
+
+// prepareResponseItem prepares and returns the Card response entity.
+func prepareResponseItem(dbEntity cardmodel.Card) *pb.CardGetResponse {
+	resp := &pb.CardGetResponse{}
+
+	resp.SetPanValue(dbEntity.PAN.Value)
+	resp.SetPanNonce(dbEntity.PAN.Nonce)
+	resp.SetPanKeyId(dbEntity.PAN.KeyID)
+
+	resp.SetHolderValue(dbEntity.Holder.Value)
+	resp.SetHolderNonce(dbEntity.Holder.Nonce)
+	resp.SetHolderKeyId(dbEntity.Holder.KeyID)
+
+	resp.SetExpiryDateValue(dbEntity.ExpiryDate.Value)
+	resp.SetExpiryDateNonce(dbEntity.ExpiryDate.Nonce)
+	resp.SetExpiryDateKeyId(dbEntity.ExpiryDate.KeyID)
+
+	resp.SetCvvValue(dbEntity.CVV.Value)
+	resp.SetCvvNonce(dbEntity.CVV.Nonce)
+	resp.SetCvvKeyId(dbEntity.CVV.KeyID)
+
+	resp.SetPinValue(dbEntity.PIN.Value)
+	resp.SetPinNonce(dbEntity.PIN.Nonce)
+	resp.SetPinKeyId(dbEntity.PIN.KeyID)
+
+	resp.SetBank(dbEntity.Bank)
+	resp.SetBrand(dbEntity.Brand)
+	resp.SetTitle(dbEntity.Title)
+	resp.SetDescription(dbEntity.Description)
+	resp.SetCreatedAt(dbEntity.CreatedAt.Format(time.RFC3339))
+	if !dbEntity.UpdatedAt.IsZero() {
+		resp.SetUpdatedAt(dbEntity.UpdatedAt.Format(time.RFC3339))
+	}
+	resp.SetNumber(dbEntity.Number)
+	return resp
 }

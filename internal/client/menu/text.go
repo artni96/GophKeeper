@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	textspb "github.com/artni96/GophKeeper/api/proto/texts"
+	"github.com/artni96/GophKeeper/internal/client/constants"
 	"github.com/artni96/GophKeeper/internal/client/utils"
-	"github.com/artni96/GophKeeper/internal/server/constants"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/wrapperspb"
@@ -176,9 +176,9 @@ func (m *Menu) initTextMenu() {
 					continue
 				}
 
-				pbEntity.SetText(wrapperspb.Bytes(encryptedValue))
-				pbEntity.SetNonce(wrapperspb.Bytes(nonce))
-				pbEntity.SetKeyId(wrapperspb.UInt64(activeKey))
+				pbEntity.SetTextValue(wrapperspb.Bytes(encryptedValue))
+				pbEntity.SetTextNonce(wrapperspb.Bytes(nonce))
+				pbEntity.SetTextKeyId(wrapperspb.UInt64(activeKey))
 				break
 			}
 
@@ -277,9 +277,9 @@ func (m *Menu) initTextMenu() {
 					continue
 				}
 
-				pbEntity.SetText(wrapperspb.Bytes(encryptedValue))
-				pbEntity.SetNonce(wrapperspb.Bytes(nonce))
-				pbEntity.SetKeyId(wrapperspb.UInt64(activeKey))
+				pbEntity.SetTextValue(wrapperspb.Bytes(encryptedValue))
+				pbEntity.SetTextNonce(wrapperspb.Bytes(nonce))
+				pbEntity.SetTextKeyId(wrapperspb.UInt64(activeKey))
 				break
 			}
 			err := m.confirmAction()

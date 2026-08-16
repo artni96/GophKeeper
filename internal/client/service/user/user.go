@@ -6,6 +6,7 @@ import (
 	"crypto/cipher"
 	"crypto/sha256"
 	"fmt"
+	"sync/atomic"
 	"time"
 
 	userspb "github.com/artni96/GophKeeper/api/proto/users"
@@ -23,7 +24,7 @@ type Service struct {
 	client           userspb.UserServiceClient
 	state            *config.State
 	notificationChan chan common.Notification
-	isBeingUpdated   bool
+	isBeingUpdated   *atomic.Bool
 }
 
 // NewService initializes and returns the new User service instance.
@@ -32,7 +33,7 @@ func NewService(
 	state *config.State,
 	conn *grpc.ClientConn,
 	notificationChan chan common.Notification,
-	isBeingUpdated bool,
+	isBeingUpdated *atomic.Bool,
 ) *Service {
 	return &Service{
 		cfg:              cfg,
@@ -158,7 +159,7 @@ Reconnection:
 				}
 				//fmt.Println(notification)
 				s.notificationChan <- notification
-				s.isBeingUpdated = true
+				s.isBeingUpdated.Store(true)
 			}
 		}
 	}

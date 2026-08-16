@@ -5,4 +5,4 @@ import (
 )
 
 var ErrEntityNotFound = errors.New("entity not found")
-var ErrBeingOffline = errors.New("You are being offline")
+var ErrInvalidInput = errors.New("invalid input")

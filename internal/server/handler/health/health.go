@@ -1,4 +1,4 @@
-package heath
+package health
 
 import (
 	"context"

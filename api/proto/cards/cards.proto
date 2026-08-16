@@ -16,11 +16,11 @@ service CardService {
 
 
 message CardCreateRequest {
-  google.protobuf.BytesValue pan = 1;
-  google.protobuf.BytesValue holder = 2;
-  google.protobuf.BytesValue expiry_date = 3;
-  google.protobuf.BytesValue cvv = 4;
-  google.protobuf.BytesValue pin = 5;
+  google.protobuf.BytesValue pan_value = 1;
+  google.protobuf.BytesValue holder_value = 2;
+  google.protobuf.BytesValue expiry_date_value = 3;
+  google.protobuf.BytesValue cvv_value = 4;
+  google.protobuf.BytesValue pin_value = 5;
   google.protobuf.StringValue bank = 6;
   google.protobuf.StringValue brand = 7;
   google.protobuf.StringValue title = 8;
@@ -51,11 +51,11 @@ message CardGetRequest {
 }
 
 message CardGetResponse {
-  bytes pan = 1;
-  bytes holder = 2;
-  bytes expiry_date = 3;
-  bytes cvv = 4;
-  bytes pin = 5;
+  bytes pan_value = 1;
+  bytes holder_value = 2;
+  bytes expiry_date_value = 3;
+  bytes cvv_value = 4;
+  bytes pin_value = 5;
   string bank = 6;
   string brand = 7;
   string title = 8;
@@ -81,11 +81,11 @@ message CardGetResponse {
 }
 
 message CardUpdateRequest {
-  google.protobuf.BytesValue pan = 1;
-  google.protobuf.BytesValue holder = 2;
-  google.protobuf.BytesValue expiry_date = 3;
-  google.protobuf.BytesValue cvv = 4;
-  google.protobuf.BytesValue pin = 5;
+  google.protobuf.BytesValue pan_value = 1;
+  google.protobuf.BytesValue holder_value = 2;
+  google.protobuf.BytesValue expiry_date_value = 3;
+  google.protobuf.BytesValue cvv_value = 4;
+  google.protobuf.BytesValue pin_value = 5;
   google.protobuf.StringValue bank = 6;
   google.protobuf.StringValue brand = 7;
   google.protobuf.StringValue title = 8;

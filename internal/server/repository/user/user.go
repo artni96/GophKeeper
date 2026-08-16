@@ -58,7 +58,10 @@ func (r *Repository) Create(ctx context.Context, entity user.UserCreate, keyEnti
 		return fmt.Errorf("failed to create new user: %w", err)
 	}
 
-	keyEntity.UserID = *entity.ID
+	if entity.ID != nil {
+		keyEntity.UserID = *entity.ID
+	}
+	
 	err = tx.Table(keysTable).Create(&keyEntity).Error
 	if err != nil {
 		return fmt.Errorf("failed to create key: %w", err)

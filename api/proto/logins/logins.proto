@@ -19,11 +19,11 @@ message LoginCreateRequest {
   google.protobuf.StringValue url = 2;
   google.protobuf.StringValue description = 3;
 
-  google.protobuf.BytesValue login = 4;
+  google.protobuf.BytesValue login_value = 4;
   google.protobuf.BytesValue login_nonce = 5;
   google.protobuf.UInt64Value login_key_id = 6;
 
-  google.protobuf.BytesValue password = 7;
+  google.protobuf.BytesValue password_value = 7;
   google.protobuf.BytesValue password_nonce = 8;
   google.protobuf.UInt64Value password_key_id = 9;
 }
@@ -42,11 +42,11 @@ message LoginGetResponse {
   string url = 3;
   string description = 4;
 
-  bytes login = 5;
+  bytes login_value = 5;
   bytes login_nonce = 6;
   uint64 login_key_id = 7;
 
-  bytes password = 8;
+  bytes password_value = 8;
   bytes password_nonce = 9;
   uint64 password_key_id = 10;
 
@@ -59,11 +59,11 @@ message LoginUpdateRequest {
   google.protobuf.StringValue url = 2;
   google.protobuf.StringValue description = 3;
 
-  google.protobuf.BytesValue login = 4;
+  google.protobuf.BytesValue login_value = 4;
   google.protobuf.BytesValue login_nonce = 5;
   google.protobuf.UInt64Value login_key_id = 6;
 
-  google.protobuf.BytesValue password = 7;
+  google.protobuf.BytesValue password_value = 7;
   google.protobuf.BytesValue password_nonce = 8;
   google.protobuf.UInt64Value password_key_id = 9;
 

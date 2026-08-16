@@ -31,6 +31,7 @@ func run(ctx context.Context, cfg *config.Config) error {
 	if err != nil {
 		return err
 	}
+	defer appInstance.Logger.Sync()
 
 	<-sig.Done()
 	appInstance.Logger.Info("shutting down signal received")

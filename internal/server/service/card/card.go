@@ -7,6 +7,7 @@ import (
 	"github.com/artni96/GophKeeper/internal/server/config"
 	cardmodel "github.com/artni96/GophKeeper/internal/server/model/card"
 	"github.com/artni96/GophKeeper/internal/server/repository/card"
+	"github.com/artni96/GophKeeper/internal/server/service/common"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
@@ -41,59 +42,24 @@ func (s *Service) Create(ctx context.Context, data cardmodel.CreateCardRequest) 
 	notNullFields := make([]string, 0, 22)
 	entityToCreate := cardmodel.CreateCard{}
 
-	if data.PAN != nil {
-		entityToCreate.PAN = data.PAN.Value
-		notNullFields = append(notNullFields, "hashed_pan")
-
-		entityToCreate.PanNonce = data.PANNonce.Value
-		notNullFields = append(notNullFields, "pan_nonce")
-
-		entityToCreate.PanKeyID = data.PANKeyID.Value
-		notNullFields = append(notNullFields, "pan_key_id")
+	if data.PAN.Value != nil {
+		common.EncryptedFieldSetter(&data.PAN, &entityToCreate.PAN, "pan", &notNullFields)
 	}
 
-	if data.Holder != nil {
-		entityToCreate.Holder = data.Holder.Value
-		notNullFields = append(notNullFields, "hashed_holder")
-
-		entityToCreate.HolderNonce = data.HolderNonce.Value
-		notNullFields = append(notNullFields, "holder_nonce")
-
-		entityToCreate.HolderKeyID = data.HolderKeyID.Value
-		notNullFields = append(notNullFields, "holder_key_id")
+	if data.Holder.Value != nil {
+		common.EncryptedFieldSetter(&data.Holder, &entityToCreate.Holder, "holder", &notNullFields)
 	}
 
-	if data.ExpiryDate != nil {
-		entityToCreate.ExpiryDate = data.ExpiryDate.Value
-		notNullFields = append(notNullFields, "hashed_expiry_date")
-
-		entityToCreate.ExpiryDateNonce = data.ExpiryDateNonce.Value
-		notNullFields = append(notNullFields, "expiry_date_nonce")
-
-		entityToCreate.ExpiryDateKeyID = data.ExpiryDateKeyID.Value
-		notNullFields = append(notNullFields, "expiry_date_key_id")
+	if data.ExpiryDate.Value != nil {
+		common.EncryptedFieldSetter(&data.ExpiryDate, &entityToCreate.ExpiryDate, "expiry_date", &notNullFields)
 	}
 
-	if data.CVV != nil {
-		entityToCreate.CVV = data.CVV.Value
-		notNullFields = append(notNullFields, "hashed_cvv")
-
-		entityToCreate.CVVNonce = data.CVVNonce.Value
-		notNullFields = append(notNullFields, "cvv_nonce")
-
-		entityToCreate.CVVKeyID = data.CVVKeyID.Value
-		notNullFields = append(notNullFields, "cvv_key_id")
+	if data.CVV.Value != nil {
+		common.EncryptedFieldSetter(&data.CVV, &entityToCreate.CVV, "cvv", &notNullFields)
 	}
 
-	if data.PIN != nil {
-		entityToCreate.PIN = data.PIN.Value
-		notNullFields = append(notNullFields, "hashed_pin")
-
-		entityToCreate.PINNonce = data.PINNonce.Value
-		notNullFields = append(notNullFields, "pin_nonce")
-
-		entityToCreate.PINKeyID = data.PINKeyID.Value
-		notNullFields = append(notNullFields, "pin_key_id")
+	if data.PIN.Value != nil {
+		common.EncryptedFieldSetter(&data.PIN, &entityToCreate.PIN, "pin", &notNullFields)
 	}
 
 	if data.Bank != nil {
@@ -144,59 +110,24 @@ func (s *Service) Update(ctx context.Context, data cardmodel.UpdateCardRequest, 
 	notNullFields := make([]string, 0, 20)
 	dataToUpdate := cardmodel.UpdateCard{}
 
-	if data.PAN != nil {
-		dataToUpdate.PAN = data.PAN.Value
-		notNullFields = append(notNullFields, "hashed_pan")
-
-		dataToUpdate.PanNonce = data.PANNonce.Value
-		notNullFields = append(notNullFields, "pan_nonce")
-
-		dataToUpdate.PanKeyID = data.PANKeyID.Value
-		notNullFields = append(notNullFields, "pan_key_id")
+	if data.PAN.Value != nil {
+		common.EncryptedFieldSetter(&data.PAN, &dataToUpdate.PAN, "pan", &notNullFields)
 	}
 
-	if data.Holder != nil {
-		dataToUpdate.Holder = data.Holder.Value
-		notNullFields = append(notNullFields, "hashed_holder")
-
-		dataToUpdate.HolderNonce = data.HolderNonce.Value
-		notNullFields = append(notNullFields, "holder_nonce")
-
-		dataToUpdate.HolderKeyID = data.HolderKeyID.Value
-		notNullFields = append(notNullFields, "holder_key_id")
+	if data.Holder.Value != nil {
+		common.EncryptedFieldSetter(&data.Holder, &dataToUpdate.Holder, "holder", &notNullFields)
 	}
 
-	if data.ExpiryDate != nil {
-		dataToUpdate.ExpiryDate = data.ExpiryDate.Value
-		notNullFields = append(notNullFields, "hashed_expiry_date")
-
-		dataToUpdate.ExpiryDateNonce = data.ExpiryDateNonce.Value
-		notNullFields = append(notNullFields, "expiry_date_nonce")
-
-		dataToUpdate.ExpiryDateKeyID = data.ExpiryDateKeyID.Value
-		notNullFields = append(notNullFields, "expiry_date_key_id")
+	if data.ExpiryDate.Value != nil {
+		common.EncryptedFieldSetter(&data.ExpiryDate, &dataToUpdate.ExpiryDate, "expiry_date", &notNullFields)
 	}
 
-	if data.CVV != nil {
-		dataToUpdate.CVV = data.CVV.Value
-		notNullFields = append(notNullFields, "hashed_cvv")
-
-		dataToUpdate.CVVNonce = data.CVVNonce.Value
-		notNullFields = append(notNullFields, "cvv_nonce")
-
-		dataToUpdate.CVVKeyID = data.CVVKeyID.Value
-		notNullFields = append(notNullFields, "cvv_key_id")
+	if data.CVV.Value != nil {
+		common.EncryptedFieldSetter(&data.CVV, &dataToUpdate.CVV, "cvv", &notNullFields)
 	}
 
-	if data.PIN != nil {
-		dataToUpdate.PIN = data.PIN.Value
-		notNullFields = append(notNullFields, "hashed_pin")
-
-		dataToUpdate.PINNonce = data.PINNonce.Value
-		notNullFields = append(notNullFields, "pin_nonce")
-
-		dataToUpdate.PINKeyID = data.PINKeyID.Value
-		notNullFields = append(notNullFields, "pin_key_id")
+	if data.PIN.Value != nil {
+		common.EncryptedFieldSetter(&data.PIN, &dataToUpdate.PIN, "pin", &notNullFields)
 	}
 
 	if data.Bank != nil {

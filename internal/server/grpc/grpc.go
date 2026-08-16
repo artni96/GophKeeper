@@ -11,7 +11,7 @@ import (
 	userspb "github.com/artni96/GophKeeper/api/proto/users"
 	"github.com/artni96/GophKeeper/internal/server/config"
 	cardhandler "github.com/artni96/GophKeeper/internal/server/handler/card"
-	healthhandler "github.com/artni96/GophKeeper/internal/server/handler/heath"
+	healthhandler "github.com/artni96/GophKeeper/internal/server/handler/health"
 	loginhandler "github.com/artni96/GophKeeper/internal/server/handler/login"
 	texthandler "github.com/artni96/GophKeeper/internal/server/handler/text"
 	userhandler "github.com/artni96/GophKeeper/internal/server/handler/user"
