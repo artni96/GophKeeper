@@ -1,0 +1,88 @@
+edition = "2023";
+
+package logins;
+
+import "google/protobuf/wrappers.proto";
+
+option go_package = "github.com/artni96/GophKeeper/api/proto/logins";
+
+service LoginService {
+  rpc CreateLogin (LoginCreateRequest) returns (LoginCreateResponse);
+  rpc GetLogin (LoginGetRequest) returns (LoginGetResponse);
+  rpc UpdateLogin (LoginUpdateRequest) returns (LoginUpdateResponse);
+  rpc DeleteLogin (LoginDeleteRequest) returns (LoginDeleteResponse);
+  rpc GetListLogin (LoginGetListRequest) returns (LoginGetListResponse);
+}
+
+message LoginCreateRequest {
+  google.protobuf.StringValue title = 1;
+  google.protobuf.StringValue url = 2;
+  google.protobuf.StringValue description = 3;
+
+  google.protobuf.BytesValue login_value = 4;
+  google.protobuf.BytesValue login_nonce = 5;
+  google.protobuf.UInt64Value login_key_id = 6;
+
+  google.protobuf.BytesValue password_value = 7;
+  google.protobuf.BytesValue password_nonce = 8;
+  google.protobuf.UInt64Value password_key_id = 9;
+}
+
+message LoginCreateResponse {
+  uint64 number = 1;
+}
+
+message LoginGetRequest {
+  uint64 number = 1;
+}
+
+message LoginGetResponse {
+  string title = 1;
+  uint64 number = 2;
+  string url = 3;
+  string description = 4;
+
+  bytes login_value = 5;
+  bytes login_nonce = 6;
+  uint64 login_key_id = 7;
+
+  bytes password_value = 8;
+  bytes password_nonce = 9;
+  uint64 password_key_id = 10;
+
+  string created_at = 11;
+  string updated_at = 12;
+}
+
+message LoginUpdateRequest {
+  google.protobuf.StringValue title = 1;
+  google.protobuf.StringValue url = 2;
+  google.protobuf.StringValue description = 3;
+
+  google.protobuf.BytesValue login_value = 4;
+  google.protobuf.BytesValue login_nonce = 5;
+  google.protobuf.UInt64Value login_key_id = 6;
+
+  google.protobuf.BytesValue password_value = 7;
+  google.protobuf.BytesValue password_nonce = 8;
+  google.protobuf.UInt64Value password_key_id = 9;
+
+  uint64 number = 10;
+}
+
+message LoginUpdateResponse {
+}
+
+message LoginDeleteRequest {
+  uint64 number = 1;
+}
+
+message LoginDeleteResponse {
+}
+
+message LoginGetListRequest {
+}
+
+message LoginGetListResponse {
+  repeated LoginGetResponse logins = 1;
+}

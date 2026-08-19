@@ -1,0 +1,15 @@
+edition = "2023";
+
+package health;
+
+option go_package = "github.com/artni96/GophKeeper/api/proto/health";
+
+service HealthService {
+  rpc CheckHealth(HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+message HealthCheckRequest {
+}
+
+message HealthCheckResponse {
+}

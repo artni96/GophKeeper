@@ -1,0 +1,293 @@
+package app
+
+import (
+	"context"
+	"database/sql"
+	"errors"
+	"fmt"
+	"log"
+	"time"
+
+	userpb "github.com/artni96/GophKeeper/api/proto/users"
+	"github.com/artni96/GophKeeper/internal/server/config"
+	"github.com/artni96/GophKeeper/internal/server/grpc"
+	applog "github.com/artni96/GophKeeper/internal/server/logger"
+	cardmodel "github.com/artni96/GophKeeper/internal/server/model/card"
+	commonmodel "github.com/artni96/GophKeeper/internal/server/model/common"
+	loginmodel "github.com/artni96/GophKeeper/internal/server/model/login"
+	textmodel "github.com/artni96/GophKeeper/internal/server/model/text"
+	commonrepo "github.com/artni96/GophKeeper/internal/server/repository/common"
+	userrepo "github.com/artni96/GophKeeper/internal/server/repository/user"
+	cardserv "github.com/artni96/GophKeeper/internal/server/service/card"
+	loginserv "github.com/artni96/GophKeeper/internal/server/service/login"
+	textserv "github.com/artni96/GophKeeper/internal/server/service/text"
+	userserv "github.com/artni96/GophKeeper/internal/server/service/user"
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
+	"github.com/google/uuid"
+	"go.uber.org/zap"
+	"golang.org/x/sync/errgroup"
+
+	_ "github.com/jackc/pgx/v5/stdlib"
+)
+
+const (
+	CardsTableName  = "cards"
+	LoginsTableName = "logins"
+	TextsTableName  = "texts"
+)
+
+// App is the app for the app with all dependencies.
+type App struct {
+	eg               *errgroup.Group
+	Cfg              *config.Config
+	DB               *sql.DB
+	Logger           *zap.Logger
+	server           grpc.GRPCServer
+	userService      *userserv.Service
+	loginService     *loginserv.Service
+	cardService      *cardserv.Service
+	textService      *textserv.Service
+	notificationChan chan *userpb.UpdateNotification
+	streams          map[uuid.UUID][]chan *userpb.UpdateNotification
+}
+
+// NewApp initializes and returns a new instance of App.
+func NewApp(eg *errgroup.Group, cfg *config.Config) *App {
+	notificationChan := make(chan *userpb.UpdateNotification, 100)
+	streams := make(map[uuid.UUID][]chan *userpb.UpdateNotification, 100)
+	return &App{
+		eg:               eg,
+		Cfg:              cfg,
+		notificationChan: notificationChan,
+		streams:          streams,
+	}
+}
+
+// initLogger initializes the app logger.
+func (a *App) initLogger() error {
+	logger, err := applog.InitLogger(a.Cfg.LogLvl)
+	if err != nil {
+		return fmt.Errorf("failed to initialize app logger: %w", err)
+	}
+	a.Logger = logger
+	a.Logger.Info("app logger initialized successfully")
+	return nil
+}
+
+// InitDBConn initializes a database connection according to the app config.
+func (a *App) InitDBConn(ctx context.Context) error {
+	if a.Cfg.DBDsn == "" {
+		return fmt.Errorf("database dsn is not provided")
+	}
+
+	db, err := sql.Open("pgx", a.Cfg.DBDsn)
+	if err != nil {
+		return fmt.Errorf("failed to connect to database: %w", err)
+	}
+
+	localCtx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	err = db.PingContext(localCtx)
+	if err != nil {
+		return fmt.Errorf("failed to ping database: %w", err)
+	}
+	a.DB = db
+	a.Logger.Info("database connection initialized successfully")
+	return nil
+}
+
+// applyMigrations updates the atabase up to the latest migration file.
+func (a *App) applyMigrations() error {
+	driver, err := postgres.WithInstance(a.DB, &postgres.Config{})
+	if err != nil {
+		return fmt.Errorf("failed to initialize postgres driver: %w", err)
+	}
+
+	migrator, err := migrate.NewWithDatabaseInstance(
+		"file://migrations",
+		"postgres",
+		driver,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to initialize migrator: %w", err)
+	}
+
+	if err = migrator.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
+		return fmt.Errorf("failed to apply migrations: %w", err)
+	}
+	a.Logger.Info("migrations applied successfully")
+	return nil
+}
+
+// CloseDBConn closes the database connection.
+func (a *App) CloseDBConn() error {
+	err := a.DB.Close()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// initDependencies initializes all necessary dependencies - repositories and services.
+func (a *App) initDependencies() error {
+	userRepository, err := userrepo.NewRepository(a.DB, a.Logger)
+	if err != nil {
+		a.Logger.Error("failed to initialize user repository", zap.Error(err))
+		return fmt.Errorf("failed to initialize user repository: %w", err)
+	}
+	a.userService = userserv.NewService(a.Cfg, a.Logger, userRepository)
+
+	loginRepository, err := commonrepo.NewCRepository[
+		commonmodel.CreateEntityI,
+		loginmodel.UpdateLogin,
+		loginmodel.Login,
+	](a.DB, a.Logger, LoginsTableName)
+	if err != nil {
+		a.Logger.Error("failed to initialize login repository", zap.Error(err))
+		return fmt.Errorf("failed to initialize login repository: %w", err)
+	}
+	a.loginService = loginserv.NewService(a.Cfg, a.Logger, loginRepository)
+
+	cardRepository, err := commonrepo.NewCRepository[
+		commonmodel.CreateEntityI,
+		cardmodel.UpdateCard,
+		cardmodel.Card,
+	](a.DB, a.Logger, CardsTableName)
+	if err != nil {
+		a.Logger.Error("failed to initialize card repository", zap.Error(err))
+		return fmt.Errorf("failed to initialize card repository: %w", err)
+	}
+	a.cardService = cardserv.NewService(a.Cfg, a.Logger, cardRepository)
+
+	textRepository, err := commonrepo.NewCRepository[
+		commonmodel.CreateEntityI,
+		textmodel.UpdateText,
+		textmodel.Text,
+	](a.DB, a.Logger, TextsTableName)
+	if err != nil {
+		a.Logger.Error("failed to initialize text repository", zap.Error(err))
+		return fmt.Errorf("failed to initialize text repository: %w", err)
+	}
+	a.textService = textserv.NewService(a.Cfg, a.Logger, textRepository)
+
+	return nil
+}
+
+// initServer initializes a new gRPC server instance.
+func (a *App) initServer() error {
+	newServer := grpc.NewGRPCServer(a.Cfg, a.Logger, a.userService, a.loginService, a.cardService, a.textService, a.streams)
+	err := newServer.Init()
+	if err != nil {
+		return fmt.Errorf("failed to initialize gRPC grpc: %w", err)
+	}
+	a.server = *newServer
+	return nil
+}
+
+// launchServer starts the gRPC server.
+func (a *App) launchServer() error {
+	err := a.initServer()
+	if err != nil {
+		return err
+	}
+
+	a.eg.Go(func() error {
+		err = a.server.Launch()
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+
+	return nil
+}
+
+// Stop stops the running gRPC grpc and closes the database connection.
+func (a *App) Stop(ctx context.Context, ctxCancel context.CancelFunc, isClosedChan chan struct{}) {
+	a.eg.Go(func() error {
+		a.server.Stop()
+
+		//time.Sleep(36 * time.Second)
+		select {
+		case <-ctx.Done():
+			a.Logger.Info("grpc stopped during the forced period")
+		default:
+			a.Logger.Info("grpc stopped gracefully")
+		}
+
+		if err := a.DB.Close(); err != nil {
+			a.Logger.Error("failed to close database connection gracefully", zap.Error(err))
+			return fmt.Errorf("failed to close database connection gracefully: %w", err)
+		}
+		select {
+		case <-ctx.Done():
+			a.Logger.Info("database connection closed during the forceful period")
+		default:
+			a.Logger.Info("database connection closed gracefully")
+		}
+
+		close(isClosedChan)
+		ctxCancel()
+		return nil
+	})
+}
+
+// Launch starts the app with all credentials.
+func (a *App) Launch(ctx context.Context) error {
+	err := a.initLogger()
+
+	if err != nil {
+		log.Fatal("failed to initialize logger", zap.Error(err))
+		return err
+	}
+
+	err = a.InitDBConn(ctx)
+	if err != nil {
+		a.Logger.Error("failed to initialize database connection", zap.Error(err))
+		return err
+	}
+
+	err = a.applyMigrations()
+	if err != nil {
+		a.Logger.Error("failed to apply migrations", zap.Error(err))
+		return err
+	}
+
+	err = a.initDependencies()
+	if err != nil {
+		a.Logger.Error("failed to initialize app dependencies", zap.Error(err))
+		return err
+	}
+
+	err = a.launchServer()
+	if err != nil {
+		a.Logger.Error("failed to launch grpc", zap.Error(err))
+		return err
+	}
+	a.Logger.Info("grpc launched successfully")
+	a.Logger.Info(a.configStdout())
+	return nil
+}
+
+// configStdout builds
+func (a *App) configStdout() string {
+	var resp string
+	resp += fmt.Sprintf("\n\nApp config:\n")
+	resp += fmt.Sprintf("	ServerAddr: %s\n", a.Cfg.ServerAddr)
+	resp += fmt.Sprintf("	Database name: %s\n", a.Cfg.DBName)
+	resp += fmt.Sprintf("	Token expiration period: %f minutes\n", a.Cfg.TokenExp.Minutes())
+	resp += fmt.Sprintf("	TCP is enabled: %t\n", a.Cfg.EnableTCP)
+
+	if a.Cfg.CertFile != "" {
+		resp += fmt.Sprintf("	TLS certificate is set: %t\n", a.Cfg.CertFile != "")
+	}
+	if a.Cfg.KeyFile != "" {
+		resp += fmt.Sprintf("	TLS key is set: %t\n", a.Cfg.KeyFile != "")
+	}
+	resp += fmt.Sprintf("	Logging level: %s\n", a.Cfg.LogLvl)
+	resp += fmt.Sprintf("	Grace period: %f seconds\n", a.Cfg.GPeriod.Seconds())
+	resp += fmt.Sprintf("	Force period: %f seconds\n", a.Cfg.FPeriod.Seconds())
+	return resp
+}

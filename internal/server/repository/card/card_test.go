@@ -1,0 +1,991 @@
+package card
+
+import (
+	"context"
+	"database/sql"
+	"fmt"
+	"log"
+	"testing"
+	"time"
+
+	"github.com/artni96/GophKeeper/internal/server/app"
+	"github.com/artni96/GophKeeper/internal/server/constants"
+	"github.com/artni96/GophKeeper/internal/server/model/card"
+	"github.com/artni96/GophKeeper/internal/server/model/common"
+	commonrepo "github.com/artni96/GophKeeper/internal/server/repository/common"
+	"github.com/artni96/GophKeeper/internal/server/repository/user"
+	userfixture "github.com/artni96/GophKeeper/internal/server/repository/user/fixture"
+	"github.com/artni96/GophKeeper/tests"
+	"github.com/google/uuid"
+	"github.com/stretchr/testify/assert"
+)
+
+func initUserRepo(db *sql.DB) (*user.Repository, error) {
+	repo, err := user.NewRepository(db, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize test user repository: %w", err)
+	}
+	return repo, nil
+}
+
+func initCardRepo(db *sql.DB) (*commonrepo.CRepository[common.CreateEntityI, card.UpdateCard, card.Card], error) {
+	repo, err := commonrepo.NewCRepository[common.CreateEntityI, card.UpdateCard, card.Card](db, nil, app.CardsTableName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize test login repository: %w", err)
+	}
+	return repo, nil
+}
+
+func cardFixture(ctx context.Context, cardRepo commonrepo.CRepository[common.CreateEntityI, card.UpdateCard, card.Card], entityData card.CreateCard) {
+	notNullFields := []string{
+		"pan_value",
+		"pan_nonce",
+		"pan_key_id",
+
+		"holder_value",
+		"holder_nonce_value",
+		"key_id_value",
+
+		"expiry_date_value",
+		"expiry_date_nince",
+		"expiry_date_key_id",
+
+		"cvv_value",
+		"cvv_nonce",
+		"cvv_key_id",
+
+		"pin_value",
+		"pin_nonce",
+		"pin_key_id",
+
+		"bank",
+		"brand",
+		"user_id",
+		"title",
+		"description",
+		"created_at",
+		"number",
+	}
+	_, err := cardRepo.Create(ctx, &entityData, notNullFields)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+type testConfig struct {
+	ctx      context.Context
+	depends  *tests.TestDependencies
+	cardRepo commonrepo.CRepository[common.CreateEntityI, card.UpdateCard, card.Card]
+	userRepo *user.Repository
+}
+
+func (c *testConfig) init(t *testing.T) {
+	c.ctx = context.Background()
+	newTC, err := tests.NewTestDependencies(c.ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	c.depends = newTC
+	cardRepo, err := initCardRepo(c.depends.DB)
+	if err != nil {
+		t.Fatal(err)
+	}
+	c.cardRepo = *cardRepo
+	userRepo, err := initUserRepo(c.depends.DB)
+	if err != nil {
+		t.Fatal(err)
+	}
+	c.userRepo = userRepo
+}
+
+func newTestConfig(t *testing.T) *testConfig {
+	newTC := &testConfig{}
+	newTC.init(t)
+	return newTC
+}
+
+func TestCreate(t *testing.T) {
+	tc := newTestConfig(t)
+	firstUser, err := userfixture.CreateFirstUser(tc.ctx, tc.depends.DB, tc.userRepo)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tests := []struct {
+		name          string
+		data          card.CreateCard
+		notNullFields []string
+		failure       bool
+		error         error
+	}{
+		{
+			name: "success",
+			data: card.CreateCard{
+				PAN: common.EncryptedField{
+					Value: []byte("1234567812345678"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				Holder: common.EncryptedField{
+					Value: []byte("Test Holder"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				ExpiryDate: common.EncryptedField{
+					Value: []byte("Test Expiry Date"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				CVV: common.EncryptedField{
+					Value: []byte("Test CVV"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				PIN: common.EncryptedField{
+					Value: []byte("Test PIN"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				Bank:        "test",
+				Brand:       "test",
+				UserID:      firstUser,
+				Title:       "Test Title",
+				Description: "Test Description",
+				CreatedAt:   time.Now(),
+			},
+			notNullFields: []string{
+				"pan_value",
+				"pan_nonce",
+				"pan_key_id",
+
+				"holder_value",
+				"holder_nonce",
+				"holder_key_id",
+
+				"expiry_date_value",
+				"expiry_date_nonce",
+				"expiry_date_key_id",
+
+				"cvv_value",
+				"cvv_nonce",
+				"cvv_key_id",
+
+				"pin_value",
+				"pin_nonce",
+				"pin_key_id",
+
+				"bank",
+				"brand",
+				"user_id",
+				"title",
+				"description",
+				"created_at",
+				"number",
+			},
+			failure: false,
+		},
+		{
+			name: "failure - pan publicate",
+			data: card.CreateCard{
+				PAN: common.EncryptedField{
+					Value: []byte("1234567812345678"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				Holder: common.EncryptedField{
+					Value: []byte("Test Holder"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				ExpiryDate: common.EncryptedField{
+					Value: []byte("Test Expiry Date"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				CVV: common.EncryptedField{
+					Value: []byte("Test CVV"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				PIN: common.EncryptedField{
+					Value: []byte("Test PIN"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				Bank:        "test",
+				Brand:       "test",
+				UserID:      firstUser,
+				Title:       "Another Title",
+				Description: "Test Description",
+				CreatedAt:   time.Now(),
+			},
+			notNullFields: []string{
+				"pan_value",
+				"pan_nonce",
+				"pan_key_id",
+
+				"holder_value",
+				"holder_nonce",
+				"holder_key_id",
+
+				"expiry_date_value",
+				"expiry_date_nonce",
+				"expiry_date_key_id",
+
+				"cvv_value",
+				"cvv_nonce",
+				"cvv_key_id",
+
+				"pin_value",
+				"pin_nonce",
+				"pin_key_id",
+
+				"bank",
+				"brand",
+				"user_id",
+				"title",
+				"description",
+				"created_at",
+				"number",
+			},
+			failure: true,
+			error:   constants.ErrEntityAlreadyExists,
+		},
+		{
+			name: "failure - title duplicate",
+			data: card.CreateCard{
+				PAN: common.EncryptedField{
+					Value: []byte("1234567812345678"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				Holder: common.EncryptedField{
+					Value: []byte("Test Holder"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				ExpiryDate: common.EncryptedField{
+					Value: []byte("Test Expiry Date"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				CVV: common.EncryptedField{
+					Value: []byte("Test CVV"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				PIN: common.EncryptedField{
+					Value: []byte("Test PIN"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				Bank:        "test",
+				Brand:       "test",
+				UserID:      firstUser,
+				Title:       "Test Title",
+				Description: "Test Description",
+				CreatedAt:   time.Now(),
+			},
+			notNullFields: []string{
+				"hashed_pan",
+				"pan_nonce",
+				"pan_key_id",
+
+				"hashed_holder",
+				"holder_nonce",
+				"holder_key_id",
+
+				"hashed_expiry_date",
+				"expiry_date_nonce",
+				"expiry_date_key_id",
+
+				"hashed_cvv",
+				"cvv_nonce",
+				"cvv_key_id",
+
+				"hashed_pin",
+				"pin_nonce",
+				"pin_key_id",
+
+				"bank",
+				"brand",
+				"user_id",
+				"title",
+				"description",
+				"created_at",
+				"number",
+			},
+			failure: true,
+			error:   constants.ErrEntityAlreadyExists,
+		},
+		{
+			name: "failure - no title",
+			data: card.CreateCard{
+				PAN: common.EncryptedField{
+					Value: []byte("1234567812345678"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				Holder: common.EncryptedField{
+					Value: []byte("Test Holder"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				ExpiryDate: common.EncryptedField{
+					Value: []byte("Test Expiry Date"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				CVV: common.EncryptedField{
+					Value: []byte("Test CVV"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				PIN: common.EncryptedField{
+					Value: []byte("Test PIN"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				Bank:        "test",
+				Brand:       "test",
+				UserID:      firstUser,
+				Description: "Test Description",
+				CreatedAt:   time.Now(),
+			},
+			notNullFields: []string{
+				"hashed_pan",
+				"pan_nonce",
+				"pan_key_id",
+
+				"hashed_holder",
+				"holder_nonce",
+				"holder_key_id",
+
+				"hashed_expiry_date",
+				"expiry_date_nonce",
+				"expiry_date_key_id",
+
+				"hashed_cvv",
+				"cvv_nonce",
+				"cvv_key_id",
+
+				"hashed_pin",
+				"pin_nonce",
+				"pin_key_id",
+
+				"bank",
+				"brand",
+				"user_id",
+				"description",
+				"created_at",
+				"number",
+			},
+			failure: true,
+			error:   constants.ErrRequiredField,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			number, err := tc.cardRepo.Create(tc.ctx, &tt.data, tt.notNullFields)
+			assert.Equal(t, tt.failure, err != nil)
+			if tt.failure {
+				assert.ErrorIs(t, err, tt.error)
+			} else {
+				assert.Equal(t, number, uint64(1))
+			}
+		})
+	}
+}
+
+func TestGetByNumber(t *testing.T) {
+	tc := newTestConfig(t)
+	firstUser, err := userfixture.CreateFirstUser(tc.ctx, tc.depends.DB, tc.userRepo)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	secondUser, err := userfixture.CreateSecondUser(tc.ctx, tc.depends.DB, tc.userRepo)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fixtureData := card.CreateCard{
+		PAN: common.EncryptedField{
+			Value: []byte("1234567812345678"),
+			Nonce: []byte("test nonce"),
+			KeyID: 1,
+		},
+
+		Holder: common.EncryptedField{
+			Value: []byte("Test Holder"),
+			Nonce: []byte("test nonce"),
+			KeyID: 1,
+		},
+
+		ExpiryDate: common.EncryptedField{
+			Value: []byte("0535"),
+			Nonce: []byte("test nonce"),
+			KeyID: 1,
+		},
+
+		CVV: common.EncryptedField{
+			Value: []byte("123"),
+			Nonce: []byte("test nonce"),
+			KeyID: 1,
+		},
+
+		PIN: common.EncryptedField{
+			Value: []byte("1234"),
+			Nonce: []byte("test nonce"),
+			KeyID: 1,
+		},
+
+		Bank:        "test",
+		Brand:       "test",
+		UserID:      firstUser,
+		Description: "Test Description",
+		CreatedAt:   time.Now(),
+	}
+	cardFixture(tc.ctx, tc.cardRepo, fixtureData)
+
+	tests := []struct {
+		name    string
+		number  uint64
+		userID  uuid.UUID
+		failure bool
+	}{
+		{
+			name:    "success",
+			number:  1,
+			userID:  firstUser,
+			failure: false,
+		},
+		{
+			name:    "failure - the first user does not have a card with number 2",
+			number:  2,
+			userID:  firstUser,
+			failure: true,
+		},
+		{
+			name:    "failure - the second user does not have a card with number 1",
+			number:  1,
+			userID:  secondUser,
+			failure: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			dbEntity, err := tc.cardRepo.GetByNumber(tc.ctx, tt.number, tt.userID)
+			assert.Equal(t, tt.failure, err != nil)
+			if err != nil {
+				if !tt.failure {
+					assert.Equal(t, fixtureData.PAN, dbEntity.PAN)
+					assert.Equal(t, fixtureData.Holder, dbEntity.Holder)
+					assert.Equal(t, fixtureData.ExpiryDate, dbEntity.ExpiryDate)
+					assert.Equal(t, fixtureData.CVV, dbEntity.CVV)
+					assert.Equal(t, fixtureData.PIN, dbEntity.PIN)
+					assert.Equal(t, fixtureData.Bank, dbEntity.Bank)
+					assert.Equal(t, fixtureData.Brand, dbEntity.Brand)
+					assert.Equal(t, fixtureData.UserID, dbEntity.UserID)
+					assert.Equal(t, fixtureData.Title, dbEntity.Title)
+					assert.Equal(t, fixtureData.Description, dbEntity.Description)
+					assert.Equal(t, fixtureData.CreatedAt, dbEntity.CreatedAt)
+				}
+			}
+		})
+	}
+}
+
+func TestUpdate(t *testing.T) {
+	tc := newTestConfig(t)
+	firstUser, err := userfixture.CreateFirstUser(tc.ctx, tc.depends.DB, tc.userRepo)
+	if err != nil {
+		t.Fatal(err)
+	}
+	secondUser, err := userfixture.CreateSecondUser(tc.ctx, tc.depends.DB, tc.userRepo)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fixtureData := card.CreateCard{
+		PAN: common.EncryptedField{
+			Value: []byte("1234567812345678"),
+			Nonce: []byte("test nonce"),
+			KeyID: 1,
+		},
+
+		Holder: common.EncryptedField{
+			Value: []byte("Test Holder"),
+			Nonce: []byte("test nonce"),
+			KeyID: 1,
+		},
+
+		ExpiryDate: common.EncryptedField{
+			Value: []byte("0535"),
+			Nonce: []byte("test nonce"),
+			KeyID: 1,
+		},
+
+		CVV: common.EncryptedField{
+			Value: []byte("123"),
+			Nonce: []byte("test nonce"),
+			KeyID: 1,
+		},
+
+		Bank:        "test",
+		Brand:       "test",
+		UserID:      firstUser,
+		Description: "Test Description",
+		CreatedAt:   time.Now(),
+	}
+	cardFixture(tc.ctx, tc.cardRepo, fixtureData)
+
+	tests := []struct {
+		name          string
+		userID        uuid.UUID
+		data          card.UpdateCard
+		number        uint64
+		notNullFields []string
+		failure       bool
+	}{
+		{
+			name:   "success",
+			userID: firstUser,
+			data: card.UpdateCard{
+				PAN: common.EncryptedField{
+					Value: []byte("1234567887654321"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				Holder: common.EncryptedField{
+					Value: []byte("Test Holder"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				ExpiryDate: common.EncryptedField{
+					Value: []byte("0535"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				CVV: common.EncryptedField{
+					Value: []byte("123"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				PIN: common.EncryptedField{
+					Value: []byte("1234"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				Bank:        "test",
+				Brand:       "test",
+				Description: "Test Description",
+				UpdatedAt:   time.Now(),
+			},
+			number: 1,
+			notNullFields: []string{
+				"pan_value",
+				"pan_nonce",
+				"pan_key_id",
+
+				"holder_value",
+				"holder_nonce",
+				"holder_key_id",
+
+				"expiry_date_value",
+				"expiry_date_nonce",
+				"expiry_date_key_id",
+
+				"cvv_value",
+				"cvv_nonce",
+				"cvv_key_id",
+
+				"pin_value",
+				"pin_nonce",
+				"pin_key_id",
+
+				"bank",
+				"brand",
+				"description",
+				"updated_at",
+			},
+			failure: false,
+		},
+		{
+			name:   "failure - the first user does not have a card with number 2",
+			userID: firstUser,
+			data: card.UpdateCard{
+				PAN: common.EncryptedField{
+					Value: []byte("1234567887654321"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				Holder: common.EncryptedField{
+					Value: []byte("Test Holder"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				ExpiryDate: common.EncryptedField{
+					Value: []byte("0535"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				CVV: common.EncryptedField{
+					Value: []byte("123"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				PIN: common.EncryptedField{
+					Value: []byte("1234"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				Bank:        "test",
+				Brand:       "test",
+				Description: "Test Description",
+				UpdatedAt:   time.Now(),
+			},
+			number: 2,
+			notNullFields: []string{
+				"pan_value",
+				"pan_nonce",
+				"pan_key_id",
+
+				"holder_value",
+				"holder_nonce",
+				"holder_key_id",
+
+				"expiry_date_value",
+				"expiry_date_nonce",
+				"expiry_date_key_id",
+
+				"cvv_value",
+				"cvv_nonce",
+				"cvv_key_id",
+
+				"pin_value",
+				"pin_nonce",
+				"pin_key_id",
+
+				"bank",
+				"brand",
+				"description",
+				"updated_at",
+			},
+			failure: true,
+		},
+		{
+			name:   "failure - the second user does not have a card with number 1",
+			userID: secondUser,
+			data: card.UpdateCard{
+				PAN: common.EncryptedField{
+					Value: []byte("1234567887654321"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				Holder: common.EncryptedField{
+					Value: []byte("Test Holder"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				ExpiryDate: common.EncryptedField{
+					Value: []byte("0535"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				CVV: common.EncryptedField{
+					Value: []byte("123"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				PIN: common.EncryptedField{
+					Value: []byte("1234"),
+					Nonce: []byte("test nonce"),
+					KeyID: 1,
+				},
+
+				Bank:        "test",
+				Brand:       "test",
+				Description: "Test Description",
+				UpdatedAt:   time.Now(),
+			},
+			number: 1,
+			notNullFields: []string{
+				"pan_value",
+				"pan_nonce",
+				"pan_key_id",
+
+				"holder_value",
+				"holder_nonce",
+				"holder_key_id",
+
+				"expiry_date_value",
+				"expiry_date_nonce",
+				"expiry_date_key_id",
+
+				"cvv_value",
+				"cvv_nonce",
+				"cvv_key_id",
+
+				"pin_value",
+				"pin_nonce",
+				"pin_key_id",
+
+				"bank",
+				"brand",
+				"description",
+				"updated_at",
+			},
+			failure: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err = tc.cardRepo.Update(tc.ctx, tt.data, tt.number, tt.userID, tt.notNullFields)
+			assert.Equal(t, tt.failure, err != nil)
+			if !tt.failure {
+				dbEntity, err := tc.cardRepo.GetByNumber(tc.ctx, tt.number, tt.userID)
+				fmt.Println(dbEntity)
+				if err != nil {
+					t.Fatal(err)
+				}
+				assert.Equal(t, tt.data.PAN, dbEntity.PAN)
+				assert.Equal(t, tt.data.Holder, dbEntity.Holder)
+				assert.Equal(t, tt.data.ExpiryDate, dbEntity.ExpiryDate)
+				assert.Equal(t, tt.data.CVV, dbEntity.CVV)
+				assert.Equal(t, tt.data.PIN, dbEntity.PIN)
+				assert.Equal(t, tt.data.Bank, dbEntity.Bank)
+				assert.Equal(t, tt.data.Brand, dbEntity.Brand)
+				assert.Equal(t, tt.data.Title, dbEntity.Title)
+				assert.Equal(t, tt.data.Description, dbEntity.Description)
+				assert.Equal(t, tt.userID, dbEntity.UserID)
+			} else {
+				assert.ErrorIs(t, err, constants.ErrEntityNotFound)
+			}
+		})
+	}
+}
+
+func TestGetList(t *testing.T) {
+	tc := newTestConfig(t)
+	firstUser, err := userfixture.CreateFirstUser(tc.ctx, tc.depends.DB, tc.userRepo)
+	if err != nil {
+		t.Fatal(err)
+	}
+	secondUser, err := userfixture.CreateSecondUser(tc.ctx, tc.depends.DB, tc.userRepo)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	userCardNumberMap := make(map[string]int)
+
+	for i := 1; i < 8; i++ {
+		var userID uuid.UUID
+		if i%2 == 0 {
+			userID = firstUser
+		} else {
+			userID = secondUser
+		}
+		strPan := fmt.Sprintf("123456781234567%d", i)
+
+		var testUserID uuid.UUID
+		if i%2 == 0 {
+			testUserID = firstUser
+		} else {
+			testUserID = secondUser
+		}
+
+		fixtureData := card.CreateCard{
+			PAN: common.EncryptedField{
+				Value: []byte(strPan),
+				Nonce: []byte("test nonce"),
+				KeyID: 1,
+			},
+
+			Holder: common.EncryptedField{
+				Value: []byte(strPan),
+				Nonce: []byte("test nonce"),
+				KeyID: 1,
+			},
+
+			ExpiryDate: common.EncryptedField{
+				Value: []byte(strPan),
+				Nonce: []byte("test nonce"),
+				KeyID: 1,
+			},
+
+			CVV: common.EncryptedField{
+				Value: []byte(strPan),
+				Nonce: []byte("test nonce"),
+				KeyID: 1,
+			},
+
+			PIN: common.EncryptedField{
+				Value: []byte(strPan),
+				Nonce: []byte("test nonce"),
+				KeyID: 1,
+			},
+
+			Title:       fmt.Sprintf("Test title %d", i),
+			Bank:        "test",
+			Brand:       "test",
+			UserID:      testUserID,
+			Description: "Test Description",
+			CreatedAt:   time.Now(),
+		}
+		cardFixture(tc.ctx, tc.cardRepo, fixtureData)
+
+		if _, ok := userCardNumberMap[userID.String()]; !ok {
+			userCardNumberMap[userID.String()] = 1
+		} else {
+			userCardNumberMap[userID.String()] += 1
+		}
+	}
+
+	tests := []struct {
+		name          string
+		userID        uuid.UUID
+		correctNumber int
+	}{
+		{
+			name:          "first user",
+			userID:        firstUser,
+			correctNumber: userCardNumberMap[firstUser.String()],
+		},
+		{
+			name:          "second user",
+			userID:        secondUser,
+			correctNumber: userCardNumberMap[secondUser.String()],
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := tc.cardRepo.GetList(tc.ctx, tt.userID)
+			if err != nil {
+				t.Fatal(err)
+			}
+			fmt.Println(len(result))
+			assert.Equal(t, tt.correctNumber, len(result))
+			assert.IsType(t, result[0], card.Card{})
+			assert.Equal(t, result[0].Number, uint64(1))
+		})
+	}
+}
+
+func TestDelete(t *testing.T) {
+	tc := newTestConfig(t)
+	firstUser, err := userfixture.CreateFirstUser(tc.ctx, tc.depends.DB, tc.userRepo)
+	if err != nil {
+		t.Fatal(err)
+	}
+	secondUser, err := userfixture.CreateSecondUser(tc.ctx, tc.depends.DB, tc.userRepo)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fixtureData := card.CreateCard{
+		PAN: common.EncryptedField{
+			Value: []byte("1234567812345678"),
+			Nonce: []byte("test nonce"),
+			KeyID: 1,
+		},
+
+		Holder: common.EncryptedField{
+			Value: []byte("test nonce"),
+			Nonce: []byte("test nonce"),
+			KeyID: 1,
+		},
+
+		ExpiryDate: common.EncryptedField{
+			Value: []byte("0535"),
+			Nonce: []byte("test nonce"),
+			KeyID: 1,
+		},
+
+		CVV: common.EncryptedField{
+			Value: []byte("test nonce"),
+			Nonce: []byte("test nonce"),
+			KeyID: 1,
+		},
+
+		PIN: common.EncryptedField{
+			Value: []byte("123"),
+			Nonce: []byte("test nonce"),
+			KeyID: 1,
+		},
+
+		Bank:        "test",
+		Brand:       "test",
+		UserID:      firstUser,
+		Description: "Test Description",
+		CreatedAt:   time.Now(),
+	}
+	cardFixture(tc.ctx, tc.cardRepo, fixtureData)
+
+	tests := []struct {
+		name    string
+		userID  uuid.UUID
+		number  uint64
+		failure bool
+	}{
+		{
+			name:    "success",
+			userID:  firstUser,
+			number:  1,
+			failure: false,
+		},
+		{
+			name:    "failure - the first user does not have a card number with number 1 (already deleted)",
+			userID:  firstUser,
+			number:  1,
+			failure: true,
+		},
+		{
+			name:    "failure - the second user does not have a card number with number 1",
+			userID:  secondUser,
+			number:  1,
+			failure: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err = tc.cardRepo.Delete(tc.ctx, tt.number, tt.userID)
+			assert.Equal(t, tt.failure, err != nil)
+		})
+	}
+}

@@ -1,0 +1,276 @@
+package app
+
+import (
+	"bufio"
+	"context"
+	"crypto/aes"
+	"crypto/cipher"
+	"errors"
+	"fmt"
+	"os"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"time"
+
+	userspb "github.com/artni96/GophKeeper/api/proto/users"
+	"github.com/artni96/GophKeeper/internal/client/config"
+	"github.com/artni96/GophKeeper/internal/client/model/common"
+	cardrepo "github.com/artni96/GophKeeper/internal/client/repository/card"
+	loginrepo "github.com/artni96/GophKeeper/internal/client/repository/login"
+	textrepo "github.com/artni96/GophKeeper/internal/client/repository/text"
+	cardserv "github.com/artni96/GophKeeper/internal/client/service/card"
+	healthserv "github.com/artni96/GophKeeper/internal/client/service/health"
+	loginserv "github.com/artni96/GophKeeper/internal/client/service/login"
+	textserv "github.com/artni96/GophKeeper/internal/client/service/text"
+	userserv "github.com/artni96/GophKeeper/internal/client/service/user"
+	commonutils "github.com/artni96/GophKeeper/internal/common/utils"
+	"github.com/google/uuid"
+	"golang.org/x/sync/errgroup"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
+)
+
+type App struct {
+	EG   *errgroup.Group
+	conn *grpc.ClientConn
+	Cfg  *config.Config
+
+	CardService   *cardserv.Service
+	LoginService  *loginserv.Service
+	TextService   *textserv.Service
+	HealthService *healthserv.Service
+	UserService   *userserv.Service
+
+	State    *config.State
+	ClientID uuid.UUID
+	mu       sync.Mutex
+	Reader   *bufio.Reader
+
+	NotificationChan chan common.Notification
+	IsBeingUpdated   *atomic.Bool
+}
+
+func NewApp(eg *errgroup.Group) *App {
+	return &App{
+		EG:               eg,
+		State:            config.NewState(),
+		Cfg:              config.NewConfig(),
+		ClientID:         uuid.New(),
+		Reader:           bufio.NewReader(os.Stdin),
+		NotificationChan: make(chan common.Notification, 100),
+		IsBeingUpdated:   &atomic.Bool{},
+	}
+}
+
+func (app *App) InitDependencies() {
+	cardRepo := cardrepo.NewRepository()
+	app.CardService = cardserv.NewService(app.Cfg, app.conn, cardRepo, app.State)
+
+	loginRepo := loginrepo.NewRepository()
+	app.LoginService = loginserv.NewService(app.Cfg, app.conn, loginRepo, app.State)
+
+	textRepo := textrepo.NewRepository()
+	app.TextService = textserv.NewService(app.Cfg, app.conn, textRepo, app.State)
+
+	app.UserService = userserv.NewService(app.Cfg, app.State, app.conn, app.NotificationChan, app.IsBeingUpdated)
+
+}
+
+func (app *App) InitServerConn(ctx context.Context) error {
+	for i := range app.Cfg.MaxAttempts {
+		if ok := app.State.HasAttempts(); !ok {
+			fmt.Println("Failed to connect to the server. Closing the client.")
+			os.Exit(0)
+		}
+		if i != 0 {
+			fmt.Printf("Attempt #%d\n", i+1)
+		}
+
+		fmt.Printf("Enter server address (default: %s): ", app.Cfg.DefaultServAddr)
+		addr, err := app.ReadLine()
+		if err != nil {
+			fmt.Println("Invalid server address.")
+			continue
+		}
+		if addr == "" {
+			addr = app.Cfg.DefaultServAddr
+		}
+
+		conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		if err != nil {
+			fmt.Println("Failed to connect to the server")
+			app.State.AddAttempt()
+			continue
+		}
+
+		app.conn = conn
+
+		err = app.testServerConn(ctx)
+		if err != nil {
+			app.State.AddAttempt()
+			continue
+		}
+		app.State.ResetAttempts()
+		return nil
+	}
+	return fmt.Errorf("Failed to connect to the server")
+}
+
+func (app *App) CloseServerConn() {
+	if app.conn != nil {
+		app.conn.Close()
+	}
+}
+
+func (app *App) testServerConn(ctx context.Context) error {
+	connCtx, cancel := context.WithTimeout(ctx, time.Second*10)
+	defer cancel()
+
+	app.HealthService = healthserv.NewService(app.conn)
+	err := app.HealthService.Check(connCtx)
+	if err != nil {
+		return errors.New("failed to connect to the server")
+	}
+	fmt.Println("Successfully connected to the server!")
+	return nil
+}
+
+func (app *App) UploadData(ctx context.Context) error {
+	reqCtx := app.PrepareMDContext(ctx)
+	if err := app.uploadLogins(reqCtx); err != nil {
+		return err
+	}
+	if err := app.uploadCards(reqCtx); err != nil {
+		return err
+	}
+	if err := app.uploadTexts(reqCtx); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (app *App) uploadCards(ctx context.Context) error {
+	mdCtx := app.PrepareMDContext(ctx)
+	err := app.CardService.AddBatch(mdCtx)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (app *App) uploadLogins(ctx context.Context) error {
+	mdCtx := app.PrepareMDContext(ctx)
+	err := app.LoginService.AddBatch(mdCtx)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (app *App) uploadTexts(ctx context.Context) error {
+	mdCtx := app.PrepareMDContext(ctx)
+	err := app.TextService.AddBatch(mdCtx)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (app *App) PrepareMDContext(ctx context.Context) context.Context {
+	md := metadata.Pairs("authorization", app.State.Token)
+	ctx = metadata.NewOutgoingContext(ctx, md)
+	return ctx
+}
+
+func (app *App) ReadLine() (string, error) {
+	line, err := app.Reader.ReadString('\n')
+	if err != nil {
+		return "", err
+	}
+	if line == " \n" {
+		return " ", nil
+	}
+	return strings.TrimSpace(line), nil
+}
+
+func (app *App) UpdateStorage(ctx context.Context, n common.Notification) error {
+	mdCtx := app.PrepareMDContext(ctx)
+	entityNumber := n.EntityNumber
+	if n.EntityType == userspb.EntityType_Card {
+		if n.ActionType == userspb.ActionType_Create {
+			err := app.CardService.Add(mdCtx, entityNumber)
+			if err != nil {
+				return err
+			}
+		} else if n.ActionType == userspb.ActionType_Update {
+			err := app.CardService.Update(mdCtx, entityNumber)
+			if err != nil {
+				return err
+			}
+		} else if n.ActionType == userspb.ActionType_Delete {
+			err := app.CardService.Delete(entityNumber)
+			if err != nil {
+				return err
+			}
+		}
+	} else if n.EntityType == userspb.EntityType_Login {
+		if n.ActionType == userspb.ActionType_Create {
+			err := app.LoginService.Add(mdCtx, entityNumber)
+			if err != nil {
+				return err
+			}
+		} else if n.ActionType == userspb.ActionType_Update {
+			err := app.LoginService.Update(mdCtx, entityNumber)
+			if err != nil {
+				return err
+			}
+		} else if n.ActionType == userspb.ActionType_Delete {
+			err := app.LoginService.Delete(entityNumber)
+			if err != nil {
+				return err
+			}
+		}
+	} else if n.EntityType == userspb.EntityType_Text {
+		if n.ActionType == userspb.ActionType_Create {
+			err := app.TextService.Add(mdCtx, entityNumber)
+			if err != nil {
+				return err
+			}
+		} else if n.ActionType == userspb.ActionType_Update {
+			err := app.TextService.Update(mdCtx, entityNumber)
+			if err != nil {
+				return err
+			}
+		} else if n.ActionType == userspb.ActionType_Delete {
+			err := app.TextService.Delete(entityNumber)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	app.IsBeingUpdated.Store(false)
+	return nil
+}
+
+// EncryptField encrypts field data with active aes key and nonce.
+func (app *App) EncryptField(value string) ([]byte, []byte, error) {
+	nonce, err := commonutils.GenerateRandomBytes(12)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	aesblock, err := aes.NewCipher(app.State.ActiveKey)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	aesgcm, err := cipher.NewGCM(aesblock)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	ciphertext := aesgcm.Seal(nil, nonce, []byte(value), nil)
+	return ciphertext, nonce, nil
+}

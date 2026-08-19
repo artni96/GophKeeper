@@ -1,0 +1,69 @@
+edition = "2023";
+
+package texts;
+
+import "google/protobuf/wrappers.proto";
+
+option go_package = "github.com/artni96/GophKeeper/api/proto/texts";
+
+service TextService {
+  rpc CreateText (TextCreateRequest) returns (TextCreateResponse);
+  rpc GetText (TextGetRequest) returns (TextGetResponse);
+  rpc UpdateText (TextUpdateRequest) returns (TextUpdateResponse);
+  rpc DeleteText (TextDeleteRequest) returns (TextDeleteResponse);
+  rpc GetListText (TextGetListRequest) returns (TextGetListResponse);
+}
+
+message TextCreateRequest {
+  google.protobuf.StringValue title = 1;
+  google.protobuf.StringValue description = 2;
+  google.protobuf.BytesValue text_value = 3;
+  google.protobuf.BytesValue text_nonce = 4;
+  google.protobuf.UInt64Value text_key_id = 5;
+}
+
+message TextCreateResponse {
+  uint64 number = 1;
+}
+
+message TextGetRequest {
+  uint64 number = 1;
+}
+
+message TextGetResponse {
+  string title = 1;
+  string description = 2;
+  bytes text_value = 3;
+  bytes text_nonce = 4;
+  uint64 text_key_id = 5;
+  uint64 number = 6;
+  string created_at = 7;
+  string updated_at = 8;
+}
+
+message TextUpdateRequest {
+  google.protobuf.StringValue title = 1;
+  google.protobuf.StringValue description = 2;
+  google.protobuf.BytesValue text_value = 3;
+  google.protobuf.BytesValue text_nonce = 4;
+  google.protobuf.UInt64Value text_key_id = 5;
+  uint64 number = 6;
+}
+
+message TextUpdateResponse {
+}
+
+message TextDeleteRequest {
+  uint64 number = 1;
+}
+
+message TextDeleteResponse {
+}
+
+message TextGetListRequest {
+}
+
+message TextGetListResponse {
+  repeated TextGetResponse texts = 1;
+}
+

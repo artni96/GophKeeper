@@ -1,0 +1,63 @@
+edition = "2023";
+
+package users;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/artni96/GophKeeper/api/proto/users";
+
+enum entityType {
+  Binary = 0;
+  Card = 1;
+  Login = 2;
+  Text = 3;
+}
+
+enum actionType {
+  Create = 0;
+  Delete = 1;
+  Update = 2;
+}
+
+service UserService {
+  rpc CreateUser (UserCreateRequest) returns (UserCreateResponse);
+  rpc Login (LoginRequest) returns (LoginResponse);
+  rpc SeekUpdates(SeekUpdateRequest) returns (stream UpdateNotification);
+}
+
+message UserCreateRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message UserCreateResponse {
+  string result = 1;
+}
+
+message LoginRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  string token = 1;
+  repeated UserKey user_keys = 2;
+}
+
+message SeekUpdateRequest {
+  string client_id = 1;
+}
+
+message UpdateNotification {
+  entityType entity_type = 1;
+  uint64 number = 2;
+  actionType action_type = 3;
+  google.protobuf.Timestamp updated_at = 4;
+}
+
+message UserKey {
+  bytes encrypted_key = 1;
+  uint64 key_id = 2;
+  bool is_active = 3;
+  bytes salt = 4;
+}
