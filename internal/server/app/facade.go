@@ -12,9 +12,11 @@ import (
 	"github.com/artni96/GophKeeper/internal/server/config"
 	"github.com/artni96/GophKeeper/internal/server/grpc"
 	applog "github.com/artni96/GophKeeper/internal/server/logger"
-	cardrepo "github.com/artni96/GophKeeper/internal/server/repository/card"
-	loginrepo "github.com/artni96/GophKeeper/internal/server/repository/login"
-	"github.com/artni96/GophKeeper/internal/server/repository/text"
+	cardmodel "github.com/artni96/GophKeeper/internal/server/model/card"
+	commonmodel "github.com/artni96/GophKeeper/internal/server/model/common"
+	loginmodel "github.com/artni96/GophKeeper/internal/server/model/login"
+	textmodel "github.com/artni96/GophKeeper/internal/server/model/text"
+	commonrepo "github.com/artni96/GophKeeper/internal/server/repository/common"
 	userrepo "github.com/artni96/GophKeeper/internal/server/repository/user"
 	cardserv "github.com/artni96/GophKeeper/internal/server/service/card"
 	loginserv "github.com/artni96/GophKeeper/internal/server/service/login"
@@ -27,6 +29,12 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
+)
+
+const (
+	CardsTableName  = "cards"
+	LoginsTableName = "logins"
+	TextsTableName  = "texts"
 )
 
 // App is the app for the app with all dependencies.
@@ -131,21 +139,33 @@ func (a *App) initDependencies() error {
 	}
 	a.userService = userserv.NewService(a.Cfg, a.Logger, userRepository)
 
-	loginRepository, err := loginrepo.NewRepository(a.DB, a.Logger)
+	loginRepository, err := commonrepo.NewCRepository[
+		commonmodel.CreateEntityI,
+		loginmodel.UpdateLogin,
+		loginmodel.Login,
+	](a.DB, a.Logger, LoginsTableName)
 	if err != nil {
 		a.Logger.Error("failed to initialize login repository", zap.Error(err))
 		return fmt.Errorf("failed to initialize login repository: %w", err)
 	}
 	a.loginService = loginserv.NewService(a.Cfg, a.Logger, loginRepository)
 
-	cardRepository, err := cardrepo.NewRepository(a.DB, a.Logger)
+	cardRepository, err := commonrepo.NewCRepository[
+		commonmodel.CreateEntityI,
+		cardmodel.UpdateCard,
+		cardmodel.Card,
+	](a.DB, a.Logger, CardsTableName)
 	if err != nil {
 		a.Logger.Error("failed to initialize card repository", zap.Error(err))
 		return fmt.Errorf("failed to initialize card repository: %w", err)
 	}
 	a.cardService = cardserv.NewService(a.Cfg, a.Logger, cardRepository)
 
-	textRepository, err := text.NewRepository(a.DB, a.Logger)
+	textRepository, err := commonrepo.NewCRepository[
+		commonmodel.CreateEntityI,
+		textmodel.UpdateText,
+		textmodel.Text,
+	](a.DB, a.Logger, TextsTableName)
 	if err != nil {
 		a.Logger.Error("failed to initialize text repository", zap.Error(err))
 		return fmt.Errorf("failed to initialize text repository: %w", err)

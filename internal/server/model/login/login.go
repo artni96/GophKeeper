@@ -40,6 +40,14 @@ type CreateLogin struct {
 	CreatedAt   time.Time
 }
 
+func (l *CreateLogin) GetUserID() uuid.UUID {
+	return l.UserID
+}
+
+func (l *CreateLogin) SetNumber(number uint64) {
+	l.Number = number
+}
+
 type Login struct {
 	ID       uuid.UUID
 	UserID   uuid.UUID

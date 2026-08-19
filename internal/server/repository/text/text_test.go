@@ -8,9 +8,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/artni96/GophKeeper/internal/server/app"
 	"github.com/artni96/GophKeeper/internal/server/constants"
 	"github.com/artni96/GophKeeper/internal/server/model/common"
 	"github.com/artni96/GophKeeper/internal/server/model/text"
+	commonrepo "github.com/artni96/GophKeeper/internal/server/repository/common"
 	"github.com/artni96/GophKeeper/internal/server/repository/user"
 	userfixture "github.com/artni96/GophKeeper/internal/server/repository/user/fixture"
 
@@ -27,15 +29,15 @@ func initUserRepo(db *sql.DB) (*user.Repository, error) {
 	return repo, nil
 }
 
-func initTextRepo(db *sql.DB) (*Repository, error) {
-	repo, err := NewRepository(db, nil)
+func initTextRepo(db *sql.DB) (*commonrepo.CRepository[common.CreateEntityI, text.UpdateText, text.Text], error) {
+	repo, err := commonrepo.NewCRepository[common.CreateEntityI, text.UpdateText, text.Text](db, nil, app.TextsTableName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize test login repository: %w", err)
 	}
 	return repo, nil
 }
 
-func textFixture(ctx context.Context, cardRepo *Repository, entityData text.CreateText) uint64 {
+func textFixture(ctx context.Context, cardRepo commonrepo.CRepository[common.CreateEntityI, text.UpdateText, text.Text], entityData text.CreateText) uint64 {
 	notNullFields := []string{
 		"title",
 		"description",
@@ -48,7 +50,7 @@ func textFixture(ctx context.Context, cardRepo *Repository, entityData text.Crea
 		"created_at",
 		"number",
 	}
-	number, err := cardRepo.Create(ctx, entityData, notNullFields)
+	number, err := cardRepo.Create(ctx, &entityData, notNullFields)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -58,7 +60,7 @@ func textFixture(ctx context.Context, cardRepo *Repository, entityData text.Crea
 type testConfig struct {
 	ctx      context.Context
 	depends  *tests.TestDependencies
-	textRepo *Repository
+	textRepo *commonrepo.CRepository[common.CreateEntityI, text.UpdateText, text.Text]
 	userRepo *user.Repository
 }
 
@@ -192,7 +194,7 @@ func TestCreateText(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			number, err := tc.textRepo.Create(tc.ctx, tt.data, tt.notNullFields)
+			number, err := tc.textRepo.Create(tc.ctx, &tt.data, tt.notNullFields)
 			assert.Equal(t, tt.failure, err != nil)
 			if tt.failure {
 				assert.ErrorIs(t, err, tt.error)
@@ -228,7 +230,7 @@ func TestGetByNumber(t *testing.T) {
 		UserID:    firstUser,
 		CreatedAt: time.Now(),
 	}
-	entityNumber := textFixture(tc.ctx, tc.textRepo, fixtureData)
+	entityNumber := textFixture(tc.ctx, *tc.textRepo, fixtureData)
 
 	tests := []struct {
 		name    string
@@ -298,7 +300,7 @@ func TestUpdateText(t *testing.T) {
 		UserID:    firstUser,
 		CreatedAt: time.Now(),
 	}
-	entityNumber := textFixture(tc.ctx, tc.textRepo, fixtureData)
+	entityNumber := textFixture(tc.ctx, *tc.textRepo, fixtureData)
 
 	tests := []struct {
 		name          string
@@ -460,7 +462,7 @@ func TestGetList(t *testing.T) {
 			UserID:    testUserID,
 			CreatedAt: time.Now(),
 		}
-		_ = textFixture(tc.ctx, tc.textRepo, fixtureData)
+		_ = textFixture(tc.ctx, *tc.textRepo, fixtureData)
 
 		if _, ok := userTextNumberMap[userID.String()]; !ok {
 			userTextNumberMap[userID.String()] = 1
@@ -525,7 +527,7 @@ func TestDeleteText(t *testing.T) {
 		UserID:    firstUser,
 		CreatedAt: time.Now(),
 	}
-	entityNumber := textFixture(tc.ctx, tc.textRepo, fixtureData)
+	entityNumber := textFixture(tc.ctx, *tc.textRepo, fixtureData)
 
 	tests := []struct {
 		name    string

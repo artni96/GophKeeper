@@ -5,8 +5,9 @@ import (
 	"time"
 
 	"github.com/artni96/GophKeeper/internal/server/config"
+	commonmodel "github.com/artni96/GophKeeper/internal/server/model/common"
 	loginmodel "github.com/artni96/GophKeeper/internal/server/model/login"
-	"github.com/artni96/GophKeeper/internal/server/repository/login"
+	commonrepo "github.com/artni96/GophKeeper/internal/server/repository/common"
 	"github.com/artni96/GophKeeper/internal/server/service/common"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -21,13 +22,13 @@ type ServiceI interface {
 	GetList(ctx context.Context, userID uuid.UUID) ([]loginmodel.Login, error)
 }
 type Service struct {
-	repo   login.RepositoryI
+	repo   commonrepo.CRepositoryI[commonmodel.CreateEntityI, loginmodel.UpdateLogin, loginmodel.Login]
 	cfg    *config.Config
 	logger *zap.Logger
 }
 
 // NewService initializes and returns the new Login service instance.
-func NewService(cfg *config.Config, logger *zap.Logger, repo login.RepositoryI) *Service {
+func NewService(cfg *config.Config, logger *zap.Logger, repo commonrepo.CRepositoryI[commonmodel.CreateEntityI, loginmodel.UpdateLogin, loginmodel.Login]) *Service {
 	return &Service{
 		repo:   repo,
 		cfg:    cfg,
@@ -69,7 +70,7 @@ func (s *Service) Create(ctx context.Context, data loginmodel.CreateLoginRequest
 	notNullFields = append(notNullFields, "created_at")
 	notNullFields = append(notNullFields, "number")
 
-	number, err := s.repo.Create(ctx, entityToCreate, notNullFields)
+	number, err := s.repo.Create(ctx, &entityToCreate, notNullFields)
 	if err != nil {
 		return number, err
 	}

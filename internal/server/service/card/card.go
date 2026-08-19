@@ -6,7 +6,8 @@ import (
 
 	"github.com/artni96/GophKeeper/internal/server/config"
 	cardmodel "github.com/artni96/GophKeeper/internal/server/model/card"
-	"github.com/artni96/GophKeeper/internal/server/repository/card"
+	commonmodel "github.com/artni96/GophKeeper/internal/server/model/common"
+	commonrepo "github.com/artni96/GophKeeper/internal/server/repository/common"
 	"github.com/artni96/GophKeeper/internal/server/service/common"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -23,13 +24,13 @@ type ServiceI interface {
 
 // Service implements the Card service to manage card-related data business logic.
 type Service struct {
-	repo   card.RepositoryI
+	repo   commonrepo.CRepositoryI[commonmodel.CreateEntityI, cardmodel.UpdateCard, cardmodel.Card]
 	cfg    *config.Config
 	logger *zap.Logger
 }
 
 // NewService initializes and returns the new Card service instance.
-func NewService(cfg *config.Config, logger *zap.Logger, repo card.RepositoryI) *Service {
+func NewService(cfg *config.Config, logger *zap.Logger, repo commonrepo.CRepositoryI[commonmodel.CreateEntityI, cardmodel.UpdateCard, cardmodel.Card]) *Service {
 	return &Service{
 		repo:   repo,
 		cfg:    cfg,
@@ -89,7 +90,7 @@ func (s *Service) Create(ctx context.Context, data cardmodel.CreateCardRequest) 
 	notNullFields = append(notNullFields, "created_at")
 	notNullFields = append(notNullFields, "number")
 
-	number, err := s.repo.Create(ctx, entityToCreate, notNullFields)
+	number, err := s.repo.Create(ctx, &entityToCreate, notNullFields)
 	if err != nil {
 		return 0, err
 	}

@@ -39,7 +39,7 @@ type Repository struct {
 
 // NewRepository initializes and return the new User repository instance.
 func NewRepository(sqlDB *sql.DB, logger *zap.Logger) (*Repository, error) {
-	db, err := common.InitDBConnByGORM(sqlDB, logger)
+	db, err := common.InitGORMDBConn(sqlDB, logger)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +61,7 @@ func (r *Repository) Create(ctx context.Context, entity user.UserCreate, keyEnti
 	if entity.ID != nil {
 		keyEntity.UserID = *entity.ID
 	}
-	
+
 	err = tx.Table(keysTable).Create(&keyEntity).Error
 	if err != nil {
 		return fmt.Errorf("failed to create key: %w", err)

@@ -3,6 +3,7 @@ package login
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sync"
 	"time"
 
@@ -69,6 +70,7 @@ func (h *Handler) CreateLogin(ctx context.Context, req *pb.LoginCreateRequest) (
 	entityNumber, err := h.Service.Create(ctx, entityToCreate)
 	if err != nil {
 		if errors.Is(err, constants.ErrEntityAlreadyExists) {
+			fmt.Println(err.Error())
 			return resp, status.Error(codes.AlreadyExists, err.Error())
 		}
 		return resp, status.Error(codes.Internal, constants.DefaultError)

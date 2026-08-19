@@ -5,8 +5,9 @@ import (
 	"time"
 
 	"github.com/artni96/GophKeeper/internal/server/config"
+	commonmodel "github.com/artni96/GophKeeper/internal/server/model/common"
 	textmodel "github.com/artni96/GophKeeper/internal/server/model/text"
-	"github.com/artni96/GophKeeper/internal/server/repository/text"
+	commonrepo "github.com/artni96/GophKeeper/internal/server/repository/common"
 	"github.com/artni96/GophKeeper/internal/server/service/common"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -23,13 +24,14 @@ type ServiceI interface {
 
 // Service implements the Text service to manage text-related data business logic.
 type Service struct {
-	repo   text.RepositoryI
+	repo   commonrepo.CRepositoryI[commonmodel.CreateEntityI, textmodel.UpdateText, textmodel.Text]
 	cfg    *config.Config
 	logger *zap.Logger
 }
 
 // NewService initializes and returns the new Text service instance.
-func NewService(cfg *config.Config, logger *zap.Logger, repo text.RepositoryI) *Service {
+func NewService(cfg *config.Config, logger *zap.Logger, repo commonrepo.CRepositoryI[
+	commonmodel.CreateEntityI, textmodel.UpdateText, textmodel.Text]) *Service {
 	return &Service{
 		repo:   repo,
 		cfg:    cfg,
@@ -64,7 +66,7 @@ func (s *Service) Create(ctx context.Context, data textmodel.CreateTextRequest) 
 
 	notNullFields = append(notNullFields, "number")
 
-	number, err := s.repo.Create(ctx, entityToCreate, notNullFields)
+	number, err := s.repo.Create(ctx, &entityToCreate, notNullFields)
 	if err != nil {
 		return 0, err
 	}

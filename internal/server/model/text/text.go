@@ -28,12 +28,21 @@ type CreateText struct {
 	Number    uint64
 }
 
+func (c *CreateText) GetUserID() uuid.UUID {
+	return c.UserID
+}
+
+func (c *CreateText) SetNumber(number uint64) {
+	c.Number = number
+}
+
 type Text struct {
 	Title       string
 	Description string
 
 	Text common.EncryptedField `gorm:"embedded;embeddedPrefix:text_"`
 
+	ID        uuid.UUID
 	UserID    uuid.UUID
 	CreatedAt time.Time
 	UpdatedAt time.Time

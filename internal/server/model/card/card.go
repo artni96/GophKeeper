@@ -38,7 +38,16 @@ type CreateCard struct {
 	Number      uint64
 }
 
+func (c *CreateCard) GetUserID() uuid.UUID {
+	return c.UserID
+}
+
+func (c *CreateCard) SetNumber(number uint64) {
+	c.Number = number
+}
+
 type Card struct {
+	ID         uuid.UUID
 	PAN        common.EncryptedField `gorm:"embedded;embeddedPrefix:pan_"`
 	Holder     common.EncryptedField `gorm:"embedded;embeddedPrefix:holder_"`
 	ExpiryDate common.EncryptedField `gorm:"embedded;embeddedPrefix:expiry_date_"`

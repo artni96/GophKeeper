@@ -1,6 +1,14 @@
 package common
 
-import "google.golang.org/protobuf/types/known/wrapperspb"
+import (
+	"github.com/google/uuid"
+	"google.golang.org/protobuf/types/known/wrapperspb"
+)
+
+type CreateEntityI interface {
+	GetUserID() uuid.UUID
+	SetNumber(number uint64)
+}
 
 type PBEncryptedField struct {
 	Value *wrapperspb.BytesValue

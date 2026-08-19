@@ -8,9 +8,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/artni96/GophKeeper/internal/server/app"
 	"github.com/artni96/GophKeeper/internal/server/constants"
 	"github.com/artni96/GophKeeper/internal/server/model/card"
 	"github.com/artni96/GophKeeper/internal/server/model/common"
+	commonrepo "github.com/artni96/GophKeeper/internal/server/repository/common"
 	"github.com/artni96/GophKeeper/internal/server/repository/user"
 	userfixture "github.com/artni96/GophKeeper/internal/server/repository/user/fixture"
 	"github.com/artni96/GophKeeper/tests"
@@ -26,15 +28,15 @@ func initUserRepo(db *sql.DB) (*user.Repository, error) {
 	return repo, nil
 }
 
-func initCardRepo(db *sql.DB) (*Repository, error) {
-	repo, err := NewRepository(db, nil)
+func initCardRepo(db *sql.DB) (*commonrepo.CRepository[common.CreateEntityI, card.UpdateCard, card.Card], error) {
+	repo, err := commonrepo.NewCRepository[common.CreateEntityI, card.UpdateCard, card.Card](db, nil, app.CardsTableName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize test login repository: %w", err)
 	}
 	return repo, nil
 }
 
-func cardFixture(ctx context.Context, cardRepo *Repository, entityData card.CreateCard) {
+func cardFixture(ctx context.Context, cardRepo commonrepo.CRepository[common.CreateEntityI, card.UpdateCard, card.Card], entityData card.CreateCard) {
 	notNullFields := []string{
 		"pan_value",
 		"pan_nonce",
@@ -64,7 +66,7 @@ func cardFixture(ctx context.Context, cardRepo *Repository, entityData card.Crea
 		"created_at",
 		"number",
 	}
-	_, err := cardRepo.Create(ctx, entityData, notNullFields)
+	_, err := cardRepo.Create(ctx, &entityData, notNullFields)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -73,7 +75,7 @@ func cardFixture(ctx context.Context, cardRepo *Repository, entityData card.Crea
 type testConfig struct {
 	ctx      context.Context
 	depends  *tests.TestDependencies
-	cardRepo *Repository
+	cardRepo commonrepo.CRepository[common.CreateEntityI, card.UpdateCard, card.Card]
 	userRepo *user.Repository
 }
 
@@ -88,7 +90,7 @@ func (c *testConfig) init(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	c.cardRepo = cardRepo
+	c.cardRepo = *cardRepo
 	userRepo, err := initUserRepo(c.depends.DB)
 	if err != nil {
 		t.Fatal(err)
@@ -404,7 +406,7 @@ func TestCreate(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			number, err := tc.cardRepo.Create(tc.ctx, tt.data, tt.notNullFields)
+			number, err := tc.cardRepo.Create(tc.ctx, &tt.data, tt.notNullFields)
 			assert.Equal(t, tt.failure, err != nil)
 			if tt.failure {
 				assert.ErrorIs(t, err, tt.error)
